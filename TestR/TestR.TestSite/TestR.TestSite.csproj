@@ -67,6 +67,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Angular.html" />
+    <Content Include="JQuery.html" />
     <Content Include="Inputs.html" />
     <Content Include="Index.html" />
     <Content Include="packages.config" />

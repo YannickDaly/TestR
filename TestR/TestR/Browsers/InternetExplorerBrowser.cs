@@ -3,8 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Expando;
 using System.Threading;
 using mshtml;
 using SHDocVw;
@@ -86,6 +89,7 @@ namespace TestR.Browsers
 			object absoluteUri = uri;
 			_browser.Navigate2(ref absoluteUri, ref nil, ref nil, ref nil, ref nil);
 			WaitForComplete();
+			DetectJavascriptLibraries();
 		}
 
 		public override void WaitForComplete()
@@ -134,6 +138,63 @@ namespace TestR.Browsers
 			}
 		}
 
+		public override string ExecuteJavascript(string script)
+		{
+			var document = _browser.Document as IHTMLDocument2;
+			if (document == null)
+			{
+				throw new Exception("Failed to run script because no document is loaded.");
+			}
+
+			var resultName = "TestR_Script_Result";
+			var errorName = "TestR_Script_Error";
+
+			var wrappedCommand = string.Format("document.{0} = ''; document.{1} = ''; try {{ document.{0} = String(eval('{2}')) }} catch (error) {{ document.{1} = error }};",
+				resultName, errorName, script.Replace("'", "\\'"));
+
+			document.parentWindow.execScript(wrappedCommand, "javascript");
+
+			// See if an error occurred.
+			var errorResult = GetExpandoValue(errorName);
+			if (!string.IsNullOrEmpty(errorResult))
+			{
+				throw new Exception(errorResult);
+			}
+
+			// Return the result
+			return GetExpandoValue(resultName);
+		}
+
+		public override void ClearCookies(string url)
+		{
+			if (url == null)
+			{
+				throw new ArgumentNullException("url");
+			}
+			
+			var path = Environment.GetFolderPath(Environment.SpecialFolder.Cookies);
+			var files = Directory.GetFiles(path)
+				.Union(Directory.GetFiles(path + "\\low"))
+				.ToList();
+
+			if (string.IsNullOrWhiteSpace(url))
+			{
+				files.ForEach(File.Delete);
+				return;
+			}
+
+			foreach (var file in files)
+			{
+				var text = File.ReadAllText(file);
+				if (!text.Contains(url))
+				{
+					continue;
+				}
+
+				File.Delete(file);
+			}
+		}
+
 		protected override void Dispose(bool disposing)
 		{
 			if (!disposing)
@@ -153,6 +214,43 @@ namespace TestR.Browsers
 			{
 				_browser.Quit();
 				_browser = null;
+			}
+		}
+
+		private void DetectJavascriptLibraries()
+		{
+			var libraries = new List<JavascriptLibrary>();
+			var hasLibrary = ExecuteJavascript("typeof jQuery !== 'undefined'");
+			if (hasLibrary == "true")
+			{
+				libraries.Add(JavascriptLibrary.JQuery);
+			}
+
+			hasLibrary = ExecuteJavascript("typeof angular !== 'undefined'");
+			if (hasLibrary == "true")
+			{
+				libraries.Add(JavascriptLibrary.Angular);
+			}
+
+			JavascriptLibraries = libraries;
+		}
+
+		private string GetExpandoValue(string attributeName)
+		{
+			var expando = (IExpando) _browser.Document;
+			var property = expando.GetProperty(attributeName, BindingFlags.Default);
+			if (property == null)
+			{
+				return null;
+			}
+
+			try
+			{
+				return property.GetValue(expando, null).ToString();
+			}
+			catch (COMException)
+			{
+				return null;
 			}
 		}
 

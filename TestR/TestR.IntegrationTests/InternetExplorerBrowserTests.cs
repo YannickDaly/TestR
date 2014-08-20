@@ -1,6 +1,9 @@
 ﻿#region References
 
+using System;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TestR.Browsers;
@@ -13,6 +16,28 @@ namespace TestR.IntegrationTests
 	public class InternetExplorerBrowserTests
 	{
 		#region Methods
+
+		[TestMethod]
+		public void AngularInputTrigger()
+		{
+			using (var browser = InternetExplorerBrowser.AttachOrCreate())
+			{
+				browser.AutoClose = false;
+				browser.BringToFront();
+				browser.NavigateTo("http://localhost:61775/Angular.html");
+
+				var email = browser.TextBoxElements["email"];
+				Assert.IsNotNull(email, "Failed to find the email input.");
+
+				email.TypeText("test");
+				var attribute = email.GetAttributeValue("class");
+				Assert.AreEqual("ng-dirty ng-valid-required ng-invalid ng-invalid-email", attribute);
+
+				email.TypeText("test@domain.com");
+				attribute = email.GetAttributeValue("class");
+				Assert.AreEqual("ng-dirty ng-valid-required ng-valid ng-valid-email", attribute);
+			}
+		}
 
 		[TestMethod]
 		public void AttachOrCreateAttachExistingWindow()
@@ -113,6 +138,42 @@ namespace TestR.IntegrationTests
 		}
 
 		[TestMethod]
+		public void DetectAngularJavascriptLibrary()
+		{
+			using (var browser = InternetExplorerBrowser.AttachOrCreate())
+			{
+				browser.BringToFront();
+				browser.NavigateTo("http://localhost:61775/Angular.html");
+
+				Assert.IsTrue(browser.JavascriptLibraries.Contains(JavascriptLibrary.Angular));
+			}
+		}
+
+		[TestMethod]
+		public void DetectJQueryJavascriptLibrary()
+		{
+			using (var browser = InternetExplorerBrowser.AttachOrCreate())
+			{
+				browser.BringToFront();
+				browser.NavigateTo("http://localhost:61775/JQuery.html");
+
+				Assert.IsTrue(browser.JavascriptLibraries.Contains(JavascriptLibrary.JQuery));
+			}
+		}
+
+		[TestMethod]
+		public void DetectNoJavascriptLibraries()
+		{
+			using (var browser = InternetExplorerBrowser.AttachOrCreate())
+			{
+				browser.BringToFront();
+				browser.NavigateTo("http://localhost:61775/Inputs.html");
+
+				Assert.AreEqual(0, browser.JavascriptLibraries.Count());
+			}
+		}
+
+		[TestMethod]
 		public void FilterElementsByIdIndex()
 		{
 			using (Browser browser = new InternetExplorerBrowser())
@@ -164,6 +225,17 @@ namespace TestR.IntegrationTests
 				browser.NavigateTo("http://localhost:61775/index.html");
 				var elements = browser.GetElementsByClass("red");
 				Assert.AreEqual(1, elements.Count);
+			}
+		}
+
+		[TestMethod]
+		public void FindElementByText()
+		{
+			using (Browser browser = new InternetExplorerBrowser())
+			{
+				browser.NavigateTo("http://localhost:61775/index.html");
+				var elements = browser.Spans.Where(x => x.Text() == "SPAN with ID of 1");
+				Assert.AreEqual(1, elements.Count());
 			}
 		}
 
@@ -224,6 +296,14 @@ namespace TestR.IntegrationTests
 					Assert.AreEqual(input.Id, input.Value);
 				}
 			}
+		}
+
+		private string GetTestFileFullPath(string relativePath)
+		{
+			var name = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) ?? "";
+			name = name.Replace("file:\\", string.Empty);
+			name = name.Replace(@"TestR.IntegrationTests\bin\Debug", string.Empty);
+			return name + "TestR.TestSite\\" + relativePath;
 		}
 
 		#endregion

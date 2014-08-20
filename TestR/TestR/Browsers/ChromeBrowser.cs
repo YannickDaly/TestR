@@ -83,6 +83,24 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
+		/// Execute JavaScript code in the current document.
+		/// </summary>
+		/// <param name="script"></param>
+		/// <returns></returns>
+		public override string ExecuteJavascript(string script)
+		{
+			return string.Empty;
+		}
+
+		/// <summary>
+		/// Clear all cookies for the URL.
+		/// </summary>
+		/// <param name="url">The URL to clear the cookies for.</param>
+		public override void ClearCookies(string url)
+		{
+		}
+
+		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
 		/// <param name="disposing">True if disposing and false if otherwise.</param>

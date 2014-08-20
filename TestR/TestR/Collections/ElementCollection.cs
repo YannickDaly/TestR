@@ -85,6 +85,10 @@ namespace TestR.Collections
 								continue;
 						}
 
+					case "span":
+						Add(new SpanElement(item.BrowserElement));
+						break;
+
 					case "textarea":
 						Add(new TextBoxElement(item.BrowserElement));
 						continue;

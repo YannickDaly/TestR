@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Threading;
 
 #endregion
@@ -89,6 +90,16 @@ namespace TestR
 			BrowserElement.Focus();
 			BrowserElement.Click();
 			BrowserElement.Browser.WaitForComplete();
+			//TriggerElement();
+		}
+		
+		private void TriggerElement()
+		{
+			if (BrowserElement.Browser.JavascriptLibraries.Contains(JavascriptLibrary.Angular)
+				&& BrowserElement.Browser.JavascriptLibraries.Contains(JavascriptLibrary.JQuery))
+			{
+				BrowserElement.Browser.ExecuteJavascript("angular.element('#" + Id + "').trigger('input');");
+			}
 		}
 
 		public void FireEvent(string eventName, NameValueCollection eventProperties = null)
@@ -135,7 +146,6 @@ namespace TestR
 		public void TypeText(string value)
 		{
 			Focus();
-
 			Highlight(true);
 
 			foreach (var character in value)
@@ -152,10 +162,15 @@ namespace TestR
 			}
 
 			Highlight(false);
-
 			Blur();
+			TriggerElement();
 		}
 
+		public string Text()
+		{
+			return GetAttributeValue("innertext");
+		}
+		
 		#endregion
 
 		#region Static Methods

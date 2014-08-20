@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" ng-app="app">
+	<head>
+		<title>Index</title>
+		<style type="text/css">
+			.ng-invalid,
+			.ng-invalid-email,
+			.ng-invalid-required {
+				border-color: red;
+				color: red;
+			}
+		</style>
+	</head>
+	<body ng-controller="testController">
+		
+		<div>{{ message }}</div>
+		<input id="email" type="email" ng-model="user.email" required /><br />
+		<span id="emailValidation" ng-bind="user.email"></span>
+		
+		<script src="/Scripts/jquery-2.1.1.js"></script>
+		<script src="/Scripts/angular.js"></script>
+
+		<script type="text/javascript" language="javascript">
+
+			console.log(typeof angular);
+
+			angular.module('app', [])
+				.controller('testController', [
+					'$scope',
+					function ($scope) {
+						$scope.message = "Hello World";
+						$scope.user = {
+							email: ''
+						};
+					}
+				]);
+
+		</script>
+	</body>
+</html>
