@@ -1,6 +1,5 @@
 ﻿#region References
 
-using System;
 using System.Linq;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -76,7 +75,7 @@ namespace TestR.IntegrationTests
 				Assert.IsNotNull(button, "Could not find the button.");
 				button.Click();
 
-				var textArea = browser.TextElements["textarea"];
+				var textArea = browser.TextBoxElements["textarea"];
 				Assert.AreEqual(button.Id, textArea.Value);
 			}
 		}
@@ -92,7 +91,7 @@ namespace TestR.IntegrationTests
 				Assert.IsNotNull(button, "Could not find the input button.");
 				button.Click();
 
-				var textArea = browser.TextElements["textarea"];
+				var textArea = browser.TextBoxElements["textarea"];
 				Assert.AreEqual(button.Id, textArea.Value);
 			}
 		}
@@ -108,13 +107,11 @@ namespace TestR.IntegrationTests
 				Assert.IsNotNull(button, "Could not find the button.");
 				button.Click();
 
-				var textArea = browser.TextElements["textarea"];
+				var textArea = browser.TextBoxElements["textarea"];
 				Assert.AreEqual(button.Id, textArea.Value);
-			
-
 			}
 		}
-		
+
 		[TestMethod]
 		public void FilterElementsByIdIndex()
 		{
@@ -143,18 +140,18 @@ namespace TestR.IntegrationTests
 			using (Browser browser = new InternetExplorerBrowser())
 			{
 				browser.NavigateTo("http://localhost:61775/inputs.html");
-				var inputs = browser.TextElements.ToList();
+				var inputs = browser.TextBoxElements.ToList();
 				Assert.AreEqual(5, inputs.Count);
 			}
 		}
 
 		[TestMethod]
-		public void FilterTextElementsByIdIndex()
+		public void FilterTextBoxElementsByIdIndex()
 		{
 			using (Browser browser = new InternetExplorerBrowser())
 			{
 				browser.NavigateTo("http://localhost:61775/inputs.html");
-				var input = browser.TextElements["text"];
+				var input = browser.TextBoxElements["text"];
 				Assert.AreEqual("text", input.Id);
 			}
 		}
@@ -167,6 +164,23 @@ namespace TestR.IntegrationTests
 				browser.NavigateTo("http://localhost:61775/index.html");
 				var elements = browser.GetElementsByClass("red");
 				Assert.AreEqual(1, elements.Count);
+			}
+		}
+
+		[TestMethod]
+		public void Hightlight()
+		{
+			using (Browser browser = new InternetExplorerBrowser())
+			{
+				browser.BringToFront();
+				browser.NavigateTo("http://localhost:61775/inputs.html");
+				var textBox = browser.TextBoxElements.Last();
+				var originalColor = textBox.GetStyleAttributeValue("backgroundColor");
+				Assert.AreNotEqual(textBox.Id, browser.ActiveElement.Id);
+				textBox.Highlight(true);
+				Assert.AreEqual("yellow", textBox.GetStyleAttributeValue("backgroundColor"));
+				textBox.Highlight(false);
+				Assert.AreEqual(originalColor, textBox.GetStyleAttributeValue("backgroundColor"));
 			}
 		}
 
@@ -188,7 +202,7 @@ namespace TestR.IntegrationTests
 			using (Browser browser = new InternetExplorerBrowser())
 			{
 				browser.NavigateTo("http://localhost:61775/inputs.html");
-				var expected = browser.TextElements.Last();
+				var expected = browser.TextBoxElements.Last();
 				Assert.AreNotEqual(expected.Id, browser.ActiveElement.Id);
 				expected.Focus();
 				Assert.AreEqual(expected.Id, browser.ActiveElement.Id);
@@ -202,7 +216,7 @@ namespace TestR.IntegrationTests
 			{
 				browser.BringToFront();
 				browser.NavigateTo("http://localhost:61775/inputs.html");
-				var inputs = browser.TextElements;
+				var inputs = browser.TextBoxElements;
 
 				foreach (var input in inputs)
 				{

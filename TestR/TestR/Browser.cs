@@ -18,7 +18,7 @@ namespace TestR
 
 		private readonly Logger _logger;
 		private readonly Stopwatch _watch;
-		
+
 		#endregion
 
 		#region Constructors
@@ -33,14 +33,6 @@ namespace TestR
 		#endregion
 
 		#region Properties
-
-		/// <summary>
-		/// The amount of time since this browser was created or atteched to.
-		/// </summary>
-		public TimeSpan Uptime
-		{
-			get { return _watch.Elapsed; }
-		}
 
 		/// <summary>
 		/// Gets the current active element.
@@ -73,9 +65,17 @@ namespace TestR
 		/// <summary>
 		/// Gets a list of all textbox elements.
 		/// </summary>
-		public ElementCollection<TextBoxElement> TextElements
+		public ElementCollection<TextBoxElement> TextBoxElements
 		{
 			get { return Elements.OfType<TextBoxElement>().ToElementCollection(); }
+		}
+
+		/// <summary>
+		/// The amount of time since this browser was created or atteched to.
+		/// </summary>
+		public TimeSpan Uptime
+		{
+			get { return _watch.Elapsed; }
 		}
 
 		/// <summary>

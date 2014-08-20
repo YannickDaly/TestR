@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+	<metadata>
+		<id>TestR</id>
+		<version>1.0</version>
+		<authors>Bobby Cannon</authors>
+		<description>
+			Integration testing framework for developers.    
+		</description>
+		<dependencies>
+			<dependency id="NLog" version="3.0.0" />
+			<dependency id="Json.NET" version="6.0.4" />
+		</dependencies>
+		<references>
+			<reference file="TestR.dll" />
+		</references>
+	</metadata>
+	<files>
+		<file src="C:\Binaries\TestR\TestR.dll" target="lib\net40" />
+	</files>
+</package>

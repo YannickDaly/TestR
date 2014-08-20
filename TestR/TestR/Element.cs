@@ -112,9 +112,24 @@ namespace TestR
 			return BrowserElement.GetAttributeValue(attributeName);
 		}
 
+		public string GetStyleAttributeValue(string attributeName)
+		{
+			return BrowserElement.GetStyleAttributeValue(attributeName);
+		}
+
+		public void Highlight(bool highlight)
+		{
+			BrowserElement.SetStyleAttributeValue("backgroundColor", highlight ? _highlightColor : _orginalColor);
+		}
+
 		public void SetAttributeValue(string attributeName, string value)
 		{
 			BrowserElement.SetAttributeValue(attributeName, value);
+		}
+
+		public void SetStyleAttributeValue(string attributeName, string value)
+		{
+			BrowserElement.SetStyleAttributeValue(attributeName, value);
 		}
 
 		public void TypeText(string value)
@@ -139,11 +154,6 @@ namespace TestR
 			Highlight(false);
 
 			Blur();
-		}
-
-		private void Highlight(bool highlight)
-		{
-			BrowserElement.SetStyleAttributeValue("backgroundColor", highlight ? _highlightColor : _orginalColor);
 		}
 
 		#endregion

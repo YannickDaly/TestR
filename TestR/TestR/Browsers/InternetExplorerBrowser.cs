@@ -61,7 +61,7 @@ namespace TestR.Browsers
 		{
 			get { return _browser.HWND; }
 		}
-		
+
 		public override string Uri
 		{
 			get { return _browser.LocationURL; }
@@ -108,8 +108,17 @@ namespace TestR.Browsers
 				Thread.Sleep(10);
 			}
 
-			var document = _browser.Document as IHTMLDocument2;
-			if (document == null)
+			IHTMLDocument2 document;
+
+			try
+			{
+				document = _browser.Document as IHTMLDocument2;
+				if (document == null)
+				{
+					return;
+				}
+			}
+			catch (COMException)
 			{
 				return;
 			}
@@ -133,7 +142,7 @@ namespace TestR.Browsers
 			}
 
 			// We cannot allow the browser to close within a second.
-			// Addons need time to start before closing the browser.
+			// I assume that addons need time to start before closing the browser.
 			var timeout = TimeSpan.FromMilliseconds(1000);
 			while (Uptime <= timeout)
 			{
