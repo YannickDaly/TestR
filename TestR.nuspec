@@ -8,8 +8,8 @@
 			Integration testing framework for developers.    
 		</description>
 		<dependencies>
-			<dependency id="NLog" version="3.0.0" />
-			<dependency id="Json.NET" version="6.0.4" />
+			<dependency id="NLog" version="3.1.0.0" />
+			<dependency id="Newtonsoft.Json" version="6.0.4" />
 		</dependencies>
 		<references>
 			<reference file="TestR.dll" />
@@ -17,5 +17,6 @@
 	</metadata>
 	<files>
 		<file src="C:\Binaries\TestR\TestR.dll" target="lib\net40" />
+		<file src="C:\Binaries\TestR\Interop.SHDocVw.dll" target="lib\net40" />
 	</files>
 </package>

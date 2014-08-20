@@ -2,6 +2,7 @@ $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $scriptPath = Split-Path (Get-Variable MyInvocation).Value.MyCommand.Path 
 Set-Location $scriptPath
 $destination = "C:\Binaries\TestR"
+$nugetDestination = "C:\Workspaces\GitHub\Nuget"
 
 if ([IO.Directory]::Exists($destination)) {
 	[IO.Directory]::Delete($destination, $true)
@@ -28,12 +29,14 @@ if (![System.IO.Directory]::Exists($destination)){
 }
 
 xcopy "TestR\TestR\bin\$configuration\TestR.dll" $destination
+xcopy "TestR\TestR\bin\$configuration\Interop.SHDocVw.dll" $destination
 
 $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\TestR.dll")
 $version = $versionInfo.FileVersion.ToString()
 
 cmd /c "TestR\.nuget\NuGet.exe" pack TestR.nuspec -Prop Configuration="$configuration" -Version $version
 Move-Item "TestR.$version.nupkg" "$destination" -force
+Copy-Item "$destination\TestR.$version.nupkg" "$nugetDestination" -force
 
 .\ResetAssemblyInfos.ps1
 
