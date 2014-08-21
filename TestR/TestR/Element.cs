@@ -25,12 +25,17 @@ namespace TestR
 			BrowserElement = element;
 			_orginalColor = BrowserElement.GetStyleAttributeValue("backgroundColor") ?? "";
 			_highlightColor = "yellow";
-			TypeTextDelay = new TimeSpan(0, 0, 0, 0, 1);
+			TypeTextDelay = TimeSpan.FromMilliseconds(element.Browser.SlowMotion ? 150 : 1);
 		}
 
 		#endregion
 
 		#region Properties
+
+		public string Class
+		{
+			get { return GetAttributeValue("class"); }
+		}
 
 		/// <summary>
 		/// Gets a value indicating whether this Element is enabled.
@@ -66,6 +71,11 @@ namespace TestR
 			get { return BrowserElement.TagName.ToLower(); }
 		}
 
+		public string Text
+		{
+			get { return GetAttributeValue("innertext"); }
+		}
+
 		public TimeSpan TypeTextDelay { get; set; }
 
 		/// <summary>
@@ -90,7 +100,6 @@ namespace TestR
 			BrowserElement.Focus();
 			BrowserElement.Click();
 			BrowserElement.Browser.WaitForComplete();
-			//TriggerElement();
 		}
 
 		public void FireEvent(string eventName, NameValueCollection eventProperties = null)
@@ -122,6 +131,11 @@ namespace TestR
 		public void Highlight(bool highlight)
 		{
 			BrowserElement.SetStyleAttributeValue("backgroundColor", highlight ? _highlightColor : _orginalColor);
+
+			if (BrowserElement.Browser.SlowMotion && highlight)
+			{
+				Thread.Sleep(500);
+			}
 		}
 
 		public void SetAttributeValue(string attributeName, string value)
@@ -132,11 +146,6 @@ namespace TestR
 		public void SetStyleAttributeValue(string attributeName, string value)
 		{
 			BrowserElement.SetStyleAttributeValue(attributeName, value);
-		}
-
-		public string Text()
-		{
-			return GetAttributeValue("innertext");
 		}
 
 		public void TypeText(string value)
@@ -164,8 +173,8 @@ namespace TestR
 
 		private void TriggerElement()
 		{
-			if (BrowserElement.Browser.JavascriptLibraries.Contains(JavascriptLibrary.Angular)
-				&& BrowserElement.Browser.JavascriptLibraries.Contains(JavascriptLibrary.JQuery))
+			if (BrowserElement.Browser.JavascriptLibraries.Contains(JavaScriptLibrary.Angular)
+				&& BrowserElement.Browser.JavascriptLibraries.Contains(JavaScriptLibrary.JQuery))
 			{
 				BrowserElement.Browser.ExecuteJavascript("angular.element('#" + Id + "').trigger('input');");
 			}

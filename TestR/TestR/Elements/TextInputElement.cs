@@ -1,10 +1,10 @@
 ﻿namespace TestR.Elements
 {
-	public class TextBoxElement : Element
+	public class TextInputElement : Element
 	{
 		#region Constructors
 
-		public TextBoxElement(IBrowserElement element)
+		public TextInputElement(IBrowserElement element)
 			: base(element)
 		{
 		}

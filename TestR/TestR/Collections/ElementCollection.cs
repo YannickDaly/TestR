@@ -45,9 +45,41 @@ namespace TestR.Collections
 
 		#region Properties
 
+		/// <summary>
+		/// Gets a list of all button elements.
+		/// </summary>
+		public ElementCollection<ButtonElement> Buttons
+		{
+			get { return this.OfType<ButtonElement>().ToElementCollection(); }
+		}
+
 		public Element this[string id]
 		{
 			get { return this.FirstOrDefault(x => x.Id == id); }
+		}
+
+		/// <summary>
+		/// Gets a list of all link elements.
+		/// </summary>
+		public ElementCollection<LinkElement> Links
+		{
+			get { return this.OfType<LinkElement>().ToElementCollection(); }
+		}
+
+		/// <summary>
+		/// Gets a list of all span elements.
+		/// </summary>
+		public ElementCollection<SpanElement> Spans
+		{
+			get { return this.OfType<SpanElement>().ToElementCollection(); }
+		}
+
+		/// <summary>
+		/// Gets a list of all text input elements.
+		/// </summary>
+		public ElementCollection<TextInputElement> TextInputs
+		{
+			get { return this.OfType<TextInputElement>().ToElementCollection(); }
 		}
 
 		#endregion
@@ -77,7 +109,7 @@ namespace TestR.Collections
 							case "password":
 							case "search":
 							case "text":
-								Add(new TextBoxElement(item.BrowserElement));
+								Add(new TextInputElement(item.BrowserElement));
 								continue;
 
 							default:
@@ -90,7 +122,7 @@ namespace TestR.Collections
 						break;
 
 					case "textarea":
-						Add(new TextBoxElement(item.BrowserElement));
+						Add(new TextInputElement(item.BrowserElement));
 						continue;
 
 					case "a":

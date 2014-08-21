@@ -18,7 +18,7 @@ $revision = [Math]::Floor([DateTime]::UtcNow.TimeOfDay.TotalSeconds / 2)
 
 .\IncrementVersion.ps1 TestR\TestR $build $revision
 .\IncrementVersion.ps1 TestR\TestR.PowerShell $build $revision
-.\IncrementVersion.ps1 TestR\TestR.TestSite $build $revision
+.\IncrementVersion.ps1 TestR\TestR.PowerShell.Tests $build $revision
 
 $msbuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
 cmd /c $msbuild "$scriptPath\TestR\TestR.sln" /p:Configuration="$configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=12.0 /Verbosity:minimal /m
@@ -39,6 +39,24 @@ Move-Item "TestR.$version.nupkg" "$destination" -force
 Copy-Item "$destination\TestR.$version.nupkg" "$nugetDestination" -force
 
 .\ResetAssemblyInfos.ps1
+
+$modulesPath = "C:\Workspaces\Harris\Deployment\Testing.Scripts\Modules"
+if (Test-Path $modulesPath -PathType Container) {
+    if (Test-Path $modulesPath\TestR.PowerShell -PathType Container) {
+        Remove-Item $modulesPath\TestR.PowerShell -Force -Recurse
+        
+    }
+
+    New-Item $modulesPath\TestR.PowerShell -ItemType Directory | Out-Null
+    Copy-Item C:\Workspaces\GitHub\TestR\TestR\TestR.PowerShell\bin\$configuration\*  C:\Workspaces\Harris\Deployment\Testing.Scripts\Modules\TestR.PowerShell\ -Recurse -Force
+
+    if (Test-Path $modulesPath\TestR.PowerShell.Tests -PathType Container) {
+        Remove-Item $modulesPath\TestR.PowerShell.Tests -Force -Recurse
+    }
+
+    New-Item $modulesPath\TestR.PowerShell.Tests -ItemType Directory | Out-Null
+    Copy-Item C:\Workspaces\GitHub\TestR\TestR\TestR.PowerShell.Tests\bin\$configuration\* C:\Workspaces\Harris\Deployment\Testing.Scripts\Modules\TestR.PowerShell.Tests\ -Recurse -Force
+}
 
 Write-Host
 Set-Location $scriptPath

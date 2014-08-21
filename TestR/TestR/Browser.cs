@@ -3,11 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using NLog;
 using TestR.Collections;
-using TestR.Elements;
-using TestR.Extensions;
 
 #endregion
 
@@ -29,6 +26,7 @@ namespace TestR
 			_logger = LogManager.GetLogger("TestR");
 			_watch = Stopwatch.StartNew();
 			AutoClose = true;
+			JavascriptLibraries = new JavaScriptLibrary[0];
 		}
 
 		#endregion
@@ -41,17 +39,14 @@ namespace TestR
 		public abstract Element ActiveElement { get; }
 
 		/// <summary>
+		/// Gets a flag determining if the browser was attached to an existing open browser.
+		/// </summary>
+		public bool Attached { get; protected set; }
+
+		/// <summary>
 		/// Gets or sets a flag to auto close the browser when disposed of.
 		/// </summary>
 		public bool AutoClose { get; set; }
-
-		/// <summary>
-		/// Gets a list of all button elements.
-		/// </summary>
-		public ElementCollection<ButtonElement> Buttons
-		{
-			get { return Elements.OfType<ButtonElement>().ToElementCollection(); }
-		}
 
 		/// <summary>
 		/// Gets a list of all elements on the current page.
@@ -59,30 +54,19 @@ namespace TestR
 		public abstract ElementCollection Elements { get; }
 
 		/// <summary>
+		/// Gets the ID of the browser.
+		/// </summary>
+		public abstract int Id { get; }
+
+		/// <summary>
 		/// Gets a list of JavaScript libraries that were detected on the page.
 		/// </summary>
-		public IEnumerable<JavascriptLibrary> JavascriptLibraries { get; set; }
-
-		public ElementCollection<LinkElement> Links
-		{
-			get { return Elements.OfType<LinkElement>().ToElementCollection(); }
-		}
+		public IEnumerable<JavaScriptLibrary> JavascriptLibraries { get; set; }
 
 		/// <summary>
-		/// Gets a list of all span elements.
+		/// Gets or sets a flag to tell the browser to act slower.
 		/// </summary>
-		public ElementCollection<SpanElement> Spans
-		{
-			get { return Elements.OfType<SpanElement>().ToElementCollection(); }
-		}
-
-		/// <summary>
-		/// Gets a list of all textbox elements.
-		/// </summary>
-		public ElementCollection<TextBoxElement> TextBoxElements
-		{
-			get { return Elements.OfType<TextBoxElement>().ToElementCollection(); }
-		}
+		public bool SlowMotion { get; set; }
 
 		/// <summary>
 		/// The amount of time since this browser was created or attached to.
@@ -112,11 +96,6 @@ namespace TestR
 		/// </summary>
 		public void BringToFront()
 		{
-			if (IsInFront())
-			{
-				return;
-			}
-
 			var result = NativeMethods.SetForegroundWindow(WindowHandle);
 			if (!result)
 			{
@@ -140,11 +119,6 @@ namespace TestR
 		/// <param name="script"></param>
 		/// <returns></returns>
 		public abstract string ExecuteJavascript(string script);
-
-		public ElementCollection GetElementsByClass(string className)
-		{
-			return Elements.Where(x => x.GetAttributeValue("class").Contains(className)).ToElementCollection();
-		}
 
 		/// <summary>
 		/// Check to see if the browser is current the foreground window. 

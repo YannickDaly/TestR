@@ -46,6 +46,14 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
+		/// Gets the ID of the browser.
+		/// </summary>
+		public override int Id
+		{
+			get { throw new NotImplementedException(); }
+		}
+
+		/// <summary>
 		/// Gets the URI of the current page.
 		/// </summary>
 		public override string Uri

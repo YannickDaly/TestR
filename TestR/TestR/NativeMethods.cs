@@ -22,9 +22,9 @@ namespace TestR
 
 		#region Static Methods
 
-		internal static IEnumerable<IWebBrowser2> FindInternetExplorerInstances()
+		internal static IEnumerable<InternetExplorer> FindInternetExplorerInstances()
 		{
-			var browsers = new List<IWebBrowser2>();
+			var browsers = new List<InternetExplorer>();
 			var topLevelWindows = GetWindows("IEFrame");
 
 			foreach (var mainBrowserWindow in topLevelWindows)
@@ -33,7 +33,7 @@ namespace TestR
 
 				foreach (var window in windows)
 				{
-					var webBrowser2 = GetWebBrowser(window);
+					var webBrowser2 = GetWebBrowser(window) as InternetExplorer;
 					if (webBrowser2 == null)
 					{
 						continue;
@@ -50,8 +50,14 @@ namespace TestR
 		internal static extern IntPtr GetForegroundWindow();
 
 		[DllImport("user32.dll", SetLastError = true)]
+		internal static extern IntPtr SetFocus(IntPtr hWnd);
+
+		[DllImport("user32.dll", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		internal static extern bool SetForegroundWindow(IntPtr hWnd);
+
+		[DllImport("user32.dll", SetLastError = true)]
+		internal static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
 		private static bool CompareClassNames(IntPtr hWnd, string expectedClassName)
 		{

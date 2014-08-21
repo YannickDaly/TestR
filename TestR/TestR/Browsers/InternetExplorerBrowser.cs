@@ -13,6 +13,7 @@ using mshtml;
 using SHDocVw;
 using TestR.Collections;
 using TestR.Extensions;
+using TestR.Helpers;
 
 #endregion
 
@@ -22,7 +23,7 @@ namespace TestR.Browsers
 	{
 		#region Fields
 
-		private IWebBrowser2 _browser;
+		private InternetExplorer _browser;
 
 		#endregion
 
@@ -34,11 +35,17 @@ namespace TestR.Browsers
 			Attached = false;
 		}
 
-		private InternetExplorerBrowser(IWebBrowser2 browser)
+		private InternetExplorerBrowser(InternetExplorer browser)
 		{
 			_browser = browser;
 			_browser.Visible = true;
+
 			Attached = true;
+
+			if (_browser.LocationURL.Length <= 0)
+			{
+				NavigateTo("about:tabs");
+			}
 		}
 
 		#endregion
@@ -53,14 +60,12 @@ namespace TestR.Browsers
 			get { return new Element(new InternetExplorerElement(((IHTMLDocument2) _browser.Document).activeElement, this)); }
 		}
 
-		public bool Attached { get; private set; }
-
 		public override ElementCollection Elements
 		{
-			get { return new InternetExplorerElementCollection(((IHTMLDocument2)_browser.Document).all, this).ToElementCollection(); }
+			get { return new InternetExplorerElementCollection(((IHTMLDocument2) _browser.Document).all, this).ToElementCollection(); }
 		}
 
-		public int Id
+		public override int Id
 		{
 			get { return _browser.HWND; }
 		}
@@ -94,23 +99,30 @@ namespace TestR.Browsers
 			var resultName = "TestR_Script_Result";
 			var errorName = "TestR_Script_Error";
 
-			var wrappedCommand = string.Format("document.{0} = ''; document.{1} = ''; try {{ document.{0} = String(eval('{2}')) }} catch (error) {{ document.{1} = error }};",
+			var wrappedCommand = string.Format("document.{0} = ''; document.{1} = ''; try {{ document.{0} = String(eval('{2}')) }} catch (error) {{ document.{1} = error }}; console.log('Result: ' + document.{0}); console.log('Error: ' + document.{1});",
 				resultName, errorName, script.Replace("'", "\\'"));
 
-			document.parentWindow.execScript(wrappedCommand, "javascript");
+			var watch = Stopwatch.StartNew();
+			var timeout = TimeSpan.FromMilliseconds(1000);
+			var lastException = new Exception("Failed to execute the JavaScript.");
 
-			// See if an error occurred.
-			var errorResult = GetExpandoValue(errorName);
-			if (!string.IsNullOrEmpty(errorResult))
+			do
 			{
-				throw new Exception(errorResult);
-			}
+				try
+				{
+					document.parentWindow.execScript(wrappedCommand, "javascript");
+					return GetJavascriptResult(errorName) ?? GetJavascriptResult(resultName);
+				}
+				catch
+				{
+					Thread.Sleep(50);
+				}
+			} while (watch.Elapsed <= timeout);
 
-			// Return the result
-			return GetExpandoValue(resultName);
+			throw lastException;
 		}
 
-		public override void NavigateTo(string uri)
+		public override sealed void NavigateTo(string uri)
 		{
 			object nil = null;
 			object absoluteUri = uri;
@@ -118,7 +130,7 @@ namespace TestR.Browsers
 			WaitForComplete();
 			DetectJavascriptLibraries();
 		}
-		
+
 		public override void WaitForComplete()
 		{
 			if (_browser == null)
@@ -126,43 +138,15 @@ namespace TestR.Browsers
 				return;
 			}
 
-			var watch = Stopwatch.StartNew();
-			var timeout = new TimeSpan(0, 0, 5);
+			Utility.Wait(() => !_browser.Busy && _browser.ReadyState == tagREADYSTATE.READYSTATE_COMPLETE);
 
-			while (_browser.Busy || _browser.ReadyState != tagREADYSTATE.READYSTATE_COMPLETE)
-			{
-				if (watch.Elapsed > timeout)
-				{
-					break;
-				}
-
-				Thread.Sleep(10);
-			}
-
-			IHTMLDocument2 document;
-
-			try
-			{
-				document = _browser.Document as IHTMLDocument2;
-				if (document == null)
-				{
-					return;
-				}
-			}
-			catch (COMException)
+			var document = _browser.Document as IHTMLDocument2;
+			if (document == null)
 			{
 				return;
 			}
 
-			while (document.readyState != "complete" && document.readyState != "interactive")
-			{
-				if (watch.Elapsed > timeout)
-				{
-					break;
-				}
-
-				Thread.Sleep(10);
-			}
+			Utility.Wait(() => document.readyState == "complete"); // || document.readyState == "interactive");
 		}
 
 		protected override void Dispose(bool disposing)
@@ -189,39 +173,33 @@ namespace TestR.Browsers
 
 		private void DetectJavascriptLibraries()
 		{
-			var libraries = new List<JavascriptLibrary>();
+			if (Uri.Length <= 0 || Uri.Equals("about:tabs"))
+			{
+				return;
+			}
+
+			var libraries = new List<JavaScriptLibrary>();
 			var hasLibrary = ExecuteJavascript("typeof jQuery !== 'undefined'");
 			if (hasLibrary == "true")
 			{
-				libraries.Add(JavascriptLibrary.JQuery);
+				libraries.Add(JavaScriptLibrary.JQuery);
 			}
 
 			hasLibrary = ExecuteJavascript("typeof angular !== 'undefined'");
 			if (hasLibrary == "true")
 			{
-				libraries.Add(JavascriptLibrary.Angular);
+				libraries.Add(JavaScriptLibrary.Angular);
 			}
 
 			JavascriptLibraries = libraries;
 		}
 
-		private string GetExpandoValue(string attributeName)
+		private string GetJavascriptResult(string name)
 		{
 			var expando = (IExpando) _browser.Document;
-			var property = expando.GetProperty(attributeName, BindingFlags.Default);
-			if (property == null)
-			{
-				return null;
-			}
-
-			try
-			{
-				return property.GetValue(expando, null).ToString();
-			}
-			catch (COMException)
-			{
-				return null;
-			}
+			var property = expando.GetProperty(name, BindingFlags.Default);
+			var value = property.GetValue(expando, null).ToString();
+			return string.IsNullOrWhiteSpace(value) ? null : value;
 		}
 
 		#endregion
@@ -274,10 +252,10 @@ namespace TestR.Browsers
 			return NativeMethods.FindInternetExplorerInstances().Select(x => x.HWND);
 		}
 
-		private static IWebBrowser2 CreateInternetExplorerClass()
+		private static InternetExplorer CreateInternetExplorerClass()
 		{
 			var watch = Stopwatch.StartNew();
-			var timeout = TimeSpan.FromMilliseconds(5000);
+			var timeout = TimeSpan.FromMilliseconds(1000);
 			var lastException = new Exception("Failed to create an Internet Explorer instance.");
 
 			do
@@ -289,6 +267,7 @@ namespace TestR.Browsers
 				catch (COMException ex)
 				{
 					lastException = ex;
+					Thread.Sleep(50);
 				}
 			} while (watch.Elapsed <= timeout);
 

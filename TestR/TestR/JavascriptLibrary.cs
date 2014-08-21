@@ -1,6 +1,6 @@
 ﻿namespace TestR
 {
-	public enum JavascriptLibrary
+	public enum JavaScriptLibrary
 	{
 		Angular,
 		JQuery,
