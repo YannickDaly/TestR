@@ -67,6 +67,16 @@ namespace TestR.Browsers
 		#region Methods
 
 		/// <summary>
+		/// Execute JavaScript code in the current document.
+		/// </summary>
+		/// <param name="script"></param>
+		/// <returns></returns>
+		public override string ExecuteJavascript(string script)
+		{
+			return string.Empty;
+		}
+
+		/// <summary>
 		/// Navigates the browser to the provided URI.
 		/// </summary>
 		/// <param name="uri">The URI to navigate to.</param>
@@ -79,24 +89,6 @@ namespace TestR.Browsers
 		/// Waits until the browser to complete any outstanding operations.
 		/// </summary>
 		public override void WaitForComplete()
-		{
-		}
-
-		/// <summary>
-		/// Execute JavaScript code in the current document.
-		/// </summary>
-		/// <param name="script"></param>
-		/// <returns></returns>
-		public override string ExecuteJavascript(string script)
-		{
-			return string.Empty;
-		}
-
-		/// <summary>
-		/// Clear all cookies for the URL.
-		/// </summary>
-		/// <param name="url">The URL to clear the cookies for.</param>
-		public override void ClearCookies(string url)
 		{
 		}
 

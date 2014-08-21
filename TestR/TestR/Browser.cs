@@ -52,19 +52,16 @@ namespace TestR
 		{
 			get { return Elements.OfType<ButtonElement>().ToElementCollection(); }
 		}
-		
-		/// <summary>
-		/// Gets a list of all span elements.
-		/// </summary>
-		public ElementCollection<SpanElement> Spans
-		{
-			get { return Elements.OfType<SpanElement>().ToElementCollection(); }
-		}
 
 		/// <summary>
 		/// Gets a list of all elements on the current page.
 		/// </summary>
 		public abstract ElementCollection Elements { get; }
+
+		/// <summary>
+		/// Gets a list of JavaScript libraries that were detected on the page.
+		/// </summary>
+		public IEnumerable<JavascriptLibrary> JavascriptLibraries { get; set; }
 
 		public ElementCollection<LinkElement> Links
 		{
@@ -72,9 +69,12 @@ namespace TestR
 		}
 
 		/// <summary>
-		/// Gets a list of JavaScript libraries that were detected on the page.
+		/// Gets a list of all span elements.
 		/// </summary>
-		public IEnumerable<JavascriptLibrary> JavascriptLibraries { get; set; }
+		public ElementCollection<SpanElement> Spans
+		{
+			get { return Elements.OfType<SpanElement>().ToElementCollection(); }
+		}
 
 		/// <summary>
 		/// Gets a list of all textbox elements.
@@ -134,6 +134,13 @@ namespace TestR
 			GC.SuppressFinalize(this);
 		}
 
+		/// <summary>
+		/// Execute JavaScript code in the current document.
+		/// </summary>
+		/// <param name="script"></param>
+		/// <returns></returns>
+		public abstract string ExecuteJavascript(string script);
+
 		public ElementCollection GetElementsByClass(string className)
 		{
 			return Elements.Where(x => x.GetAttributeValue("class").Contains(className)).ToElementCollection();
@@ -158,27 +165,6 @@ namespace TestR
 		/// Waits until the browser to complete any outstanding operations.
 		/// </summary>
 		public abstract void WaitForComplete();
-
-		/// <summary>
-		/// Execute JavaScript code in the current document.
-		/// </summary>
-		/// <param name="script"></param>
-		/// <returns></returns>
-		public abstract string ExecuteJavascript(string script);
-
-		/// <summary>
-		/// Clear all cookies for the browser.
-		/// </summary>
-		public void ClearCookies()
-		{
-			ClearCookies(string.Empty);
-		}
-
-		/// <summary>
-		/// Clear all cookies for the URL.
-		/// </summary>
-		/// <param name="url">The URL to clear the cookies for.</param>
-		public abstract void ClearCookies(string url);
 
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

@@ -57,7 +57,7 @@ namespace TestR.Browsers
 
 		public override ElementCollection Elements
 		{
-			get { return new InternetExplorerElementCollection(((IHTMLDocument2) _browser.Document).all, this).ToElementCollection(); }
+			get { return new InternetExplorerElementCollection(((IHTMLDocument2)_browser.Document).all, this).ToElementCollection(); }
 		}
 
 		public int Id
@@ -83,6 +83,33 @@ namespace TestR.Browsers
 
 		#region Methods
 
+		public override string ExecuteJavascript(string script)
+		{
+			var document = _browser.Document as IHTMLDocument2;
+			if (document == null)
+			{
+				throw new Exception("Failed to run script because no document is loaded.");
+			}
+
+			var resultName = "TestR_Script_Result";
+			var errorName = "TestR_Script_Error";
+
+			var wrappedCommand = string.Format("document.{0} = ''; document.{1} = ''; try {{ document.{0} = String(eval('{2}')) }} catch (error) {{ document.{1} = error }};",
+				resultName, errorName, script.Replace("'", "\\'"));
+
+			document.parentWindow.execScript(wrappedCommand, "javascript");
+
+			// See if an error occurred.
+			var errorResult = GetExpandoValue(errorName);
+			if (!string.IsNullOrEmpty(errorResult))
+			{
+				throw new Exception(errorResult);
+			}
+
+			// Return the result
+			return GetExpandoValue(resultName);
+		}
+
 		public override void NavigateTo(string uri)
 		{
 			object nil = null;
@@ -91,7 +118,7 @@ namespace TestR.Browsers
 			WaitForComplete();
 			DetectJavascriptLibraries();
 		}
-
+		
 		public override void WaitForComplete()
 		{
 			if (_browser == null)
@@ -135,63 +162,6 @@ namespace TestR.Browsers
 				}
 
 				Thread.Sleep(10);
-			}
-		}
-
-		public override string ExecuteJavascript(string script)
-		{
-			var document = _browser.Document as IHTMLDocument2;
-			if (document == null)
-			{
-				throw new Exception("Failed to run script because no document is loaded.");
-			}
-
-			var resultName = "TestR_Script_Result";
-			var errorName = "TestR_Script_Error";
-
-			var wrappedCommand = string.Format("document.{0} = ''; document.{1} = ''; try {{ document.{0} = String(eval('{2}')) }} catch (error) {{ document.{1} = error }};",
-				resultName, errorName, script.Replace("'", "\\'"));
-
-			document.parentWindow.execScript(wrappedCommand, "javascript");
-
-			// See if an error occurred.
-			var errorResult = GetExpandoValue(errorName);
-			if (!string.IsNullOrEmpty(errorResult))
-			{
-				throw new Exception(errorResult);
-			}
-
-			// Return the result
-			return GetExpandoValue(resultName);
-		}
-
-		public override void ClearCookies(string url)
-		{
-			if (url == null)
-			{
-				throw new ArgumentNullException("url");
-			}
-			
-			var path = Environment.GetFolderPath(Environment.SpecialFolder.Cookies);
-			var files = Directory.GetFiles(path)
-				.Union(Directory.GetFiles(path + "\\low"))
-				.ToList();
-
-			if (string.IsNullOrWhiteSpace(url))
-			{
-				files.ForEach(File.Delete);
-				return;
-			}
-
-			foreach (var file in files)
-			{
-				var text = File.ReadAllText(file);
-				if (!text.Contains(url))
-				{
-					continue;
-				}
-
-				File.Delete(file);
 			}
 		}
 
@@ -262,6 +232,36 @@ namespace TestR.Browsers
 		{
 			var instance = NativeMethods.FindInternetExplorerInstances().FirstOrDefault();
 			return instance != null ? new InternetExplorerBrowser(instance) : new InternetExplorerBrowser();
+		}
+
+		public static void ClearCookies(string url = "")
+		{
+			if (url == null)
+			{
+				throw new ArgumentNullException("url");
+			}
+
+			var path = Environment.GetFolderPath(Environment.SpecialFolder.Cookies);
+			var files = Directory.GetFiles(path)
+				.Union(Directory.GetFiles(path + "\\low"))
+				.ToList();
+
+			if (string.IsNullOrWhiteSpace(url))
+			{
+				files.ForEach(File.Delete);
+				return;
+			}
+
+			foreach (var file in files)
+			{
+				var text = File.ReadAllText(file);
+				if (!text.Contains(url))
+				{
+					continue;
+				}
+
+				File.Delete(file);
+			}
 		}
 
 		public static void CloseAllOpenBrowsers()

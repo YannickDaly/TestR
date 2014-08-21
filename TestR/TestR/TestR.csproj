@@ -65,6 +65,7 @@
     <Compile Include="Elements\SpanElement.cs" />
     <Compile Include="Elements\LinkElement.cs" />
     <Compile Include="Extensions\Enumerable.cs" />
+    <Compile Include="Helpers\Utility.cs" />
     <Compile Include="IBrowserElement.cs" />
     <Compile Include="JavascriptLibrary.cs" />
     <Compile Include="NativeMethods.cs" />

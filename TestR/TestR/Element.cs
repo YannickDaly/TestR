@@ -92,15 +92,6 @@ namespace TestR
 			BrowserElement.Browser.WaitForComplete();
 			//TriggerElement();
 		}
-		
-		private void TriggerElement()
-		{
-			if (BrowserElement.Browser.JavascriptLibraries.Contains(JavascriptLibrary.Angular)
-				&& BrowserElement.Browser.JavascriptLibraries.Contains(JavascriptLibrary.JQuery))
-			{
-				BrowserElement.Browser.ExecuteJavascript("angular.element('#" + Id + "').trigger('input');");
-			}
-		}
 
 		public void FireEvent(string eventName, NameValueCollection eventProperties = null)
 		{
@@ -143,6 +134,11 @@ namespace TestR
 			BrowserElement.SetStyleAttributeValue(attributeName, value);
 		}
 
+		public string Text()
+		{
+			return GetAttributeValue("innertext");
+		}
+
 		public void TypeText(string value)
 		{
 			Focus();
@@ -166,11 +162,15 @@ namespace TestR
 			TriggerElement();
 		}
 
-		public string Text()
+		private void TriggerElement()
 		{
-			return GetAttributeValue("innertext");
+			if (BrowserElement.Browser.JavascriptLibraries.Contains(JavascriptLibrary.Angular)
+				&& BrowserElement.Browser.JavascriptLibraries.Contains(JavascriptLibrary.JQuery))
+			{
+				BrowserElement.Browser.ExecuteJavascript("angular.element('#" + Id + "').trigger('input');");
+			}
 		}
-		
+
 		#endregion
 
 		#region Static Methods

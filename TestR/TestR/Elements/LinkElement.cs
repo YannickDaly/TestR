@@ -1,7 +1,5 @@
 ﻿#region References
 
-
-
 #endregion
 
 namespace TestR.Elements

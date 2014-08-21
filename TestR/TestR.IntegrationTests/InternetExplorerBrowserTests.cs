@@ -1,6 +1,5 @@
 ﻿#region References
 
-using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -87,6 +86,12 @@ namespace TestR.IntegrationTests
 				browser.BringToFront();
 				Assert.IsTrue(browser.IsInFront());
 			}
+		}
+
+		[TestMethod]
+		public void ClearCookies()
+		{
+			InternetExplorerBrowser.ClearCookies();
 		}
 
 		[TestMethod]

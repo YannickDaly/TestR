@@ -1,19 +1,40 @@
 ﻿#region References
 
+using System.Linq;
 using System.Management.Automation;
+using System.Threading;
 using TestR.Browsers;
+using TestR.Helpers;
 
 #endregion
 
 namespace TestR.PowerShell
 {
-	[Cmdlet(VerbsCommon.New, "InternetExplorer")]
+	[Cmdlet(VerbsCommon.New, "Browser")]
 	public class NewBrowserCmdlet : Cmdlet
 	{
 		#region Properties
 
+		/// <summary>
+		/// Attempts to attach to an existing browser before creating a new one.
+		/// </summary>
 		[Parameter(Mandatory = false)]
 		public SwitchParameter AttachExisting { get; set; }
+
+		/// <summary>
+		/// This will close all browser sessions then clear cookies before returning a new browser.
+		/// </summary>
+		/// <remarks>
+		/// Please note this will close all existing browser sessions.
+		/// </remarks>
+		[Parameter(Mandatory = false)]
+		public SwitchParameter ClearCookies { get; set; }
+
+		/// <summary>
+		/// The URI of the domain to clear the cookies for. If this is not provided or empty then all cookies will be cleared.
+		/// </summary>
+		[Parameter(Mandatory = false)]
+		public string CookieUri { get; set; }
 
 		#endregion
 
@@ -21,6 +42,16 @@ namespace TestR.PowerShell
 
 		protected override void ProcessRecord()
 		{
+			if (ClearCookies)
+			{
+				InternetExplorerBrowser.CloseAllOpenBrowsers();
+				Utility.Wait(() => !InternetExplorerBrowser.GetExistingBrowserIds().Any());
+				InternetExplorerBrowser.ClearCookies(CookieUri ?? string.Empty);
+				Thread.Sleep(250);
+				WriteObject(new InternetExplorerBrowser());
+				return;
+			}
+
 			var browser = AttachExisting
 				? InternetExplorerBrowser.AttachOrCreate()
 				: new InternetExplorerBrowser();
