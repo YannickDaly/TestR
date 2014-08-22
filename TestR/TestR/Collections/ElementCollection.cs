@@ -33,12 +33,12 @@ namespace TestR.Collections
 		#region Properties
 
 		/// <summary>
-		/// Access an element by the ID.
+		/// Access an element by the ID or Name.
 		/// </summary>
-		/// <param name="id">The ID of the element.</param>
-		public T this[string id]
+		/// <param name="idOrName">The ID or Name of the element.</param>
+		public T this[string idOrName]
 		{
-			get { return this.FirstOrDefault(x => x.Id == id); }
+			get { return this.FirstOrDefault(x => x.Id == idOrName || x.Name == idOrName); }
 		}
 
 		#endregion
@@ -73,12 +73,12 @@ namespace TestR.Collections
 		}
 
 		/// <summary>
-		/// Access an element by the ID.
+		/// Access an element by the ID or Name.
 		/// </summary>
-		/// <param name="id">The ID of the element.</param>
-		public Element this[string id]
+		/// <param name="idOrName">The ID or Name of the element.</param>
+		public Element this[string idOrName]
 		{
-			get { return this.FirstOrDefault(x => x.Id == id); }
+			get { return this.FirstOrDefault(x => x.Id == idOrName || x.Name == idOrName); }
 		}
 
 		/// <summary>

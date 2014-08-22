@@ -1,15 +1,16 @@
 #region References
 
+using System.Linq;
 using System.Management.Automation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #endregion
 
-namespace TestR.PowerShell.Tests.BrowserTests
+namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
-	[Cmdlet(VerbsDiagnostic.Test, "ClickLink")]
-	public class ClickLink : TestCmdlet
+	[Cmdlet(VerbsDiagnostic.Test, "FindElementByClass")]
+	public class FindElementByClass : TestCmdlet
 	{
 		#region Methods
 
@@ -20,13 +21,8 @@ namespace TestR.PowerShell.Tests.BrowserTests
 			{
 				browser.AutoClose = false;
 				browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
-
-				var button = browser.Elements["link"];
-				Assert.IsNotNull(button, "Could not find the button.");
-				button.Click();
-
-				var textArea = browser.Elements.TextInputs["textarea"];
-				Assert.AreEqual(button.Id, textArea.Value);
+				var elements = browser.Elements.Where(x => x.Class.Contains("red"));
+				Assert.AreEqual(1, elements.Count());
 			}
 		}
 

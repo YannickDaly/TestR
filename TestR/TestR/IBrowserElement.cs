@@ -28,6 +28,11 @@ namespace TestR
 		/// </summary>
 		string TagName { get; }
 
+		/// <summary>
+		/// Gets the name of the element.
+		/// </summary>
+		string Name { get; }
+
 		#endregion
 
 		#region Methods

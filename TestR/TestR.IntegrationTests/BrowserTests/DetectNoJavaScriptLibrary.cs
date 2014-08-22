@@ -1,15 +1,16 @@
 #region References
 
+using System.Linq;
 using System.Management.Automation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #endregion
 
-namespace TestR.PowerShell.Tests.BrowserTests
+namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
-	[Cmdlet(VerbsDiagnostic.Test, "NavigateTo")]
-	public class NavigateTo : TestCmdlet
+	[Cmdlet(VerbsDiagnostic.Test, "DetectNoJavaScriptLibrary")]
+	public class DetectNoJavaScriptLibrary : TestCmdlet
 	{
 		#region Methods
 
@@ -18,11 +19,11 @@ namespace TestR.PowerShell.Tests.BrowserTests
 		{
 			using (var browser = GetBrowser())
 			{
-				var expected = TestHelper.GetTestFileFullPath("Index.html");
 				browser.AutoClose = false;
 				browser.BringToFront();
-				browser.NavigateTo(expected);
-				Assert.AreEqual(expected, browser.Uri);
+				browser.NavigateTo(TestHelper.GetTestFileFullPath("Inputs.html"));
+
+				Assert.AreEqual(0, browser.JavascriptLibraries.Count());
 			}
 		}
 

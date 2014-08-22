@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #endregion
 
-namespace TestR.PowerShell.Tests.BrowserTests
+namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
 	[Cmdlet(VerbsDiagnostic.Test, "DetectAngularJavaScriptLibrary")]

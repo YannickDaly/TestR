@@ -7,7 +7,7 @@ $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $scriptPath = Split-Path (Get-Variable MyInvocation).Value.MyCommand.Path 
 Set-Location $scriptPath
 $destination = "C:\Binaries\TestR"
-$nugetDestination = "C:\Workspaces\GitHub\Nuget"
+$nugetDestination = "C:\Workspaces\Nuget\Developer"
 
 if ([IO.Directory]::Exists($destination)) {
 	[IO.Directory]::Delete($destination, $true)
@@ -22,8 +22,9 @@ $build = [Math]::Floor([DateTime]::UtcNow.Subtract([DateTime]::Parse("01/01/2000
 $revision = [Math]::Floor([DateTime]::UtcNow.TimeOfDay.TotalSeconds / 2)
 
 .\IncrementVersion.ps1 TestR\TestR $build $revision
+.\IncrementVersion.ps1 TestR\TestR.IntegrationTests $build $revision
 .\IncrementVersion.ps1 TestR\TestR.PowerShell $build $revision
-.\IncrementVersion.ps1 TestR\TestR.PowerShell.Tests $build $revision
+.\IncrementVersion.ps1 TestR\TestR.UnitTests $build $revision
 
 $msbuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
 cmd /c $msbuild "$scriptPath\TestR\TestR.sln" /p:Configuration="$configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=13.0 /Verbosity:minimal /m
@@ -40,6 +41,7 @@ if (![System.IO.Directory]::Exists($destination)){
 
 xcopy "TestR\TestR\bin\$configuration\TestR.dll" $destination
 xcopy "TestR\TestR\bin\$configuration\Interop.SHDocVw.dll" $destination
+xcopy "TestR\TestR.PowerSHell\bin\$configuration\TestR.PowerShell.dll" $destination
 
 $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\TestR.dll")
 $version = $versionInfo.FileVersion.ToString()
@@ -50,22 +52,23 @@ Copy-Item "$destination\TestR.$version.nupkg" "$nugetDestination" -force
 
 .\ResetAssemblyInfos.ps1
 
-$modulesPath = "C:\Workspaces\Harris\Deployment\Testing.Scripts\Modules"
+$modulesPath = "C:\Workspaces\PowerShell"
 if (Test-Path $modulesPath -PathType Container) {
-    if (Test-Path $modulesPath\TestR.PowerShell -PathType Container) {
-        Remove-Item $modulesPath\TestR.PowerShell -Force -Recurse
-        
+    Remove-Item $modulesPath -Force -Recurse
+}
+
+New-Item $modulesPath -ItemType Directory | Out-Null
+$modules = "TestR.Powershell", "TestR.IntegrationTests", "TestR.UnitTests"
+
+foreach ($module in $modules) {
+    $modulePath = "$modulesPath\$module"
+    if (Test-Path $modulePath -PathType Container) {
+        Remove-Item $modulePath -Force -Recurse
     }
 
-    New-Item $modulesPath\TestR.PowerShell -ItemType Directory | Out-Null
-    Copy-Item C:\Workspaces\GitHub\TestR\TestR\TestR.PowerShell\bin\$configuration\*  C:\Workspaces\Harris\Deployment\Testing.Scripts\Modules\TestR.PowerShell\ -Recurse -Force
-
-    if (Test-Path $modulesPath\TestR.PowerShell.Tests -PathType Container) {
-        Remove-Item $modulesPath\TestR.PowerShell.Tests -Force -Recurse
-    }
-
-    New-Item $modulesPath\TestR.PowerShell.Tests -ItemType Directory | Out-Null
-    Copy-Item C:\Workspaces\GitHub\TestR\TestR\TestR.PowerShell.Tests\bin\$configuration\* C:\Workspaces\Harris\Deployment\Testing.Scripts\Modules\TestR.PowerShell.Tests\ -Recurse -Force
+    $sourcePath = "C:\Workspaces\GitHub\TestR\TestR\$module\bin\$configuration\*"
+    New-Item $modulePath -ItemType Directory | Out-Null
+    Copy-Item $sourcePath $modulePath\ -Recurse -Force
 }
 
 Write-Host

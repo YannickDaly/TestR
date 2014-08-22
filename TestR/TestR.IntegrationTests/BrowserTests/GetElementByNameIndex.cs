@@ -1,16 +1,15 @@
 #region References
 
-using System.Linq;
 using System.Management.Automation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #endregion
 
-namespace TestR.PowerShell.Tests.BrowserTests
+namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
-	[Cmdlet(VerbsDiagnostic.Test, "FindElementByText")]
-	public class FindElementByText : TestCmdlet
+	[Cmdlet(VerbsDiagnostic.Test, "GetElementByNameIndex")]
+	public class GetElementByNameIndex : TestCmdlet
 	{
 		#region Methods
 
@@ -21,8 +20,9 @@ namespace TestR.PowerShell.Tests.BrowserTests
 			{
 				browser.AutoClose = false;
 				browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
-				var elements = browser.Elements.Where(x => x.Text == "SPAN with ID of 1");
-				Assert.AreEqual(1, elements.Count());
+				var input = browser.Elements["inputName"];
+				Assert.IsNotNull(input, "Failed to find input by name of 'inputName'.");
+				Assert.AreEqual("inputName", input.Name);
 			}
 		}
 

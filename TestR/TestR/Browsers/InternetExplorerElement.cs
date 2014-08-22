@@ -78,6 +78,14 @@ namespace TestR.Browsers
 			get { return _element.tagName.ToLower(); }
 		}
 
+		/// <summary>
+		/// Gets the name of the element.
+		/// </summary>
+		public string Name
+		{
+			get { return GetAttributeValue("name"); }
+		}
+
 		#endregion
 
 		#region Methods

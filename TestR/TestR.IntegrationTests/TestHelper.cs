@@ -5,7 +5,7 @@ using System.Reflection;
 
 #endregion
 
-namespace TestR.PowerShell.Tests
+namespace TestR.IntegrationTests
 {
 	public static class TestHelper
 	{

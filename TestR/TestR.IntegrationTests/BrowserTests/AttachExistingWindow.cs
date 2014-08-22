@@ -7,7 +7,7 @@ using TestR.Browsers;
 
 #endregion
 
-namespace TestR.PowerShell.Tests.BrowserTests
+namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
 	[Cmdlet(VerbsDiagnostic.Test, "AttachExistingWindow")]

@@ -78,6 +78,14 @@ namespace TestR
 		{
 			get { return BrowserElement.Id; }
 		}
+		
+		/// <summary>
+		/// Gets the name of the element.
+		/// </summary>
+		public string Name
+		{
+			get { return BrowserElement.Name; }
+		}
 
 		/// <summary>
 		/// Gets the tag name of the element. Ex. input, a, button, etc.

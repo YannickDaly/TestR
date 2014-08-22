@@ -5,7 +5,7 @@ using TestR.Browsers;
 
 #endregion
 
-namespace TestR.PowerShell.Tests
+namespace TestR.IntegrationTests
 {
 	public abstract class TestCmdlet : Cmdlet
 	{
