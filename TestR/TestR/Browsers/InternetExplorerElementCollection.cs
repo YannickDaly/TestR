@@ -8,6 +8,9 @@ using mshtml;
 
 namespace TestR.Browsers
 {
+	/// <summary>
+	/// Represents a collection of Internet Explorer elements.
+	/// </summary>
 	public class InternetExplorerElementCollection : IReadOnlyCollection<Element>
 	{
 		#region Fields
@@ -19,6 +22,11 @@ namespace TestR.Browsers
 
 		#region Constructors
 
+		/// <summary>
+		/// Initializes an instance of InternetExplorerElementCollection class.
+		/// </summary>
+		/// <param name="collection"></param>
+		/// <param name="browser"></param>
 		public InternetExplorerElementCollection(IHTMLElementCollection collection, Browser browser)
 		{
 			_collection = collection;

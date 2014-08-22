@@ -19,6 +19,9 @@ using TestR.Helpers;
 
 namespace TestR.Browsers
 {
+	/// <summary>
+	/// Represents an Internet Explorer browser.
+	/// </summary>
 	public class InternetExplorerBrowser : Browser
 	{
 		#region Fields
@@ -29,6 +32,9 @@ namespace TestR.Browsers
 
 		#region Constructors
 
+		/// <summary>
+		/// Initializes a new instance of the InternetExplorerBrowser class.
+		/// </summary>
 		public InternetExplorerBrowser()
 			: this(CreateInternetExplorerClass())
 		{
@@ -60,16 +66,25 @@ namespace TestR.Browsers
 			get { return new Element(new InternetExplorerElement(((IHTMLDocument2) _browser.Document).activeElement, this)); }
 		}
 
+		/// <summary>
+		/// Gets the list of element in the current document.
+		/// </summary>
 		public override ElementCollection Elements
 		{
 			get { return new InternetExplorerElementCollection(((IHTMLDocument2) _browser.Document).all, this).ToElementCollection(); }
 		}
 
+		/// <summary>
+		/// Gets the ID of the browser.
+		/// </summary>
 		public override int Id
 		{
 			get { return _browser.HWND; }
 		}
 
+		/// <summary>
+		/// Gets the URI of the current page.
+		/// </summary>
 		public override string Uri
 		{
 			get { return _browser.LocationURL; }
@@ -88,6 +103,11 @@ namespace TestR.Browsers
 
 		#region Methods
 
+		/// <summary>
+		/// Execute JavaScript code in the current document.
+		/// </summary>
+		/// <param name="script">The script to run.</param>
+		/// <returns>The response when executing.</returns>
 		public override string ExecuteJavascript(string script)
 		{
 			var document = _browser.Document as IHTMLDocument2;
@@ -122,6 +142,10 @@ namespace TestR.Browsers
 			throw lastException;
 		}
 
+		/// <summary>
+		/// Navigates the browser to the provided URI.
+		/// </summary>
+		/// <param name="uri">The URI to navigate to.</param>
 		public override sealed void NavigateTo(string uri)
 		{
 			object nil = null;
@@ -131,6 +155,9 @@ namespace TestR.Browsers
 			DetectJavascriptLibraries();
 		}
 
+		/// <summary>
+		/// Waits until the browser to complete any outstanding operations.
+		/// </summary>
 		public override void WaitForComplete()
 		{
 			if (_browser == null)
@@ -149,6 +176,10 @@ namespace TestR.Browsers
 			Utility.Wait(() => document.readyState == "complete"); // || document.readyState == "interactive");
 		}
 
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <param name="disposing">True if disposing and false if otherwise.</param>
 		protected override void Dispose(bool disposing)
 		{
 			if (!disposing)
@@ -206,12 +237,21 @@ namespace TestR.Browsers
 
 		#region Static Methods
 
+		/// <summary>
+		/// Attempts to attach to an existing browser. If one is not found then create and return a new one.
+		/// </summary>
+		/// <returns>An instance of an Internet Explorer browser.</returns>
 		public static InternetExplorerBrowser AttachOrCreate()
 		{
 			var instance = NativeMethods.FindInternetExplorerInstances().FirstOrDefault();
 			return instance != null ? new InternetExplorerBrowser(instance) : new InternetExplorerBrowser();
 		}
 
+		/// <summary>
+		/// Clears the cookies for the provided URL. If the URL is an empty string then all cookies will be cleared.
+		/// </summary>
+		/// <param name="url">The URL of the cookies to remove. Empty string removes all cookies.</param>
+		/// <exception cref="ArgumentNullException">The URL parameter cannot be null.</exception>
 		public static void ClearCookies(string url = "")
 		{
 			if (url == null)
@@ -242,16 +282,27 @@ namespace TestR.Browsers
 			}
 		}
 
+		/// <summary>
+		/// Close all open Internet Explorer browsers.
+		/// </summary>
 		public static void CloseAllOpenBrowsers()
 		{
 			NativeMethods.FindInternetExplorerInstances().ForEach(x => x.Quit());
 		}
 
+		/// <summary>
+		/// Gets a list of IDs for all current Internet Explorer browsers.
+		/// </summary>
+		/// <returns></returns>
 		public static IEnumerable<int> GetExistingBrowserIds()
 		{
 			return NativeMethods.FindInternetExplorerInstances().Select(x => x.HWND);
 		}
 
+		/// <summary>
+		/// Creates an instance of the InternetExplorerBrowser.
+		/// </summary>
+		/// <returns>An instance of Internet Explorer.</returns>
 		private static InternetExplorer CreateInternetExplorerClass()
 		{
 			var watch = Stopwatch.StartNew();

@@ -8,10 +8,20 @@ using System.Threading;
 
 namespace TestR.Helpers
 {
+	/// <summary>
+	/// Represents the Utility class.
+	/// </summary>
 	public static class Utility
 	{
 		#region Static Methods
 
+		/// <summary>
+		/// Runs the action until the action returns true or the timeout is reached. Will delay in between actions of the provided time.
+		/// </summary>
+		/// <param name="action">The action to call.</param>
+		/// <param name="timeout">The timeout to attempt the action. This value is in milliseconds.</param>
+		/// <param name="delay">The delay in between actions. This value is in milliseconds.</param>
+		/// <returns>Returns true of the call completed successfully or false if it timed out.</returns>
 		public static bool Wait(Func<bool> action, int timeout = 1000, int delay = 25)
 		{
 			var watch = Stopwatch.StartNew();
@@ -21,15 +31,23 @@ namespace TestR.Helpers
 			{
 				if (watch.Elapsed > watchTimeout)
 				{
-					return true;
+					return false;
 				}
 
 				Thread.Sleep(delay);
 			}
 
-			return false;
+			return true;
 		}
 
+		/// <summary>
+		/// Runs the action until the action returns true or the timeout is reached. Will delay in between actions of the provided time.
+		/// </summary>
+		/// <param name="input">The input to pass to the action.</param>
+		/// <param name="action">The action to call.</param>
+		/// <param name="timeout">The timeout to attempt the action. This value is in milliseconds.</param>
+		/// <param name="delay">The delay in between actions. This value is in milliseconds.</param>
+		/// <returns>Returns true of the call completed successfully or false if it timed out.</returns>
 		public static bool Wait<T>(T input, Func<T, bool> action, int timeout = 1000, int delay = 25)
 		{
 			var watch = Stopwatch.StartNew();
@@ -39,13 +57,13 @@ namespace TestR.Helpers
 			{
 				if (watch.Elapsed > watchTimeout)
 				{
-					return true;
+					return false;
 				}
 
 				Thread.Sleep(delay);
 			}
 
-			return false;
+			return true;
 		}
 
 		#endregion

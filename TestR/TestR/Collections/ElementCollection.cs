@@ -10,11 +10,19 @@ using TestR.Extensions;
 
 namespace TestR.Collections
 {
+	/// <summary>
+	/// Represents a collection of specific type of elements.
+	/// </summary>
+	/// <typeparam name="T">The type of element.</typeparam>
 	public class ElementCollection<T> : Collection<T>
 		where T : Element
 	{
 		#region Constructors
 
+		/// <summary>
+		/// Initializes an instance of the ElementCollection class.
+		/// </summary>
+		/// <param name="collection"></param>
 		public ElementCollection(IEnumerable<T> collection)
 		{
 			this.AddRange(collection);
@@ -24,6 +32,10 @@ namespace TestR.Collections
 
 		#region Properties
 
+		/// <summary>
+		/// Access an element by the ID.
+		/// </summary>
+		/// <param name="id">The ID of the element.</param>
 		public T this[string id]
 		{
 			get { return this.FirstOrDefault(x => x.Id == id); }
@@ -32,10 +44,17 @@ namespace TestR.Collections
 		#endregion
 	}
 
+	/// <summary>
+	/// Represents a collection of elements.
+	/// </summary>
 	public class ElementCollection : Collection<Element>
 	{
 		#region Constructors
 
+		/// <summary>
+		/// Initializes an instance of the ElementCollection class.
+		/// </summary>
+		/// <param name="collection"></param>
 		public ElementCollection(IEnumerable<Element> collection)
 		{
 			AddRange(collection);
@@ -53,6 +72,10 @@ namespace TestR.Collections
 			get { return this.OfType<ButtonElement>().ToElementCollection(); }
 		}
 
+		/// <summary>
+		/// Access an element by the ID.
+		/// </summary>
+		/// <param name="id">The ID of the element.</param>
 		public Element this[string id]
 		{
 			get { return this.FirstOrDefault(x => x.Id == id); }
@@ -86,6 +109,10 @@ namespace TestR.Collections
 
 		#region Methods
 
+		/// <summary>
+		/// Adds a collection of elements and initializes them as their specific element type.
+		/// </summary>
+		/// <param name="collection">The collection of elements to add.</param>
 		private void AddRange(IEnumerable<Element> collection)
 		{
 			foreach (var item in collection)

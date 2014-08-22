@@ -1,3 +1,8 @@
+param (
+    [Parameter()]
+    [switch] $IncludeDocumentation
+)
+
 $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $scriptPath = Split-Path (Get-Variable MyInvocation).Value.MyCommand.Path 
 Set-Location $scriptPath
@@ -21,7 +26,12 @@ $revision = [Math]::Floor([DateTime]::UtcNow.TimeOfDay.TotalSeconds / 2)
 .\IncrementVersion.ps1 TestR\TestR.PowerShell.Tests $build $revision
 
 $msbuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
-cmd /c $msbuild "$scriptPath\TestR\TestR.sln" /p:Configuration="$configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=12.0 /Verbosity:minimal /m
+cmd /c $msbuild "$scriptPath\TestR\TestR.sln" /p:Configuration="$configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=13.0 /Verbosity:minimal /m
+
+if ($IncludeDocumentation) {
+    cmd /c $msbuild "$scriptPath\TestR\TestR.shfbproj" /p:Configuration="$configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=13.0 /Verbosity:minimal /m
+}
+
 Set-Location $scriptPath
 
 if (![System.IO.Directory]::Exists($destination)){

@@ -12,15 +12,24 @@ using mshtml;
 
 namespace TestR.Browsers
 {
+	/// <summary>
+	/// Represents an element for the Internet Explorer browser.
+	/// </summary>
 	public class InternetExplorerElement : IBrowserElement
 	{
 		#region Fields
 
+		/// <summary>
+		/// Properties that need to be renamed when requested.
+		/// </summary>
 		public static readonly Dictionary<string, string> PropertiesToRename = new Dictionary<string, string>
 		{
 			{ "class", "className" }
 		};
 
+		/// <summary>
+		/// Attributes of elements that need to be access by properties rather than as attributes.
+		/// </summary>
 		public static readonly IList<string> UsePropertyInsteadOfAttribute = new[]
 		{
 			"selected", "textContent", "className", "checked", "readOnly", "multiple", "value",
@@ -33,6 +42,11 @@ namespace TestR.Browsers
 
 		#region Constructors
 
+		/// <summary>
+		/// Initializes an instance of an Internet Explorer browser element.
+		/// </summary>
+		/// <param name="element">The browser element this is for.</param>
+		/// <param name="browser">The browser this element is associated with.</param>
 		public InternetExplorerElement(IHTMLElement element, Browser browser)
 		{
 			_element = element;
@@ -43,13 +57,22 @@ namespace TestR.Browsers
 
 		#region Properties
 
+		/// <summary>
+		/// Gets the browser this element is currently associated with.
+		/// </summary>
 		public Browser Browser { get; private set; }
 
+		/// <summary>
+		/// Gets the ID of the element.
+		/// </summary>
 		public string Id
 		{
 			get { return GetAttributeValue("id"); }
 		}
 
+		/// <summary>
+		/// Gets the tag name of the element.
+		/// </summary>
 		public string TagName
 		{
 			get { return _element.tagName.ToLower(); }
@@ -59,11 +82,19 @@ namespace TestR.Browsers
 
 		#region Methods
 
+		/// <summary>
+		/// Clicks the element.
+		/// </summary>
 		public void Click()
 		{
 			_element.click();
 		}
 
+		/// <summary>
+		/// Fires an event on the element.
+		/// </summary>
+		/// <param name="eventName">The events name to fire.</param>
+		/// <param name="eventProperties">The properties for the event.</param>
 		public void FireEvent(string eventName, NameValueCollection eventProperties = null)
 		{
 			var element = (IHTMLElement3) _element;
@@ -77,19 +108,27 @@ namespace TestR.Browsers
 			}
 		}
 
+		/// <summary>
+		/// Focuses on the element.
+		/// </summary>
 		public void Focus()
 		{
 			((IHTMLElement2) _element).focus();
 		}
 
-		public string GetAttributeValue(string attributeName)
+		/// <summary>
+		/// Gets an attribute value by the provided name.
+		/// </summary>
+		/// <param name="name">The name of the attribute to read.</param>
+		/// <returns>The attribute value.</returns>
+		public string GetAttributeValue(string name)
 		{
-			attributeName = PropertiesToRename.ContainsKey(attributeName)
-				? PropertiesToRename[attributeName] : attributeName;
+			name = PropertiesToRename.ContainsKey(name)
+				? PropertiesToRename[name] : name;
 
-			var attributeValue = UsePropertyInsteadOfAttribute.Contains(attributeName)
-				? GetExpandoValue(attributeName)
-				: _element.getAttribute(attributeName);
+			var attributeValue = UsePropertyInsteadOfAttribute.Contains(name)
+				? GetExpandoValue(name)
+				: _element.getAttribute(name);
 
 			if (attributeValue == null)
 			{
@@ -97,7 +136,7 @@ namespace TestR.Browsers
 			}
 
 			var value = attributeValue.ToString();
-			if (attributeName.ToLower() == "selected" && value.ToLower() == "selected")
+			if (name.ToLower() == "selected" && value.ToLower() == "selected")
 			{
 				value = "True";
 			}
@@ -105,20 +144,35 @@ namespace TestR.Browsers
 			return value;
 		}
 
-		public string GetStyleAttributeValue(string attributeName)
+		/// <summary>
+		/// Gets an attribute style value by the provided name.
+		/// </summary>
+		/// <param name="name">The name of the attribute style to read.</param>
+		/// <returns>The attribute style value.</returns>
+		public string GetStyleAttributeValue(string name)
 		{
-			return _element.style.getAttribute(attributeName);
+			return _element.style.getAttribute(name);
 		}
 
-		public void SetAttributeValue(string attributeName, string value)
+		/// <summary>
+		/// Sets an attribute value by the provided name.
+		/// </summary>
+		/// <param name="name">The name of the attribute to write.</param>
+		/// <param name="value">The value to be written.</param>
+		public void SetAttributeValue(string name, string value)
 		{
-			value = HandleAttributesWhichHaveNoValue(attributeName, value);
-			_element.setAttribute(attributeName, value, 0);
+			value = HandleAttributesWhichHaveNoValue(name, value);
+			_element.setAttribute(name, value, 0);
 		}
 
-		public void SetStyleAttributeValue(string attributeName, string attributeValue)
+		/// <summary>
+		/// Sets an attribute style value by the provided name.
+		/// </summary>
+		/// <param name="name">The name of the attribute style to write.</param>
+		/// <param name="value">The style value to be written.</param>
+		public void SetStyleAttributeValue(string name, string value)
 		{
-			_element.style.setAttribute(attributeName, attributeValue);
+			_element.style.setAttribute(name, value);
 		}
 
 		private object GetExpandoValue(string attributeName)

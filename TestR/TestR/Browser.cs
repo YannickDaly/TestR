@@ -10,6 +10,10 @@ using TestR.Collections;
 
 namespace TestR
 {
+	/// <summary>
+	/// This is the base class for browsers.
+	/// </summary>
+	/// <exclude>Test?</exclude>
 	public abstract class Browser : IDisposable
 	{
 		#region Fields
@@ -21,6 +25,9 @@ namespace TestR
 
 		#region Constructors
 
+		/// <summary>
+		/// Initializes a new instance of the Browser class.
+		/// </summary>
 		protected Browser()
 		{
 			_logger = LogManager.GetLogger("TestR");

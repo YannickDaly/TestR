@@ -15,6 +15,10 @@ using Newtonsoft.Json;
 
 namespace TestR.Browsers
 {
+	/// <summary>
+	/// Represents the connector to communicated to the Chrome browser.
+	/// </summary>
+	/// <exclude />
 	public class ChromeBrowserConnector : IDisposable
 	{
 		#region Constants
@@ -32,6 +36,10 @@ namespace TestR.Browsers
 
 		#region Constructors
 
+		/// <summary>
+		/// Initializes a new instance of the Browser class.
+		/// </summary>
+		/// <param name="uri"></param>
 		public ChromeBrowserConnector(string uri)
 		{
 			_uri = uri;
@@ -41,6 +49,10 @@ namespace TestR.Browsers
 
 		#region Methods
 
+		/// <summary>
+		/// Connect to the Chrome browser debugger port.
+		/// </summary>
+		/// <exception cref="Exception">All debugging sessions are taken.</exception>
 		public void Connect()
 		{
 			var sessions = GetAvailableSessions();
@@ -54,24 +66,41 @@ namespace TestR.Browsers
 			_socket.ConnectAsync(sessionWsEndpoint, CancellationToken.None).Wait(5000);
 		}
 
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
 		public void Dispose()
 		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
+		/// <summary>
+		/// Get children of the node by ID.
+		/// </summary>
+		/// <param name="nodeId"></param>
+		/// <returns></returns>
 		public string GetChildren(int nodeId)
 		{
 			var json = @"{""id"": 1,""method"":""DOM.requestChildNodes"",""params"": {""nodeId"": " + nodeId + "}}";
 			return SendCommand(json);
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		public string GetDocument()
 		{
 			var json = @"{""id"": 1,""method"":""DOM.getDocument""}";
 			return SendCommand(json);
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="uri"></param>
+		/// <returns></returns>
 		public string NavigateTo(string uri)
 		{
 			// Instead of Page.navigate, we can use document.location
@@ -79,6 +108,10 @@ namespace TestR.Browsers
 			return SendCommand(json);
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="disposing"></param>
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing && _socket != null)

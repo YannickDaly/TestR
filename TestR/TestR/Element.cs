@@ -9,6 +9,9 @@ using System.Threading;
 
 namespace TestR
 {
+	/// <summary>
+	/// Represents an HTML element.
+	/// </summary>
 	public class Element
 	{
 		#region Fields
@@ -20,6 +23,10 @@ namespace TestR
 
 		#region Constructors
 
+		/// <summary>
+		/// Initializes a new instance of the Element class.
+		/// </summary>
+		/// <param name="element"></param>
 		public Element(IBrowserElement element)
 		{
 			BrowserElement = element;
@@ -32,6 +39,9 @@ namespace TestR
 
 		#region Properties
 
+		/// <summary>
+		/// Gets the class attribute value for the element.
+		/// </summary>
 		public string Class
 		{
 			get { return GetAttributeValue("class"); }
@@ -61,21 +71,33 @@ namespace TestR
 			}
 		}
 
+		/// <summary>
+		/// Gets the ID of the element.
+		/// </summary>
 		public string Id
 		{
 			get { return BrowserElement.Id; }
 		}
 
+		/// <summary>
+		/// Gets the tag name of the element. Ex. input, a, button, etc.
+		/// </summary>
 		public string TagName
 		{
 			get { return BrowserElement.TagName.ToLower(); }
 		}
 
+		/// <summary>
+		/// Gets the text for the element.
+		/// </summary>
 		public string Text
 		{
 			get { return GetAttributeValue("innertext"); }
 		}
 
+		/// <summary>
+		/// The delay between keystrokes when TypeText is called.
+		/// </summary>
 		public TimeSpan TypeTextDelay { get; set; }
 
 		/// <summary>
@@ -95,6 +117,9 @@ namespace TestR
 			FireEvent("onBlur");
 		}
 
+		/// <summary>
+		/// Clicks the element.
+		/// </summary>
 		public void Click()
 		{
 			BrowserElement.Focus();
@@ -102,6 +127,12 @@ namespace TestR
 			BrowserElement.Browser.WaitForComplete();
 		}
 
+		/// <summary>
+		/// Fires an event on the element.
+		/// </summary>
+		/// <param name="eventName">The events name to fire.</param>
+		/// <param name="eventProperties">The properties for the event.</param>
+		/// <exception cref="Exception">The element is disabled so we cannot fire the event.</exception>
 		public void FireEvent(string eventName, NameValueCollection eventProperties = null)
 		{
 			if (!Enabled)
@@ -113,21 +144,38 @@ namespace TestR
 			BrowserElement.Browser.WaitForComplete();
 		}
 
+		/// <summary>
+		/// Focuses on the element.
+		/// </summary>
 		public void Focus()
 		{
 			BrowserElement.Focus();
 		}
 
-		public string GetAttributeValue(string attributeName)
+		/// <summary>
+		/// Gets an attribute value by the provided name.
+		/// </summary>
+		/// <param name="name">The name of the attribute to read.</param>
+		/// <returns>The attribute value.</returns>
+		public string GetAttributeValue(string name)
 		{
-			return BrowserElement.GetAttributeValue(attributeName);
+			return BrowserElement.GetAttributeValue(name);
 		}
 
-		public string GetStyleAttributeValue(string attributeName)
+		/// <summary>
+		/// Gets an attribute style value by the provided name.
+		/// </summary>
+		/// <param name="name">The name of the attribute style to read.</param>
+		/// <returns>The attribute style value.</returns>
+		public string GetStyleAttributeValue(string name)
 		{
-			return BrowserElement.GetStyleAttributeValue(attributeName);
+			return BrowserElement.GetStyleAttributeValue(name);
 		}
 
+		/// <summary>
+		/// Highlight or resets the element.
+		/// </summary>
+		/// <param name="highlight">If true the element is highlight yellow. If false the element is returned to its original color.</param>
 		public void Highlight(bool highlight)
 		{
 			BrowserElement.SetStyleAttributeValue("backgroundColor", highlight ? _highlightColor : _orginalColor);
@@ -138,16 +186,30 @@ namespace TestR
 			}
 		}
 
-		public void SetAttributeValue(string attributeName, string value)
+		/// <summary>
+		/// Sets an attribute value by the provided name.
+		/// </summary>
+		/// <param name="name">The name of the attribute to write.</param>
+		/// <param name="value">The value to be written.</param>
+		public void SetAttributeValue(string name, string value)
 		{
-			BrowserElement.SetAttributeValue(attributeName, value);
+			BrowserElement.SetAttributeValue(name, value);
 		}
 
-		public void SetStyleAttributeValue(string attributeName, string value)
+		/// <summary>
+		/// Sets an attribute style value by the provided name.
+		/// </summary>
+		/// <param name="name">The name of the attribute style to write.</param>
+		/// <param name="value">The style value to be written.</param>
+		public void SetStyleAttributeValue(string name, string value)
 		{
-			BrowserElement.SetStyleAttributeValue(attributeName, value);
+			BrowserElement.SetStyleAttributeValue(name, value);
 		}
 
+		/// <summary>
+		/// Type text into the element.
+		/// </summary>
+		/// <param name="value">The value to be typed.</param>
 		public void TypeText(string value)
 		{
 			Focus();
@@ -171,6 +233,9 @@ namespace TestR
 			TriggerElement();
 		}
 
+		/// <summary>
+		/// Triggers the element via the Angular function "trigger".
+		/// </summary>
 		private void TriggerElement()
 		{
 			if (BrowserElement.Browser.JavascriptLibraries.Contains(JavaScriptLibrary.Angular)

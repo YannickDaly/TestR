@@ -8,6 +8,10 @@ using TestR.Collections;
 
 namespace TestR.Browsers
 {
+	/// <summary>
+	/// This is the place hold for what may be Chrome support.
+	/// </summary>
+	/// <exclude />
 	public class ChromeBrowser : Browser
 	{
 		#region Fields
@@ -19,6 +23,9 @@ namespace TestR.Browsers
 
 		#region Constructors
 
+		/// <summary>
+		/// Initializes a new instance of the Chrome class.
+		/// </summary>
 		public ChromeBrowser()
 		{
 			CreateInstance();

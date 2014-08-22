@@ -5,7 +5,7 @@
 		<version>1.0</version>
 		<authors>Bobby Cannon</authors>
 		<description>
-			Integration testing framework for developers.    
+			Integration testing framework for developers. TestR allows automating testing of web applications.
 		</description>
 		<dependencies>
 			<dependency id="NLog" version="3.1.0.0" />
