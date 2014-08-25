@@ -6,29 +6,17 @@ Integration testing framework for developers. TestR allows automating testing of
 ### Searching Bing
 
 ```
-using (var browser = new InternetExplorer())
+using (var browser = new InternetExplorerBrowser())
 {
+	browser.AutoClose = false;
 	browser.NavigateTo("http://bing.com");
-	
+
 	var input = browser.Elements["q"];
-	Assert.IsNotNull(button, "Could not find the search input.");
+	Assert.IsNotNull(input, "Could not find the search input.");
 	input.TypeText("Bobby Cannon");
 
 	var button = browser.Elements["go"];
 	Assert.IsNotNull(button, "Could not find the search button.");
 	button.Click();
-
-	Assert.AreEqual(...);
-}
-```
-
-### Find Element By Class
-
-```
-using (var browser = new InternetExplorer())
-{
-	browser.NavigateTo("http://bing.com");
-	var elements = browser.Elements.Where(x => x.Class.Contains("b_searchbox"));
-	Assert.AreEqual(1, elements.Count());
 }
 ```
