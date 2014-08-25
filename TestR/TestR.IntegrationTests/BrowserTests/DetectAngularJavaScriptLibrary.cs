@@ -10,20 +10,22 @@ namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
 	[Cmdlet(VerbsDiagnostic.Test, "DetectAngularJavaScriptLibrary")]
-	public class DetectAngularJavaScriptLibrary : TestCmdlet
+	public class DetectAngularJavaScriptLibrary : BrowserTestCmdlet
 	{
 		#region Methods
 
 		[TestMethod]
 		public override void RunTest()
 		{
-			using (var browser = GetBrowser())
+			foreach (var browser in GetBrowsers())
 			{
-				browser.AutoClose = false;
-				browser.BringToFront();
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("Angular.html"));
+				using (browser)
+				{
+					browser.BringToFront();
+					browser.NavigateTo(TestHelper.GetTestFileFullPath("Angular.html"));
 
-				Assert.IsTrue(browser.JavascriptLibraries.Contains(JavaScriptLibrary.Angular));
+					Assert.IsTrue(browser.JavascriptLibraries.Contains(JavaScriptLibrary.Angular));
+				}
 			}
 		}
 

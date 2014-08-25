@@ -10,21 +10,23 @@ namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
 	[Cmdlet(VerbsDiagnostic.Test, "SetFocus")]
-	public class SetFocus : TestCmdlet
+	public class SetFocus : BrowserTestCmdlet
 	{
 		#region Methods
 
 		[TestMethod]
 		public override void RunTest()
 		{
-			using (var browser = GetBrowser())
+			foreach (var browser in GetBrowsers())
 			{
-				browser.AutoClose = false;
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("inputs.html"));
-				var expected = browser.Elements.TextInputs.Last();
-				Assert.AreNotEqual(expected.Id, browser.ActiveElement.Id);
-				expected.Focus();
-				Assert.AreEqual(expected.Id, browser.ActiveElement.Id);
+				using (browser)
+				{
+					browser.NavigateTo(TestHelper.GetTestFileFullPath("inputs.html"));
+					var expected = browser.Elements.TextInputs.Last();
+					Assert.AreNotEqual(expected.Id, browser.ActiveElement.Id);
+					expected.Focus();
+					Assert.AreEqual(expected.Id, browser.ActiveElement.Id);
+				}
 			}
 		}
 

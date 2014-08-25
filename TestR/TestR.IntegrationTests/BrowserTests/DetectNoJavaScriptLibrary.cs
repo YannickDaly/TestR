@@ -10,20 +10,22 @@ namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
 	[Cmdlet(VerbsDiagnostic.Test, "DetectNoJavaScriptLibrary")]
-	public class DetectNoJavaScriptLibrary : TestCmdlet
+	public class DetectNoJavaScriptLibrary : BrowserTestCmdlet
 	{
 		#region Methods
 
 		[TestMethod]
 		public override void RunTest()
 		{
-			using (var browser = GetBrowser())
+			foreach (var browser in GetBrowsers())
 			{
-				browser.AutoClose = false;
-				browser.BringToFront();
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("Inputs.html"));
+				using (browser)
+				{
+					browser.BringToFront();
+					browser.NavigateTo(TestHelper.GetTestFileFullPath("Inputs.html"));
 
-				Assert.AreEqual(0, browser.JavascriptLibraries.Count());
+					Assert.AreEqual(0, browser.JavascriptLibraries.Count());
+				}
 			}
 		}
 

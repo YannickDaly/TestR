@@ -10,19 +10,22 @@ namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
 	[Cmdlet(VerbsDiagnostic.Test, "FilterElementByTextElements")]
-	public class FilterElementByTextElements : TestCmdlet
+	public class FilterElementByTextElements : BrowserTestCmdlet
 	{
 		#region Methods
 
 		[TestMethod]
 		public override void RunTest()
 		{
-			using (var browser = GetBrowser())
+			foreach (var browser in GetBrowsers())
 			{
-				browser.AutoClose = false;
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("inputs.html"));
-				var inputs = browser.Elements.TextInputs.ToList();
-				Assert.AreEqual(5, inputs.Count);
+				using (browser)
+				{
+					browser.AutoClose = false;
+					browser.NavigateTo(TestHelper.GetTestFileFullPath("inputs.html"));
+					var inputs = browser.Elements.TextInputs.ToList();
+					Assert.AreEqual(5, inputs.Count);
+				}
 			}
 		}
 

@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System.Management.Automation;
-using TestR.Browsers;
 
 #endregion
 
@@ -18,14 +17,30 @@ namespace TestR.IntegrationTests
 
 		#region Methods
 
-		public Browser GetBrowser()
+		public abstract void RunTest();
+
+		protected override void ProcessRecord()
 		{
-			var browser = InternetExplorerBrowser.AttachOrCreate();
-			browser.SlowMotion = SlowMotion;
-			return browser;
+			RunTest();
 		}
 
+		#endregion
+	}
+
+	public abstract class TestCmdlet<T> : Cmdlet
+	{
+		#region Properties
+
+		[Parameter(Mandatory = false)]
+		public SwitchParameter SlowMotion { get; set; }
+
+		#endregion
+
+		#region Methods
+
 		public abstract void RunTest();
+
+		protected abstract T CreateItem();
 
 		protected override void ProcessRecord()
 		{

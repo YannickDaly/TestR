@@ -9,6 +9,7 @@
 		/// AngularJS
 		/// </summary>
 		Angular,
+
 		/// <summary>
 		/// JQuery
 		/// </summary>

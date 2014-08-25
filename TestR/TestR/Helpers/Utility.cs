@@ -16,6 +16,63 @@ namespace TestR.Helpers
 		#region Static Methods
 
 		/// <summary>
+		/// Retry the action until we get a valid response or hit the retry limit.
+		/// </summary>
+		/// <param name="action">The action to perform.</param>
+		/// <param name="validateResponse">The function to validate the action response.</param>
+		/// <param name="retryCount">The number of times to retry the action.</param>
+		/// <param name="delay">The delay (in milliseconds) between each action attempt.</param>
+		/// <typeparam name="T">The type of the action response.</typeparam>
+		/// <returns>The action response.</returns>
+		public static T Retry<T>(Func<T> action, Func<T, bool> validateResponse, int retryCount = 5, int delay = 50)
+		{
+			var response = action();
+			var count = 0;
+
+			while (!validateResponse(response))
+			{
+				Thread.Sleep(delay);
+				response = action();
+
+				if (count++ >= retryCount)
+				{
+					return response;
+				}
+			}
+
+			return response;
+		}
+
+		/// <summary>
+		/// Retry the action until it completes or hit the retry limit..
+		/// </summary>
+		/// <param name="action">The action to perform.</param>
+		/// <param name="retryCount">The number of times to retry the action.</param>
+		/// <param name="delay">The delay (in milliseconds) between each action attempt.</param>
+		/// <param name="message">The option message to throw if the retry limit is triggered.</param>
+		/// <typeparam name="T">The type of the action response.</typeparam>
+		/// <returns>The action response.</returns>
+		public static T Retry<T>(Func<T> action, int retryCount = 5, int delay = 50, string message = null)
+		{
+			var lastError = new Exception("Could not complete the retries.");
+
+			for (var i = 0; i < retryCount; i++)
+			{
+				try
+				{
+					return action();
+				}
+				catch (Exception ex)
+				{
+					lastError = ex;
+					Thread.Sleep(delay);
+				}
+			}
+
+			throw string.IsNullOrWhiteSpace(message) ? lastError : new Exception(message);
+		}
+
+		/// <summary>
 		/// Runs the action until the action returns true or the timeout is reached. Will delay in between actions of the provided time.
 		/// </summary>
 		/// <param name="action">The action to call.</param>

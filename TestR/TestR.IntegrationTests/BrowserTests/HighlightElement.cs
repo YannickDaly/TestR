@@ -10,26 +10,28 @@ namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
 	[Cmdlet(VerbsDiagnostic.Test, "HighlightElement")]
-	public class HighlightElement : TestCmdlet
+	public class HighlightElement : BrowserTestCmdlet
 	{
 		#region Methods
 
 		[TestMethod]
 		public override void RunTest()
 		{
-			using (var browser = GetBrowser())
+			foreach (var browser in GetBrowsers())
 			{
-				browser.AutoClose = false;
-				browser.BringToFront();
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("inputs.html"));
-
-				foreach (var element in browser.Elements.Where(t => t.TagName == "input"))
+				using (browser)
 				{
-					var originalColor = element.GetStyleAttributeValue("backgroundColor");
-					element.Highlight(true);
-					Assert.AreEqual("yellow", element.GetStyleAttributeValue("backgroundColor"));
-					element.Highlight(false);
-					Assert.AreEqual(originalColor, element.GetStyleAttributeValue("backgroundColor"));
+					browser.BringToFront();
+					browser.NavigateTo(TestHelper.GetTestFileFullPath("inputs.html"));
+
+					foreach (var element in browser.Elements.Where(t => t.TagName == "input"))
+					{
+						var originalColor = element.GetStyleAttributeValue("background-color");
+						element.Highlight(true);
+						Assert.AreEqual("yellow", element.GetStyleAttributeValue("background-color"));
+						element.Highlight(false);
+						Assert.AreEqual(originalColor, element.GetStyleAttributeValue("background-color"));
+					}
 				}
 			}
 		}

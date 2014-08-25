@@ -10,19 +10,22 @@ namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
 	[Cmdlet(VerbsDiagnostic.Test, "FindElementByClass")]
-	public class FindElementByClass : TestCmdlet
+	public class FindElementByClass : BrowserTestCmdlet
 	{
 		#region Methods
 
 		[TestMethod]
 		public override void RunTest()
 		{
-			using (var browser = GetBrowser())
+			foreach (var browser in GetBrowsers())
 			{
-				browser.AutoClose = false;
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
-				var elements = browser.Elements.Where(x => x.Class.Contains("red"));
-				Assert.AreEqual(1, elements.Count());
+				using (browser)
+				{
+					browser.AutoClose = false;
+					browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
+					var elements = browser.Elements.Where(x => x.Class.Contains("red"));
+					Assert.AreEqual(1, elements.Count());
+				}
 			}
 		}
 

@@ -15,7 +15,7 @@ namespace TestR.Elements
 		/// Initializes an instance of the SpanElement class.
 		/// </summary>
 		/// <param name="element">The browser element this class represents.</param>
-		public SpanElement(IBrowserElement element)
+		public SpanElement(BrowserElement element)
 			: base(element)
 		{
 		}

@@ -1,10 +1,8 @@
 ﻿#region References
 
-using System.Linq;
 using System.Management.Automation;
 using System.Threading;
 using TestR.Browsers;
-using TestR.Helpers;
 
 #endregion
 
@@ -44,8 +42,7 @@ namespace TestR.PowerShell
 		{
 			if (ClearCookies)
 			{
-				InternetExplorerBrowser.CloseAllOpenBrowsers();
-				Utility.Wait(() => !InternetExplorerBrowser.GetExistingBrowserIds().Any());
+				InternetExplorerBrowser.CloseAllBrowsers();
 				InternetExplorerBrowser.ClearCookies(CookieUri ?? string.Empty);
 				Thread.Sleep(250);
 				WriteObject(new InternetExplorerBrowser());

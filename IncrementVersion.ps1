@@ -41,21 +41,23 @@ function Set-BuildNumbers
     $foundFiles = get-childitem $desiredPath\*AssemblyInfo.cs -Recurse
     if ($foundFiles.Length -le 0)
     {
-        "No files found"
+        Write-Verbose "No files found"
         return
     }
 
     foreach( $file in $foundFiles )
     {   
-        $file.FullName
+        Write-Verbose $file.FullName
+        
         $oldVersionNumber = Locate-BuildNumber $file $assemblyVersionPattern
         $newVersionNumber = Set-BuildNumber $oldVersionNumber $build $revision
         $oldFileVersionNumber = Locate-BuildNumber $file $assemblyFileVersionPattern
         $newFileVersionNumber = Set-BuildNumber $oldFileVersionNumber $build $revision
-        #"Old $oldVersionNumber"
-        #"Old $oldFileVersionNumber"
-        "New $newVersionNumber"
-        "New $newFileVersionNumber"  
+        
+        Write-Verbose "Old $oldVersionNumber"
+        Write-Verbose "Old $oldFileVersionNumber"
+        Write-Verbose "New $newVersionNumber"
+        Write-Verbose "New $newFileVersionNumber"  
         
         (Get-Content $file) | % {
             if ($_.StartsWith("//")) { return $_ }

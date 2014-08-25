@@ -1,6 +1,5 @@
-#region References
+﻿#region References
 
-using System.Linq;
 using System.Management.Automation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -9,8 +8,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
-	[Cmdlet(VerbsDiagnostic.Test, "FindElementByText")]
-	public class FindElementByText : BrowserTestCmdlet
+	[Cmdlet(VerbsDiagnostic.Test, "ClickButtonByName")]
+	public class ClickButtonByName : BrowserTestCmdlet
 	{
 		#region Methods
 
@@ -21,10 +20,14 @@ namespace TestR.IntegrationTests.BrowserTests
 			{
 				using (browser)
 				{
-					browser.AutoClose = false;
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
-					var elements = browser.Elements.Where(x => x.Text == "SPAN with ID of 1");
-					Assert.AreEqual(1, elements.Count());
+
+					var button = browser.Elements["buttonByName"];
+					Assert.IsNotNull(button, "Could not find the button.");
+					button.Click();
+
+					var textArea = browser.Elements.TextInputs["textarea"];
+					Assert.AreEqual(button.Name, textArea.Value);
 				}
 			}
 		}

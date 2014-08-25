@@ -15,7 +15,7 @@ namespace TestR.Elements
 		/// Initializes an instance of the LinkElement class.
 		/// </summary>
 		/// <param name="element">The browser element this class represents.</param>
-		public LinkElement(IBrowserElement element)
+		public LinkElement(BrowserElement element)
 			: base(element)
 		{
 		}

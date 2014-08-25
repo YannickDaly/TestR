@@ -11,7 +11,7 @@
 		/// Initializes an instance of the ButtonElement class.
 		/// </summary>
 		/// <param name="element">The browser element this class represents.</param>
-		public ButtonElement(IBrowserElement element)
+		public ButtonElement(BrowserElement element)
 			: base(element)
 		{
 		}

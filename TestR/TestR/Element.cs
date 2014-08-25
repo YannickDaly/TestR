@@ -4,6 +4,7 @@ using System;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Threading;
+using NLog;
 
 #endregion
 
@@ -27,12 +28,11 @@ namespace TestR
 		/// Initializes a new instance of the Element class.
 		/// </summary>
 		/// <param name="element"></param>
-		public Element(IBrowserElement element)
+		public Element(BrowserElement element)
 		{
 			BrowserElement = element;
 			_orginalColor = BrowserElement.GetStyleAttributeValue("backgroundColor") ?? "";
 			_highlightColor = "yellow";
-			TypeTextDelay = TimeSpan.FromMilliseconds(element.Browser.SlowMotion ? 150 : 1);
 		}
 
 		#endregion
@@ -78,7 +78,7 @@ namespace TestR
 		{
 			get { return BrowserElement.Id; }
 		}
-		
+
 		/// <summary>
 		/// Gets the name of the element.
 		/// </summary>
@@ -100,18 +100,13 @@ namespace TestR
 		/// </summary>
 		public string Text
 		{
-			get { return GetAttributeValue("innertext"); }
+			get { return BrowserElement.Text; }
 		}
-
-		/// <summary>
-		/// The delay between keystrokes when TypeText is called.
-		/// </summary>
-		public TimeSpan TypeTextDelay { get; set; }
 
 		/// <summary>
 		/// Gets the browser element this element is for.
 		/// </summary>
-		internal IBrowserElement BrowserElement { get; private set; }
+		internal BrowserElement BrowserElement { get; private set; }
 
 		#endregion
 
@@ -122,7 +117,7 @@ namespace TestR
 		/// </summary>
 		public void Blur()
 		{
-			FireEvent("onBlur");
+			//FireEvent("onBlur");
 		}
 
 		/// <summary>
@@ -132,23 +127,6 @@ namespace TestR
 		{
 			BrowserElement.Focus();
 			BrowserElement.Click();
-			BrowserElement.Browser.WaitForComplete();
-		}
-
-		/// <summary>
-		/// Fires an event on the element.
-		/// </summary>
-		/// <param name="eventName">The events name to fire.</param>
-		/// <param name="eventProperties">The properties for the event.</param>
-		/// <exception cref="Exception">The element is disabled so we cannot fire the event.</exception>
-		public void FireEvent(string eventName, NameValueCollection eventProperties = null)
-		{
-			if (!Enabled)
-			{
-				throw new Exception("This element is disabled so we cannot fire the event.");
-			}
-
-			BrowserElement.FireEvent(eventName, eventProperties);
 			BrowserElement.Browser.WaitForComplete();
 		}
 
@@ -186,11 +164,12 @@ namespace TestR
 		/// <param name="highlight">If true the element is highlight yellow. If false the element is returned to its original color.</param>
 		public void Highlight(bool highlight)
 		{
-			BrowserElement.SetStyleAttributeValue("backgroundColor", highlight ? _highlightColor : _orginalColor);
+			Logger.Write(highlight ? "Adding highlight to element " + Id + "." : "Removing highlight from element " + Id + ".", LogLevel.Trace);
+			BrowserElement.SetStyleAttributeValue("background-color", highlight ? _highlightColor : _orginalColor);
 
 			if (BrowserElement.Browser.SlowMotion && highlight)
 			{
-				Thread.Sleep(500);
+				Thread.Sleep(150);
 			}
 		}
 
@@ -222,20 +201,7 @@ namespace TestR
 		{
 			Focus();
 			Highlight(true);
-
-			foreach (var character in value)
-			{
-				var eventProperty = GetKeyCodeEventProperty(character);
-				FireEvent("onKeyDown", eventProperty);
-				FireEvent("onKeyPress", eventProperty);
-				FireEvent("onKeyUp", eventProperty);
-
-				var newValue = BrowserElement.GetAttributeValue("value") + character;
-				BrowserElement.SetAttributeValue("value", newValue);
-
-				Thread.Sleep(TypeTextDelay);
-			}
-
+			BrowserElement.TypeText(value);
 			Highlight(false);
 			Blur();
 			TriggerElement();
@@ -251,15 +217,6 @@ namespace TestR
 			{
 				BrowserElement.Browser.ExecuteJavascript("angular.element('#" + Id + "').trigger('input');");
 			}
-		}
-
-		#endregion
-
-		#region Static Methods
-
-		private static NameValueCollection GetKeyCodeEventProperty(char character)
-		{
-			return new NameValueCollection { { "keyCode", ((int) character).ToString() }, { "charCode", ((int) character).ToString() } };
 		}
 
 		#endregion

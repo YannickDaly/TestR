@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Expando;
+using System.Threading;
 using mshtml;
 
 #endregion
@@ -15,27 +16,11 @@ namespace TestR.Browsers
 	/// <summary>
 	/// Represents an element for the Internet Explorer browser.
 	/// </summary>
-	public class InternetExplorerElement : IBrowserElement
+	public class InternetExplorerElement : BrowserElement
 	{
 		#region Fields
 
-		/// <summary>
-		/// Properties that need to be renamed when requested.
-		/// </summary>
-		public static readonly Dictionary<string, string> PropertiesToRename = new Dictionary<string, string>
-		{
-			{ "class", "className" }
-		};
-
-		/// <summary>
-		/// Attributes of elements that need to be access by properties rather than as attributes.
-		/// </summary>
-		public static readonly IList<string> UsePropertyInsteadOfAttribute = new[]
-		{
-			"selected", "textContent", "className", "checked", "readOnly", "multiple", "value",
-			"nodeType", "innerHTML", "baseURI", "src", "href", "rowIndex", "cellIndex"
-		};
-
+		private readonly InternetExplorerBrowser _browser;
 		private readonly IHTMLElement _element;
 
 		#endregion
@@ -47,10 +32,10 @@ namespace TestR.Browsers
 		/// </summary>
 		/// <param name="element">The browser element this is for.</param>
 		/// <param name="browser">The browser this element is associated with.</param>
-		public InternetExplorerElement(IHTMLElement element, Browser browser)
+		public InternetExplorerElement(IHTMLElement element, InternetExplorerBrowser browser)
 		{
 			_element = element;
-			Browser = browser;
+			_browser = browser;
 		}
 
 		#endregion
@@ -60,30 +45,41 @@ namespace TestR.Browsers
 		/// <summary>
 		/// Gets the browser this element is currently associated with.
 		/// </summary>
-		public Browser Browser { get; private set; }
+		public override Browser Browser
+		{
+			get { return _browser; }
+		}
 
 		/// <summary>
 		/// Gets the ID of the element.
 		/// </summary>
-		public string Id
+		public override string Id
 		{
 			get { return GetAttributeValue("id"); }
 		}
 
 		/// <summary>
+		/// Gets the name of the element.
+		/// </summary>
+		public override string Name
+		{
+			get { return GetAttributeValue("name"); }
+		}
+
+		/// <summary>
 		/// Gets the tag name of the element.
 		/// </summary>
-		public string TagName
+		public override string TagName
 		{
 			get { return _element.tagName.ToLower(); }
 		}
 
 		/// <summary>
-		/// Gets the name of the element.
+		/// Gets the delay between each character.
 		/// </summary>
-		public string Name
+		public override int TypingDelay
 		{
-			get { return GetAttributeValue("name"); }
+			get { return Browser.SlowMotion ? 150 : 1; }
 		}
 
 		#endregion
@@ -93,7 +89,7 @@ namespace TestR.Browsers
 		/// <summary>
 		/// Clicks the element.
 		/// </summary>
-		public void Click()
+		public override void Click()
 		{
 			_element.click();
 		}
@@ -103,7 +99,7 @@ namespace TestR.Browsers
 		/// </summary>
 		/// <param name="eventName">The events name to fire.</param>
 		/// <param name="eventProperties">The properties for the event.</param>
-		public void FireEvent(string eventName, NameValueCollection eventProperties = null)
+		public void FireEvent(string eventName, Dictionary<string,string> eventProperties)
 		{
 			var element = (IHTMLElement3) _element;
 			var result = eventProperties == null
@@ -119,7 +115,7 @@ namespace TestR.Browsers
 		/// <summary>
 		/// Focuses on the element.
 		/// </summary>
-		public void Focus()
+		public override void Focus()
 		{
 			((IHTMLElement2) _element).focus();
 		}
@@ -129,7 +125,7 @@ namespace TestR.Browsers
 		/// </summary>
 		/// <param name="name">The name of the attribute to read.</param>
 		/// <returns>The attribute value.</returns>
-		public string GetAttributeValue(string name)
+		public override string GetAttributeValue(string name)
 		{
 			name = PropertiesToRename.ContainsKey(name)
 				? PropertiesToRename[name] : name;
@@ -146,7 +142,7 @@ namespace TestR.Browsers
 			var value = attributeValue.ToString();
 			if (name.ToLower() == "selected" && value.ToLower() == "selected")
 			{
-				value = "True";
+				value = "true";
 			}
 
 			return value;
@@ -157,7 +153,7 @@ namespace TestR.Browsers
 		/// </summary>
 		/// <param name="name">The name of the attribute style to read.</param>
 		/// <returns>The attribute style value.</returns>
-		public string GetStyleAttributeValue(string name)
+		public override string GetStyleAttributeValue(string name)
 		{
 			return _element.style.getAttribute(name);
 		}
@@ -167,9 +163,9 @@ namespace TestR.Browsers
 		/// </summary>
 		/// <param name="name">The name of the attribute to write.</param>
 		/// <param name="value">The value to be written.</param>
-		public void SetAttributeValue(string name, string value)
+		public override void SetAttributeValue(string name, string value)
 		{
-			value = HandleAttributesWhichHaveNoValue(name, value);
+			value = ProcessAttributeValue(name, value);
 			_element.setAttribute(name, value, 0);
 		}
 
@@ -178,9 +174,29 @@ namespace TestR.Browsers
 		/// </summary>
 		/// <param name="name">The name of the attribute style to write.</param>
 		/// <param name="value">The style value to be written.</param>
-		public void SetStyleAttributeValue(string name, string value)
+		public override void SetStyleAttributeValue(string name, string value)
 		{
 			_element.style.setAttribute(name, value);
+		}
+
+		/// <summary>
+		/// Type text into the element.
+		/// </summary>
+		/// <param name="value">The value to be typed.</param>
+		public override void TypeText(string value)
+		{
+			foreach (var character in value)
+			{
+				var eventProperty = GetKeyCodeEventProperty(character);
+				FireEvent("onKeyDown", eventProperty);
+				FireEvent("onKeyPress", eventProperty);
+				FireEvent("onKeyUp", eventProperty);
+
+				var newValue = GetAttributeValue("value") + character;
+				SetAttributeValue("value", newValue);
+
+				Thread.Sleep(TypingDelay);
+			}
 		}
 
 		private object GetExpandoValue(string attributeName)
@@ -200,22 +216,6 @@ namespace TestR.Browsers
 			{
 				return null;
 			}
-		}
-
-		#endregion
-
-		#region Static Methods
-
-		private static string HandleAttributesWhichHaveNoValue(string attributeName, string value)
-		{
-			// selected is attribute of Option
-			// checked is attribute of RadioButton and CheckBox
-			if (attributeName == "selected" || attributeName == "checked")
-			{
-				value = bool.Parse(value) ? "true" : "";
-			}
-
-			return value;
 		}
 
 		#endregion

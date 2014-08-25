@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using TestR.Collections;
+using TestR.Extensions;
 
 #endregion
 
@@ -14,21 +15,44 @@ namespace TestR.Browsers
 	/// <exclude />
 	public class ChromeBrowser : Browser
 	{
+		#region Constants
+
+		private const string DebugArgument = "--remote-debugging-port=9222";
+
+		#endregion
+
 		#region Fields
 
-		private ChromeBrowserConnector _connector;
-		private Process _process;
+		private Window _window;
 
 		#endregion
 
 		#region Constructors
 
 		/// <summary>
-		/// Initializes a new instance of the Chrome class.
+		/// Initializes a new instance of the ChromeBrowser class.
 		/// </summary>
 		public ChromeBrowser()
+			: this(Create())
 		{
-			CreateInstance();
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the ChromeBrowser class.
+		/// </summary>
+		/// <param name="process">The process of the existing browser.</param>
+		public ChromeBrowser(Process process)
+			: this(new Window(process))
+		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the ChromeBrowser class.
+		/// </summary>
+		/// <param name="window">The window of the existing browser.</param>
+		public ChromeBrowser(Window window)
+		{
+			_window = window;
 			ConnectInstance();
 		}
 
@@ -41,15 +65,24 @@ namespace TestR.Browsers
 		/// </summary>
 		public override Element ActiveElement
 		{
-			get { throw new NotImplementedException(); }
+			get
+			{
+				var id = Connector.ExecuteJavascript("document.activeElement.id");
+				return Elements[id];
+			}
 		}
+
+		/// <summary>
+		/// The connector to communicate with the browser.
+		/// </summary>
+		public ChromeBrowserConnector Connector { get; private set; }
 
 		/// <summary>
 		/// Gets a list of all elements on the current page.
 		/// </summary>
 		public override ElementCollection Elements
 		{
-			get { throw new NotImplementedException(); }
+			get { return new ChromeElementCollection(Connector.Elements, this).ToElementCollection(); }
 		}
 
 		/// <summary>
@@ -57,7 +90,7 @@ namespace TestR.Browsers
 		/// </summary>
 		public override int Id
 		{
-			get { throw new NotImplementedException(); }
+			get { return _window.Handle.ToInt32(); }
 		}
 
 		/// <summary>
@@ -65,7 +98,7 @@ namespace TestR.Browsers
 		/// </summary>
 		public override string Uri
 		{
-			get { throw new NotImplementedException(); }
+			get { return Connector.GetUri(); }
 		}
 
 		/// <summary>
@@ -74,7 +107,7 @@ namespace TestR.Browsers
 		/// <value>Window handle of the current browser.</value>
 		protected override IntPtr WindowHandle
 		{
-			get { throw new NotImplementedException(); }
+			get { return _window.Handle; }
 		}
 
 		#endregion
@@ -88,7 +121,7 @@ namespace TestR.Browsers
 		/// <returns></returns>
 		public override string ExecuteJavascript(string script)
 		{
-			return string.Empty;
+			return Connector.ExecuteJavascript(script);
 		}
 
 		/// <summary>
@@ -97,7 +130,9 @@ namespace TestR.Browsers
 		/// <param name="uri">The URI to navigate to.</param>
 		public override void NavigateTo(string uri)
 		{
-			_connector.NavigateTo(uri);
+			Connector.NavigateTo(uri);
+			DetectJavascriptLibraries();
+			LinkToTestScript();
 		}
 
 		/// <summary>
@@ -115,17 +150,20 @@ namespace TestR.Browsers
 		{
 			if (disposing)
 			{
-				if (_connector != null)
+				if (Connector != null)
 				{
-					_connector.Dispose();
+					Connector.Dispose();
 				}
 
-				if (_process != null)
+				if (AutoClose && _window != null)
 				{
-					_process.CloseMainWindow();
-					_process.Close();
-					_process.Dispose();
-					_process = null;
+					_window.Close();
+				}
+
+				if (_window != null)
+				{
+					_window.Dispose();
+					_window = null;
 				}
 			}
 
@@ -134,29 +172,57 @@ namespace TestR.Browsers
 
 		private void ConnectInstance()
 		{
-			_connector = new ChromeBrowserConnector("http://localhost:9222");
-			_connector.Connect();
+			Connector = new ChromeBrowserConnector("http://localhost:9222", this);
+			Connector.Connect();
 		}
 
-		private void CreateInstance()
+		#endregion
+
+		#region Static Methods
+
+		/// <summary>
+		/// Attempts to attach to an existing browser.
+		/// </summary>
+		/// <returns>The browser instance or null if not found.</returns>
+		public static Browser Attach()
 		{
-			var info = new ProcessStartInfo("chrome.exe");
-			info.Arguments = "--remote-debugging-port=9222";
-			info.WindowStyle = ProcessWindowStyle.Normal;
-			info.UseShellExecute = true;
+			var window = Window.FindWindow("chrome", DebugArgument);
+			return window != null ? new ChromeBrowser(window) : null;
+		}
 
-			_process = new Process();
-			_process.StartInfo = info;
-			_process.Exited += (sender, args) =>
-			{
-				_process.Dispose();
-				_process = null;
-			};
+		/// <summary>
+		/// Attempts to attach to an existing browser. If one is not found then create and return a new one.
+		/// </summary>
+		/// <returns>The browser instance.</returns>
+		public static Browser AttachOrCreate()
+		{
+			return Attach() ?? new ChromeBrowser(Create());
+		}
 
-			if (!_process.Start())
+		/// <summary>
+		/// Closes all instances of the Chrome browser.
+		/// </summary>
+		public static void CloseAllBrowsers()
+		{
+			Window.CloseAll("chrome");
+		}
+
+		/// <summary>
+		/// Attempts to create a new browser. If one is not found then we'll make sure it was started with the 
+		/// remote debugger argument. If not an exception will be thrown.
+		/// </summary>
+		/// <returns>The browser instance.</returns>
+		private static Process Create()
+		{
+			var window1 = Window.FindWindow("chrome");
+			var window2 = Window.FindWindow("chrome", DebugArgument);
+			if (window1 != null && window2 == null)
 			{
-				throw new Exception("Failed to start the process. ExitCode: " + _process.ExitCode);
+				throw new Exception("The first instance of Chrome was not started with the remote debugger enabled.");
 			}
+
+			// Create a new instance and return it.
+			return CreateInstance("chrome.exe", DebugArgument);
 		}
 
 		#endregion

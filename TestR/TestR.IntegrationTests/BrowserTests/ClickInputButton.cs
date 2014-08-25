@@ -9,24 +9,26 @@ namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
 	[Cmdlet(VerbsDiagnostic.Test, "ClickInputButton")]
-	public class ClickInputButton : TestCmdlet
+	public class ClickInputButton : BrowserTestCmdlet
 	{
 		#region Methods
 
 		[TestMethod]
 		public override void RunTest()
 		{
-			using (var browser = GetBrowser())
+			foreach (var browser in GetBrowsers())
 			{
-				browser.AutoClose = false;
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
+				using (browser)
+				{
+					browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
 
-				var button = browser.Elements.Buttons["inputButton"];
-				Assert.IsNotNull(button, "Could not find the input button.");
-				button.Click();
+					var button = browser.Elements.Buttons["inputButton"];
+					Assert.IsNotNull(button, "Could not find the input button.");
+					button.Click();
 
-				var textArea = browser.Elements.TextInputs["textarea"];
-				Assert.AreEqual(button.Id, textArea.Value);
+					var textArea = browser.Elements.TextInputs["textarea"];
+					Assert.AreEqual(button.Id, textArea.Value);
+				}
 			}
 		}
 

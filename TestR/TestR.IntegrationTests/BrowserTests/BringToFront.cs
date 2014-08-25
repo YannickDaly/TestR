@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System.Management.Automation;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #endregion
@@ -9,18 +10,20 @@ namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
 	[Cmdlet(VerbsDiagnostic.Test, "BringToFront")]
-	public class BringToFront : TestCmdlet
+	public class BringToFront : BrowserTestCmdlet
 	{
 		#region Methods
 
 		[TestMethod]
 		public override void RunTest()
 		{
-			using (var browser = GetBrowser())
+			foreach (var browser in GetBrowsers())
 			{
-				browser.AutoClose = false;
-				browser.BringToFront();
-				Assert.IsTrue(browser.IsInFront());
+				using (browser)
+				{
+					browser.BringToFront();
+					Assert.IsTrue(browser.IsInFront());
+				}
 			}
 		}
 

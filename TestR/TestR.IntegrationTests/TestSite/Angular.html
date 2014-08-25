@@ -13,11 +13,12 @@
 		</style>
 	</head>
 	<body ng-controller="testController">
-		
+
 		<div>{{ message }}</div>
 		<input id="email" type="email" ng-model="user.email" required /><br />
 		<span id="emailValidation" ng-bind="user.email"></span>
-		
+		<div id="log"></div>
+
 		<script src="./Scripts/jquery-2.1.1.js"></script>
 		<script src="./Scripts/angular.js"></script>
 
@@ -36,6 +37,21 @@
 					}
 				]);
 
+			$(document).ready(function () {
+				document.addEventListener("keydown", function (e) {
+					document.getElementById('log').innerHTML += "keydown: " + e.keyCode + "(" + String.fromCharCode(e.keyCode) + ")<br />";
+				});
+
+				document.addEventListener("keypress", function (e) {
+					document.getElementById('log').innerHTML += "keypress: " + e.keyCode + "(" + String.fromCharCode(e.keyCode) + ")<br />";
+				});
+
+				document.addEventListener("keyup", function (e) {
+					document.getElementById('log').innerHTML += "keyup: " + e.keyCode + "(" + String.fromCharCode(e.keyCode) + ")<br />";
+				});
+			});
+
 		</script>
 	</body>
+
 </html>

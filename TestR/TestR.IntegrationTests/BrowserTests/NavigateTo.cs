@@ -9,20 +9,23 @@ namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
 	[Cmdlet(VerbsDiagnostic.Test, "NavigateTo")]
-	public class NavigateTo : TestCmdlet
+	public class NavigateTo : BrowserTestCmdlet
 	{
 		#region Methods
 
 		[TestMethod]
 		public override void RunTest()
 		{
-			using (var browser = GetBrowser())
+			foreach (var browser in GetBrowsers())
 			{
-				var expected = TestHelper.GetTestFileFullPath("Index.html");
-				browser.AutoClose = false;
-				browser.BringToFront();
-				browser.NavigateTo(expected);
-				Assert.AreEqual(expected, browser.Uri);
+				using (browser)
+				{
+					var expected = TestHelper.GetTestFileFullPath("Index.html");
+					browser.AutoClose = false;
+					browser.BringToFront();
+					browser.NavigateTo(expected);
+					Assert.AreEqual(expected, browser.Uri);
+				}
 			}
 		}
 

@@ -26,6 +26,7 @@ namespace TestR.Browsers
 	{
 		#region Fields
 
+		private readonly Window _window;
 		private InternetExplorer _browser;
 
 		#endregion
@@ -45,6 +46,7 @@ namespace TestR.Browsers
 		{
 			_browser = browser;
 			_browser.Visible = true;
+			_window = new Window(new IntPtr(_browser.HWND));
 
 			Attached = true;
 
@@ -79,7 +81,7 @@ namespace TestR.Browsers
 		/// </summary>
 		public override int Id
 		{
-			get { return _browser.HWND; }
+			get { return _window.Handle.ToInt32(); }
 		}
 
 		/// <summary>
@@ -96,7 +98,7 @@ namespace TestR.Browsers
 		/// <value>Window handle of the current browser.</value>
 		protected override IntPtr WindowHandle
 		{
-			get { return new IntPtr(_browser.HWND); }
+			get { return _window.Handle; }
 		}
 
 		#endregion
@@ -153,6 +155,7 @@ namespace TestR.Browsers
 			_browser.Navigate2(ref absoluteUri, ref nil, ref nil, ref nil, ref nil);
 			WaitForComplete();
 			DetectJavascriptLibraries();
+			LinkToTestScript();
 		}
 
 		/// <summary>
@@ -201,30 +204,7 @@ namespace TestR.Browsers
 				_browser = null;
 			}
 		}
-
-		private void DetectJavascriptLibraries()
-		{
-			if (Uri.Length <= 0 || Uri.Equals("about:tabs"))
-			{
-				return;
-			}
-
-			var libraries = new List<JavaScriptLibrary>();
-			var hasLibrary = ExecuteJavascript("typeof jQuery !== 'undefined'");
-			if (hasLibrary == "true")
-			{
-				libraries.Add(JavaScriptLibrary.JQuery);
-			}
-
-			hasLibrary = ExecuteJavascript("typeof angular !== 'undefined'");
-			if (hasLibrary == "true")
-			{
-				libraries.Add(JavaScriptLibrary.Angular);
-			}
-
-			JavascriptLibraries = libraries;
-		}
-
+		
 		private string GetJavascriptResult(string name)
 		{
 			var expando = (IExpando) _browser.Document;
@@ -238,13 +218,22 @@ namespace TestR.Browsers
 		#region Static Methods
 
 		/// <summary>
+		/// Attempts to attach to an existing browser.
+		/// </summary>
+		/// <returns>An instance of an Internet Explorer browser.</returns>
+		public static InternetExplorerBrowser Attach()
+		{
+			var window = Window.FindWindow("iexplore");
+			return window != null ? new InternetExplorerBrowser(window.GetInternetExplorer()) : null;
+		}
+
+		/// <summary>
 		/// Attempts to attach to an existing browser. If one is not found then create and return a new one.
 		/// </summary>
 		/// <returns>An instance of an Internet Explorer browser.</returns>
 		public static InternetExplorerBrowser AttachOrCreate()
 		{
-			var instance = NativeMethods.FindInternetExplorerInstances().FirstOrDefault();
-			return instance != null ? new InternetExplorerBrowser(instance) : new InternetExplorerBrowser();
+			return Attach() ?? Create();
 		}
 
 		/// <summary>
@@ -283,20 +272,20 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
-		/// Close all open Internet Explorer browsers.
+		/// Closes all instances of the Internet Explorer browser.
 		/// </summary>
-		public static void CloseAllOpenBrowsers()
+		public static void CloseAllBrowsers()
 		{
-			NativeMethods.FindInternetExplorerInstances().ForEach(x => x.Quit());
+			Window.CloseAll("iexplore");
 		}
 
 		/// <summary>
-		/// Gets a list of IDs for all current Internet Explorer browsers.
+		/// Creates a new instance of an Internet Explorer browser.
 		/// </summary>
-		/// <returns></returns>
-		public static IEnumerable<int> GetExistingBrowserIds()
+		/// <returns>An instance of an Internet Explorer browser.</returns>
+		public static InternetExplorerBrowser Create()
 		{
-			return NativeMethods.FindInternetExplorerInstances().Select(x => x.HWND);
+			return new InternetExplorerBrowser(CreateInternetExplorerClass());
 		}
 
 		/// <summary>

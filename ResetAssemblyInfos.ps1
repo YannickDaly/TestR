@@ -2,7 +2,7 @@
 $assemblyInfos = Get-ChildItem -Recurse -Filter "assemblyinfo.cs"
 
 foreach ($assemblyInfo in $assemblyInfos) {
-    $assemblyInfo.FullName
+    Write-Verbose $assemblyInfo.FullName
     Invoke-Expression ("cd " + $assemblyInfo.Directory.FullName)
     Invoke-Expression ("git checkout -- " + $assemblyInfo.Name)
 }

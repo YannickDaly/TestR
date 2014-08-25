@@ -11,7 +11,7 @@
 		/// Initializes an instance of the TextInputElement class.
 		/// </summary>
 		/// <param name="element">The browser element this class represents.</param>
-		public TextInputElement(IBrowserElement element)
+		public TextInputElement(BrowserElement element)
 			: base(element)
 		{
 		}

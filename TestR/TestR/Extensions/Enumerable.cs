@@ -11,7 +11,7 @@ namespace TestR.Extensions
 	/// <summary>
 	/// Represents a static helper class.
 	/// </summary>
-	public static class Helper
+	public static partial class Helper
 	{
 		#region Static Methods
 

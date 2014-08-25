@@ -9,8 +9,14 @@ Set-Location $scriptPath
 $destination = "C:\Binaries\TestR"
 $nugetDestination = "C:\Workspaces\Nuget\Developer"
 
-if ([IO.Directory]::Exists($destination)) {
-	[IO.Directory]::Delete($destination, $true)
+if (Test-Path $destination -PathType Container){
+    Remove-Item $destination -Recurse -Force
+}
+
+New-Item $destination -ItemType Directory | Out-Null
+
+if (!(Test-Path $nugetDestination -PathType Container)){
+    New-Item $nugetDestination -ItemType Directory | Out-Null
 }
 
 $configuration = "Release"
@@ -27,21 +33,17 @@ $revision = [Math]::Floor([DateTime]::UtcNow.TimeOfDay.TotalSeconds / 2)
 .\IncrementVersion.ps1 TestR\TestR.UnitTests $build $revision
 
 $msbuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
-cmd /c $msbuild "$scriptPath\TestR\TestR.sln" /p:Configuration="$configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=13.0 /Verbosity:minimal /m
+cmd /c $msbuild "$scriptPath\TestR\TestR.sln" /p:Configuration="$configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=13.0 /v:m /m
 
 if ($IncludeDocumentation) {
-    cmd /c $msbuild "$scriptPath\TestR\TestR.shfbproj" /p:Configuration="$configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=13.0 /Verbosity:minimal /m
+    cmd /c $msbuild "$scriptPath\TestR\TestR.shfbproj" /p:Configuration="$configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=13.0 /v:m /m
 }
 
 Set-Location $scriptPath
 
-if (![System.IO.Directory]::Exists($destination)){
-    [System.IO.Directory]::CreateDirectory(($destination))
-}
-
-xcopy "TestR\TestR\bin\$configuration\TestR.dll" $destination
-xcopy "TestR\TestR\bin\$configuration\Interop.SHDocVw.dll" $destination
-xcopy "TestR\TestR.PowerSHell\bin\$configuration\TestR.PowerShell.dll" $destination
+Copy-Item TestR\TestR\bin\$configuration\TestR.dll $destination
+Copy-Item TestR\TestR\bin\$configuration\Interop.SHDocVw.dll $destination
+Copy-Item TestR\TestR.PowerSHell\bin\$configuration\TestR.PowerShell.dll $destination
 
 $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\TestR.dll")
 $version = $versionInfo.FileVersion.ToString()

@@ -3,8 +3,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using NLog;
+using TestR.Browsers;
 using TestR.Collections;
+using TestR.Helpers;
 
 #endregion
 
@@ -18,7 +22,6 @@ namespace TestR
 	{
 		#region Fields
 
-		private readonly Logger _logger;
 		private readonly Stopwatch _watch;
 
 		#endregion
@@ -30,7 +33,6 @@ namespace TestR
 		/// </summary>
 		protected Browser()
 		{
-			_logger = LogManager.GetLogger("TestR");
 			_watch = Stopwatch.StartNew();
 			AutoClose = true;
 			JavascriptLibraries = new JavaScriptLibrary[0];
@@ -103,10 +105,10 @@ namespace TestR
 		/// </summary>
 		public void BringToFront()
 		{
-			var result = NativeMethods.SetForegroundWindow(WindowHandle);
+			var result = Utility.Retry(() => NativeMethods.SetForegroundWindow(WindowHandle));
 			if (!result)
 			{
-				_logger.Error("Failed to set {0} as the foreground window.", GetType());
+				Logger.Write("Failed to set " + GetType().Name + " as the foreground window (" + WindowHandle + ").", LogLevel.Warn);
 			}
 		}
 
@@ -133,7 +135,8 @@ namespace TestR
 		/// <returns>Returns true if so and false if otherwise.</returns>
 		public bool IsInFront()
 		{
-			return NativeMethods.GetForegroundWindow() == WindowHandle;
+			var handle = NativeMethods.GetForegroundWindow();
+			return handle == WindowHandle;
 		}
 
 		/// <summary>
@@ -148,11 +151,123 @@ namespace TestR
 		public abstract void WaitForComplete();
 
 		/// <summary>
+		/// Runs script to detect specific libraries.
+		/// </summary>
+		protected void DetectJavascriptLibraries()
+		{
+			if (Uri.Length <= 0 || Uri.Equals("about:tabs"))
+			{
+				return;
+			}
+
+			var libraries = new List<JavaScriptLibrary>();
+			var hasLibrary = ExecuteJavascript("typeof jQuery !== 'undefined'");
+			if (hasLibrary.Equals("true", StringComparison.OrdinalIgnoreCase))
+			{
+				libraries.Add(JavaScriptLibrary.JQuery);
+			}
+
+			hasLibrary = ExecuteJavascript("typeof angular !== 'undefined'");
+			if (hasLibrary.Equals("true", StringComparison.OrdinalIgnoreCase))
+			{
+				libraries.Add(JavaScriptLibrary.Angular);
+			}
+
+			JavascriptLibraries = libraries;
+		}
+
+		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
 		/// <param name="disposing">True if disposing and false if otherwise.</param>
 		protected virtual void Dispose(bool disposing)
 		{
+		}
+
+		protected void LinkToTestScript()
+		{
+			var scriptFilePath = GetTestFileFullPath("TestR.js");
+			var script = "var script = document.createElement('script'); script.src = '" + scriptFilePath + "'; document.getElementsByTagName('head')[0].appendChild(script)";
+			ExecuteJavascript(script);
+		}
+
+		#endregion
+
+		#region Static Methods
+
+		/// <summary>
+		/// Closes all browsers of the provided type.
+		/// </summary>
+		/// <param name="type">The type of the browser to close.</param>
+		public static void CloseAllBrowsers(BrowserType type)
+		{
+			if (((int) type & (int) BrowserType.Chrome) == (int) BrowserType.Chrome)
+			{
+				ChromeBrowser.CloseAllBrowsers();
+			}
+
+			if (((int) type & (int) BrowserType.InternetExplorer) == (int) BrowserType.InternetExplorer)
+			{
+				InternetExplorerBrowser.CloseAllBrowsers();
+			}
+		}
+
+		/// <summary>
+		/// Create or attach a browser of the provided type.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		/// <exception cref="Exception"></exception>
+		public static Browser CreateOrAttach<T>()
+		{
+			var type = typeof (T);
+			if (type == typeof (ChromeBrowser))
+			{
+				return ChromeBrowser.AttachOrCreate();
+			}
+
+			if (type == typeof (InternetExplorerBrowser))
+			{
+				return InternetExplorerBrowser.AttachOrCreate();
+			}
+
+			throw new Exception("Invalid type provided.");
+		}
+
+		/// <summary>
+		/// Creates a new process.
+		/// </summary>
+		/// <param name="fileName">The filename of the browser.</param>
+		/// <param name="arguments">The arguments for the browser.</param>
+		/// <returns>The new process for the browser.</returns>
+		/// <exception cref="Exception">Failed to start the process.</exception>
+		protected static Process CreateInstance(string fileName, string arguments = "")
+		{
+			var info = new ProcessStartInfo(fileName);
+			info.Arguments = arguments;
+			info.WindowStyle = ProcessWindowStyle.Normal;
+			info.UseShellExecute = true;
+
+			var process = new Process();
+			process.StartInfo = info;
+
+			if (!process.Start())
+			{
+				throw new Exception("Failed to start the process. ExitCode: " + process.ExitCode);
+			}
+
+			Utility.Wait(process, p => p.Handle != IntPtr.Zero);
+
+			return process;
+		}
+
+		private static string GetTestFileFullPath(string relativePath)
+		{
+			var name = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) ?? "";
+			name += "\\" + relativePath;
+			name = name.Replace("\\", "/");
+			name = name.Replace("file:/", "file:///");
+			return name;
 		}
 
 		#endregion

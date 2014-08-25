@@ -10,20 +10,22 @@ namespace TestR.IntegrationTests.BrowserTests
 {
 	[TestClass]
 	[Cmdlet(VerbsDiagnostic.Test, "DetectJQueryJavaScriptLibrary")]
-	public class DetectJQueryJavaScriptLibrary : TestCmdlet
+	public class DetectJQueryJavaScriptLibrary : BrowserTestCmdlet
 	{
 		#region Methods
 
 		[TestMethod]
 		public override void RunTest()
 		{
-			using (var browser = GetBrowser())
+			foreach (var browser in GetBrowsers())
 			{
-				browser.AutoClose = false;
-				browser.BringToFront();
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("JQuery.html"));
+				using (browser)
+				{
+					browser.BringToFront();
+					browser.NavigateTo(TestHelper.GetTestFileFullPath("JQuery.html"));
 
-				Assert.IsTrue(browser.JavascriptLibraries.Contains(JavaScriptLibrary.JQuery));
+					Assert.IsTrue(browser.JavascriptLibraries.Contains(JavaScriptLibrary.JQuery));
+				}
 			}
 		}
 

@@ -2,7 +2,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using mshtml;
+using System.Linq;
 
 #endregion
 
@@ -11,12 +11,12 @@ namespace TestR.Browsers
 	/// <summary>
 	/// Represents a collection of Internet Explorer elements.
 	/// </summary>
-	public class InternetExplorerElementCollection : IReadOnlyCollection<Element>
+	public class ChromeElementCollection : IReadOnlyCollection<Element>
 	{
 		#region Fields
 
-		private readonly InternetExplorerBrowser _browser;
-		private readonly IHTMLElementCollection _collection;
+		private readonly Browser _browser;
+		private readonly IEnumerable<ChromeElement> _elements;
 
 		#endregion
 
@@ -25,11 +25,9 @@ namespace TestR.Browsers
 		/// <summary>
 		/// Initializes an instance of InternetExplorerElementCollection class.
 		/// </summary>
-		/// <param name="collection"></param>
-		/// <param name="browser"></param>
-		public InternetExplorerElementCollection(IHTMLElementCollection collection, InternetExplorerBrowser browser)
+		public ChromeElementCollection(IEnumerable<ChromeElement> elements, Browser browser)
 		{
-			_collection = collection;
+			_elements = elements;
 			_browser = browser;
 		}
 
@@ -45,7 +43,7 @@ namespace TestR.Browsers
 		/// </returns>
 		public int Count
 		{
-			get { return _collection.length; }
+			get { return _elements.Count(); }
 		}
 
 		#endregion
@@ -60,9 +58,9 @@ namespace TestR.Browsers
 		/// </returns>
 		public IEnumerator<Element> GetEnumerator()
 		{
-			foreach (IHTMLElement htmlElement in _collection)
+			foreach (var element in _elements)
 			{
-				yield return new Element(new InternetExplorerElement(htmlElement, _browser));
+				yield return new Element(element);
 			}
 		}
 
