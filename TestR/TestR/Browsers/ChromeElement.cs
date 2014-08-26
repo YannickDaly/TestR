@@ -2,10 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Threading;
-using mshtml;
 
 #endregion
 
@@ -101,6 +98,23 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
+		/// Fires an event on the element.
+		/// </summary>
+		/// <param name="eventName">The events name to fire.</param>
+		/// <param name="eventProperties">The properties for the event.</param>
+		public void FireEvent(string eventName, Dictionary<string, string> eventProperties)
+		{
+			var values = eventProperties.Aggregate("", (current, item) => current + ("{ key: '" + item.Key + "', value: '" + item.Value + "'},"));
+			if (values.Length > 0)
+			{
+				values = values.Remove(values.Length - 1, 1);
+			}
+
+			var script = "TestR.triggerEvent(document.getElementById('" + Id + "'), '" + eventName.ToLower() + "', [" + values + "]);";
+			Browser.ExecuteJavascript(script);
+		}
+
+		/// <summary>
 		/// Focuses on the element.
 		/// </summary>
 		public override void Focus()
@@ -134,23 +148,6 @@ namespace TestR.Browsers
 			}
 
 			return value;
-		}
-
-		/// <summary>
-		/// Fires an event on the element.
-		/// </summary>
-		/// <param name="eventName">The events name to fire.</param>
-		/// <param name="eventProperties">The properties for the event.</param>
-		public void FireEvent(string eventName, Dictionary<string,string> eventProperties)
-		{
-			var values = eventProperties.Aggregate("", (current, item) => current + ("{ key: '" + item.Key + "', value: '" + item.Value + "'},"));
-			if (values.Length > 0)
-			{
-				values = values.Remove(values.Length - 1, 1);
-			}
-
-			var script = "TestR.triggerEvent(document.getElementById('" + Id + "'), '" + eventName.ToLower() +"', [" + values + "]);";
-			Browser.ExecuteJavascript(script);
 		}
 
 		/// <summary>
@@ -232,7 +229,7 @@ namespace TestR.Browsers
 		{
 			if (!Browser.SlowMotion)
 			{
-				SetAttributeValue("value", value);
+				SetAttributeValue("value", GetAttributeValue("value") + value);
 				FireEvent("onChange", new Dictionary<string, string>());
 				return;
 			}
@@ -243,23 +240,12 @@ namespace TestR.Browsers
 				FireEvent("keyDown", eventProperty);
 				FireEvent("keyPress", eventProperty);
 				FireEvent("keyUp", eventProperty);
-				
+
 				var newValue = GetAttributeValue("value") + character;
 				SetAttributeValue("value", newValue);
 
 				//Thread.Sleep(TypingDelay);
 			}
-		}
-
-		private void FireKeyEvents(int keyCode)
-		{
-			var upperCode = (int) char.ToUpper((char) keyCode);
-			var script = "TestR.triggerKeyboardEvent(document.getElementById('" + Id + "'), 'keydown', " + upperCode + ");";
-			Browser.ExecuteJavascript(script);
-			script = "TestR.triggerKeyboardEvent(document.getElementById('" + Id + "'), 'keypress', " + keyCode + ");";
-			Browser.ExecuteJavascript(script);
-			script = "TestR.triggerKeyboardEvent(document.getElementById('" + Id + "'), 'keyup', " + upperCode + ");";
-			Browser.ExecuteJavascript(script);
 		}
 
 		internal void Initialize()
@@ -285,6 +271,17 @@ namespace TestR.Browsers
 
 			_element.attributes.Add(name);
 			_element.attributes.Add(value);
+		}
+
+		private void FireKeyEvents(int keyCode)
+		{
+			var upperCode = (int) char.ToUpper((char) keyCode);
+			var script = "TestR.triggerKeyboardEvent(document.getElementById('" + Id + "'), 'keydown', " + upperCode + ");";
+			Browser.ExecuteJavascript(script);
+			script = "TestR.triggerKeyboardEvent(document.getElementById('" + Id + "'), 'keypress', " + keyCode + ");";
+			Browser.ExecuteJavascript(script);
+			script = "TestR.triggerKeyboardEvent(document.getElementById('" + Id + "'), 'keyup', " + upperCode + ");";
+			Browser.ExecuteJavascript(script);
 		}
 
 		private string GetAttributeFromElement(string name)

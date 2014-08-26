@@ -7,9 +7,9 @@ using TestR.Browsers;
 
 #endregion
 
-namespace TestR.IntegrationTests
+namespace TestR.PowerShell
 {
-	public abstract class BrowserTestCmdlet : Cmdlet
+	public abstract class BrowserTestCmdlet : TestCmdlet
 	{
 		#region Constructors
 
@@ -25,22 +25,22 @@ namespace TestR.IntegrationTests
 		#region Properties
 
 		[Parameter(Mandatory = false)]
+		public bool AutoClose { get; set; }
+
+		[Parameter(Mandatory = false)]
 		public BrowserType BrowserType { get; set; }
 
 		[Parameter(Mandatory = false)]
-		public SwitchParameter SlowMotion { get; set; }
-
-		[Parameter(Mandatory = false)]
-		public SwitchParameter AutoClose { get; set; }
+		public bool SlowMotion { get; set; }
 
 		#endregion
 
 		#region Methods
-		
+
 		public IEnumerable<Browser> GetBrowsers()
 		{
 			var response = new List<Browser>();
-			
+
 			if (HasBrowserType(BrowserType.Chrome))
 			{
 				var chrome = ChromeBrowser.AttachOrCreate();
@@ -57,14 +57,12 @@ namespace TestR.IntegrationTests
 				response.Add(internetExplorer);
 			}
 
+			for (var i = 0; i < response.Count; i++)
+			{
+				response[i].MoveWindow((800 * i), 0, 800, 600);
+			}
+
 			return response;
-		}
-
-		public abstract void RunTest();
-
-		protected override void ProcessRecord()
-		{
-			RunTest();
 		}
 
 		private bool HasBrowserType(BrowserType type)
@@ -78,12 +76,34 @@ namespace TestR.IntegrationTests
 	public abstract class BrowserTestCmdlet<T> : TestCmdlet<T>
 		where T : Browser, new()
 	{
+		#region Constructors
+
+		protected BrowserTestCmdlet()
+		{
+			AutoClose = false;
+			SlowMotion = false;
+		}
+
+		#endregion
+
+		#region Properties
+
+		[Parameter(Mandatory = false)]
+		public bool AutoClose { get; set; }
+
+		[Parameter(Mandatory = false)]
+		public bool SlowMotion { get; set; }
+
+		#endregion
+
 		#region Methods
 
 		protected override T CreateItem()
 		{
-			var response = (T) Browser.CreateOrAttach<T>();
+			var response = (T) Browser.AttachOrCreate<T>();
+			response.AutoClose = AutoClose;
 			response.SlowMotion = SlowMotion;
+			WriteVerbose("Creating browser with AutoClose: " + response.AutoClose + " SlowMotion: " + response.SlowMotion);
 			return response;
 		}
 

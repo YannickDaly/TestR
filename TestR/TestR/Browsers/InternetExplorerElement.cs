@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Expando;
@@ -99,7 +98,7 @@ namespace TestR.Browsers
 		/// </summary>
 		/// <param name="eventName">The events name to fire.</param>
 		/// <param name="eventProperties">The properties for the event.</param>
-		public void FireEvent(string eventName, Dictionary<string,string> eventProperties)
+		public void FireEvent(string eventName, Dictionary<string, string> eventProperties)
 		{
 			var element = (IHTMLElement3) _element;
 			var result = eventProperties == null

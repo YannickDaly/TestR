@@ -32,7 +32,8 @@ namespace TestR
 			{
 				if (!ex.Message.Contains(message))
 				{
-					Assert.Fail("The expected exception was thrown but did not contain the expected message.");
+					var error = "The expected exception was thrown but did not contain the expected message.";
+					Assert.Fail("{0}{1}Expected: {2}{1}Actual: {3}", error, Environment.NewLine, message, ex.Message);
 				}
 			}
 		}

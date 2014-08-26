@@ -114,6 +114,18 @@ namespace TestR
 		}
 
 		/// <summary>
+		/// Move the window and resize it.
+		/// </summary>
+		/// <param name="x">The x coordinate to move to.</param>
+		/// <param name="y">The y coordinate to move to.</param>
+		/// <param name="width">The width of the window.</param>
+		/// <param name="height">The height of the window.</param>
+		public void MoveWindow(int x, int y, int width, int height)
+		{
+			NativeMethods.MoveWindow(Handle, x, y, width, height, true);
+		}
+
+		/// <summary>
 		/// Sets the focus on this window.
 		/// </summary>
 		public void SetFocus()
@@ -149,12 +161,19 @@ namespace TestR
 		/// <param name="name">The name of the window (process) to close.</param>
 		public static void CloseAll(string name)
 		{
+			var watch = Stopwatch.StartNew();
+			var timeout = TimeSpan.FromMilliseconds(1000);
 			var processes = Process.GetProcessesByName(name)
 				.Where(x => x.MainWindowHandle != IntPtr.Zero)
 				.ToList();
 
 			do
 			{
+				if (watch.Elapsed >= timeout)
+				{
+					throw new Exception("Failed to close all windows with the name of " + name + ".");
+				}
+
 				foreach (var process in processes)
 				{
 					process.CloseMainWindow();

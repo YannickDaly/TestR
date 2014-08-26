@@ -110,6 +110,18 @@ namespace TestR.Browsers
 			get { return _window.Handle; }
 		}
 
+		/// <summary>
+		/// Move the window and resize it.
+		/// </summary>
+		/// <param name="x">The x coordinate to move to.</param>
+		/// <param name="y">The y coordinate to move to.</param>
+		/// <param name="width">The width of the window.</param>
+		/// <param name="height">The height of the window.</param>
+		public override void MoveWindow(int x, int y, int width, int height)
+		{
+			_window.MoveWindow(x, y, width, height);
+		}
+
 		#endregion
 
 		#region Methods

@@ -101,10 +101,20 @@ namespace TestR
 		#region Methods
 
 		/// <summary>
+		/// Move the window and resize it.
+		/// </summary>
+		/// <param name="x">The x coordinate to move to.</param>
+		/// <param name="y">The y coordinate to move to.</param>
+		/// <param name="width">The width of the window.</param>
+		/// <param name="height">The height of the window.</param>
+		public abstract void MoveWindow(int x, int y, int width, int height);
+
+		/// <summary>
 		/// Brings the referenced Internet Explorer to the front (makes it the top window)
 		/// </summary>
 		public void BringToFront()
 		{
+			NativeMethods.SetFocus(WindowHandle);
 			var result = Utility.Retry(() => NativeMethods.SetForegroundWindow(WindowHandle));
 			if (!result)
 			{
@@ -184,6 +194,9 @@ namespace TestR
 		{
 		}
 
+		/// <summary>
+		/// Inserts the test script into the current page.
+		/// </summary>
 		protected void LinkToTestScript()
 		{
 			var scriptFilePath = GetTestFileFullPath("TestR.js");
@@ -194,6 +207,28 @@ namespace TestR
 		#endregion
 
 		#region Static Methods
+
+		/// <summary>
+		/// Create or attach a browser of the provided type.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		/// <exception cref="Exception"></exception>
+		public static Browser AttachOrCreate<T>()
+		{
+			var type = typeof (T);
+			if (type == typeof (ChromeBrowser))
+			{
+				return ChromeBrowser.AttachOrCreate();
+			}
+
+			if (type == typeof (InternetExplorerBrowser))
+			{
+				return InternetExplorerBrowser.AttachOrCreate();
+			}
+
+			throw new Exception("Invalid type provided.");
+		}
 
 		/// <summary>
 		/// Closes all browsers of the provided type.
@@ -210,28 +245,6 @@ namespace TestR
 			{
 				InternetExplorerBrowser.CloseAllBrowsers();
 			}
-		}
-
-		/// <summary>
-		/// Create or attach a browser of the provided type.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		/// <exception cref="Exception"></exception>
-		public static Browser CreateOrAttach<T>()
-		{
-			var type = typeof (T);
-			if (type == typeof (ChromeBrowser))
-			{
-				return ChromeBrowser.AttachOrCreate();
-			}
-
-			if (type == typeof (InternetExplorerBrowser))
-			{
-				return InternetExplorerBrowser.AttachOrCreate();
-			}
-
-			throw new Exception("Invalid type provided.");
 		}
 
 		/// <summary>

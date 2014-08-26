@@ -1,6 +1,5 @@
 ﻿#region References
 
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,16 +16,6 @@ namespace TestR.IntegrationTests
 	{
 		#region Static Methods
 
-		public static void AreEqual<T>(T expected, T actual)
-		{
-			var compareObjects = new CompareLogic();
-			compareObjects.Config.MaxDifferences = int.MaxValue;
-			
-
-			var result = compareObjects.Compare(expected, actual);
-			Assert.IsTrue(result.AreEqual, result.DifferencesString);
-		}
-
 		public static void AllExists<T>(IList<T> expected, IList<T> actual)
 		{
 			var builder = new StringBuilder();
@@ -39,6 +28,15 @@ namespace TestR.IntegrationTests
 			{
 				Assert.Fail(builder.ToString());
 			}
+		}
+
+		public static void AreEqual<T>(T expected, T actual)
+		{
+			var compareObjects = new CompareLogic();
+			compareObjects.Config.MaxDifferences = int.MaxValue;
+
+			var result = compareObjects.Compare(expected, actual);
+			Assert.IsTrue(result.AreEqual, result.DifferencesString);
 		}
 
 		public static string GetTestFileFullPath(string relativePath)

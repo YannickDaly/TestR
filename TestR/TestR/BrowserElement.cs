@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System.Collections.Generic;
-using System.Collections.Specialized;
 
 #endregion
 
@@ -117,6 +116,21 @@ namespace TestR
 		public abstract void TypeText(string value);
 
 		/// <summary>
+		/// Get the key code event properties for the character.
+		/// </summary>
+		/// <param name="character">The character to get the event properties for.</param>
+		/// <returns>An event properties for the character.</returns>
+		protected Dictionary<string, string> GetKeyCodeEventProperty(char character)
+		{
+			return new Dictionary<string, string>
+			{
+				{ "keyCode", ((int) character).ToString() },
+				{ "charCode", ((int) character).ToString() },
+				{ "which", ((int) character).ToString() },
+			};
+		}
+
+		/// <summary>
 		/// Process values to ensure values for specific attributes to the correct value.
 		/// </summary>
 		/// <param name="attributeName">The attribute to be set.</param>
@@ -133,17 +147,7 @@ namespace TestR
 
 			return value;
 		}
-		
-		protected Dictionary<string, string> GetKeyCodeEventProperty(char character)
-		{
-			return new Dictionary<string, string>
-			{
-				{ "keyCode", ((int) character).ToString() },
-				{ "charCode", ((int) character).ToString() },
-				{ "which", ((int) character).ToString() },
-			};
-		}
-		
+
 		#endregion
 	}
 }

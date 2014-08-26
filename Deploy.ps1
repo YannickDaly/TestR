@@ -1,6 +1,8 @@
 param (
     [Parameter()]
-    [switch] $IncludeDocumentation
+    [switch] $IncludeDocumentation,
+    [Parameter()]
+    [string] $Configuration = "Release"
 )
 
 $watch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -19,11 +21,6 @@ if (!(Test-Path $nugetDestination -PathType Container)){
     New-Item $nugetDestination -ItemType Directory | Out-Null
 }
 
-$configuration = "Release"
-if ($args.Count -gt 0) {
-	$configuration = $args
-}
-
 $build = [Math]::Floor([DateTime]::UtcNow.Subtract([DateTime]::Parse("01/01/2000").Date).TotalDays)
 $revision = [Math]::Floor([DateTime]::UtcNow.TimeOfDay.TotalSeconds / 2)
 
@@ -33,22 +30,22 @@ $revision = [Math]::Floor([DateTime]::UtcNow.TimeOfDay.TotalSeconds / 2)
 .\IncrementVersion.ps1 TestR\TestR.UnitTests $build $revision
 
 $msbuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
-cmd /c $msbuild "$scriptPath\TestR\TestR.sln" /p:Configuration="$configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=13.0 /v:m /m
+cmd /c $msbuild "$scriptPath\TestR\TestR.sln" /p:Configuration="$Configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=13.0 /v:m /m
 
 if ($IncludeDocumentation) {
-    cmd /c $msbuild "$scriptPath\TestR\TestR.shfbproj" /p:Configuration="$configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=13.0 /v:m /m
+    cmd /c $msbuild "$scriptPath\TestR\TestR.shfbproj" /p:Configuration="$Configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=13.0 /v:m /m
 }
 
 Set-Location $scriptPath
 
-Copy-Item TestR\TestR\bin\$configuration\TestR.dll $destination
-Copy-Item TestR\TestR\bin\$configuration\Interop.SHDocVw.dll $destination
-Copy-Item TestR\TestR.PowerSHell\bin\$configuration\TestR.PowerShell.dll $destination
+Copy-Item TestR\TestR\bin\$Configuration\TestR.dll $destination
+Copy-Item TestR\TestR\bin\$Configuration\Interop.SHDocVw.dll $destination
+Copy-Item TestR\TestR.PowerSHell\bin\$Configuration\TestR.PowerShell.dll $destination
 
 $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\TestR.dll")
 $version = $versionInfo.FileVersion.ToString()
 
-cmd /c "TestR\.nuget\NuGet.exe" pack TestR.nuspec -Prop Configuration="$configuration" -Version $version
+cmd /c "TestR\.nuget\NuGet.exe" pack TestR.nuspec -Prop Configuration="$Configuration" -Version $version
 Move-Item "TestR.$version.nupkg" "$destination" -force
 Copy-Item "$destination\TestR.$version.nupkg" "$nugetDestination" -force
 
@@ -68,7 +65,7 @@ foreach ($module in $modules) {
         Remove-Item $modulePath -Force -Recurse
     }
 
-    $sourcePath = "C:\Workspaces\GitHub\TestR\TestR\$module\bin\$configuration\*"
+    $sourcePath = "C:\Workspaces\GitHub\TestR\TestR\$module\bin\$Configuration\*"
     New-Item $modulePath -ItemType Directory | Out-Null
     Copy-Item $sourcePath $modulePath\ -Recurse -Force
 }

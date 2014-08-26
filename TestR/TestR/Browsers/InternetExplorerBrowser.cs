@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -145,6 +144,18 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
+		/// Move the window and resize it.
+		/// </summary>
+		/// <param name="x">The x coordinate to move to.</param>
+		/// <param name="y">The y coordinate to move to.</param>
+		/// <param name="width">The width of the window.</param>
+		/// <param name="height">The height of the window.</param>
+		public override void MoveWindow(int x, int y, int width, int height)
+		{
+			_window.MoveWindow(x, y, width, height);
+		}
+
+		/// <summary>
 		/// Navigates the browser to the provided URI.
 		/// </summary>
 		/// <param name="uri">The URI to navigate to.</param>
@@ -204,7 +215,7 @@ namespace TestR.Browsers
 				_browser = null;
 			}
 		}
-		
+
 		private string GetJavascriptResult(string name)
 		{
 			var expando = (IExpando) _browser.Document;

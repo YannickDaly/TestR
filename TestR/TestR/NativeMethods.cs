@@ -14,7 +14,7 @@ namespace TestR
 	{
 		#region Fields
 
-		internal static uint GwOwner = 4;
+		private static uint _gwOwner = 4;
 		private static Guid _sidSTopLevelBrowser = new Guid(0x4C96BE40, 0x915C, 0x11CF, 0x99, 0xD3, 0x00, 0xAA, 0x00, 0x4A, 0xE8, 0x37);
 		private static Guid _sidSWebBrowserApp = new Guid(0x0002DF05, 0x0000, 0x0000, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46);
 
@@ -62,7 +62,7 @@ namespace TestR
 					return true;
 				}
 
-				if (GetWindow(handle, GwOwner) != IntPtr.Zero || !IsWindowVisible(handle))
+				if (GetWindow(handle, _gwOwner) != IntPtr.Zero || !IsWindowVisible(handle))
 				{
 					return true;
 				}
@@ -79,25 +79,18 @@ namespace TestR
 			return response;
 		}
 
-		[DllImport("user32", SetLastError = true)]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		internal static extern bool EnumChildWindows(IntPtr hWndParent, EnumChildWindowProc lpEnumFunc, IntPtr lParam);
+		[DllImport("user32.dll", SetLastError = true)]
+		internal static extern bool MoveWindow(IntPtr hWnd, int x, int y, int nWidth, int nHeight, bool bRepaint);
 
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		internal static extern bool EnumWindows(EnumWindowProc lpEnumFunc, IntPtr lParam);
+		internal static extern bool EnumChildWindows(IntPtr hWndParent, EnumChildWindowProc lpEnumFunc, IntPtr lParam);
 
 		[DllImport("user32", SetLastError = true)]
 		internal static extern int GetClassName(IntPtr handleToWindow, StringBuilder className, int maxClassNameLength);
 
 		[DllImport("user32.dll", SetLastError = true)]
 		internal static extern IntPtr GetForegroundWindow();
-
-		[DllImport("user32.dll", SetLastError = true)]
-		internal static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
-
-		[DllImport("user32.dll", SetLastError = true)]
-		internal static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
 		[DllImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
@@ -119,8 +112,15 @@ namespace TestR
 		[return: MarshalAs(UnmanagedType.Bool)]
 		internal static extern bool SetForegroundWindow(IntPtr hWnd);
 
+		[DllImport("user32", SetLastError = true)]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		private static extern bool EnumWindows(EnumWindowProc lpEnumFunc, IntPtr lParam);
+
 		[DllImport("user32.dll", SetLastError = true)]
-		internal static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+		private static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
+
+		[DllImport("user32.dll", SetLastError = true)]
+		private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
 		#endregion
 
@@ -128,7 +128,7 @@ namespace TestR
 
 		internal delegate bool EnumChildWindowProc(IntPtr hWnd, IntPtr lParam);
 
-		internal delegate bool EnumWindowProc(IntPtr hwnd, IntPtr lParam);
+		private delegate bool EnumWindowProc(IntPtr hwnd, IntPtr lParam);
 
 		#endregion
 

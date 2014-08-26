@@ -373,6 +373,10 @@ namespace TestR.Browsers
 
 				return true;
 			}
+			catch (ObjectDisposedException)
+			{
+				return false;
+			}
 			catch (AggregateException)
 			{
 				return false;
