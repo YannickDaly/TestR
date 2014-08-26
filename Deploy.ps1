@@ -39,8 +39,9 @@ if ($IncludeDocumentation) {
 Set-Location $scriptPath
 
 Copy-Item TestR\TestR\bin\$Configuration\TestR.dll $destination
+Copy-Item TestR\TestR.PowerShell\bin\$Configuration\TestR.PowerShell.dll $destination
 Copy-Item TestR\TestR\bin\$Configuration\Interop.SHDocVw.dll $destination
-Copy-Item TestR\TestR.PowerSHell\bin\$Configuration\TestR.PowerShell.dll $destination
+Copy-Item Testr\Help\Documentation.chm $destination
 
 $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\TestR.dll")
 $version = $versionInfo.FileVersion.ToString()
@@ -48,6 +49,10 @@ $version = $versionInfo.FileVersion.ToString()
 cmd /c "TestR\.nuget\NuGet.exe" pack TestR.nuspec -Prop Configuration="$Configuration" -Version $version
 Move-Item "TestR.$version.nupkg" "$destination" -force
 Copy-Item "$destination\TestR.$version.nupkg" "$nugetDestination" -force
+
+cmd /c "TestR\.nuget\NuGet.exe" pack TestR.PowerShell.nuspec -Prop Configuration="$Configuration" -Version $version
+Move-Item "TestR.PowerShell.$version.nupkg" "$destination" -force
+Copy-Item "$destination\TestR.PowerShell.$version.nupkg" "$nugetDestination" -force
 
 .\ResetAssemblyInfos.ps1
 

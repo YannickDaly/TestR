@@ -1,11 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 	<metadata>
-		<id>TestR</id>
+		<id>TestR.PowerShell</id>
 		<version>1.0</version>
 		<authors>Bobby Cannon</authors>
 		<description>
-			Integration testing framework for developers. TestR allows automating testing of web applications.
+			Integration testing framework for developers. TestR allows automating testing of web applications. 
+            Adds PowerShell features that are not part of the regular deployment.
 		</description>
 		<dependencies>
 			<dependency id="NLog" version="3.1.0.0" />
@@ -13,11 +14,13 @@
 		</dependencies>
 		<references>
 			<reference file="TestR.dll" />
+            <reference file="TestR.PowerShell.dll" />
 		</references>
 	</metadata>
 	<files>
         <file src="C:\Binaries\TestR\Documentation.chm" target="lib\net40" />
 		<file src="C:\Binaries\TestR\TestR.dll" target="lib\net40" />
+        <file src="C:\Binaries\TestR\TestR.PowerShell.dll" target="lib\net40" />
 		<file src="C:\Binaries\TestR\Interop.SHDocVw.dll" target="lib\net40" />
 	</files>
 </package>
