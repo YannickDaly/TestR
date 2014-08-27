@@ -2,8 +2,8 @@
 
 using System;
 using System.Diagnostics;
-using TestR.Collections;
 using TestR.Extensions;
+using TestR.Helpers;
 
 #endregion
 
@@ -59,31 +59,11 @@ namespace TestR.Browsers
 		#endregion
 
 		#region Properties
-
-		/// <summary>
-		/// Gets the current active element.
-		/// </summary>
-		public override Element ActiveElement
-		{
-			get
-			{
-				var id = Connector.ExecuteJavascript("document.activeElement.id");
-				return Elements[id];
-			}
-		}
-
+		
 		/// <summary>
 		/// The connector to communicate with the browser.
 		/// </summary>
 		public ChromeBrowserConnector Connector { get; private set; }
-
-		/// <summary>
-		/// Gets a list of all elements on the current page.
-		/// </summary>
-		public override ElementCollection Elements
-		{
-			get { return new ChromeElementCollection(Connector.Elements, this).ToElementCollection(); }
-		}
 
 		/// <summary>
 		/// Gets the ID of the browser.
@@ -143,8 +123,18 @@ namespace TestR.Browsers
 		public override void NavigateTo(string uri)
 		{
 			Connector.NavigateTo(uri);
+			Refresh();
+		}
+
+		/// <summary>
+		/// Refresh the browser to the current page.
+		/// </summary>
+		public override void Refresh()
+		{
+			Utility.Retry(() => Connector.GetDocument(), 5, 500);
+			ExecuteJavascript(GetTestScript());
 			DetectJavascriptLibraries();
-			LinkToTestScript();
+			GetElementsFromScript();
 		}
 
 		/// <summary>
@@ -184,7 +174,7 @@ namespace TestR.Browsers
 
 		private void ConnectInstance()
 		{
-			Connector = new ChromeBrowserConnector("http://localhost:9222", this);
+			Connector = new ChromeBrowserConnector("http://localhost:9222");
 			Connector.Connect();
 		}
 

@@ -4,10 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NLog;
 using TestR.Browsers;
-using TestR.Collections;
 using TestR.Helpers;
 
 #endregion
@@ -36,6 +38,7 @@ namespace TestR
 			_watch = Stopwatch.StartNew();
 			AutoClose = true;
 			JavascriptLibraries = new JavaScriptLibrary[0];
+			Elements = new ElementCollection();
 		}
 
 		#endregion
@@ -45,7 +48,10 @@ namespace TestR
 		/// <summary>
 		/// Gets the current active element.
 		/// </summary>
-		public abstract Element ActiveElement { get; }
+		public Element ActiveElement
+		{
+			get { return Elements[ExecuteJavascript("document.activeElement.id")]; }
+		}
 
 		/// <summary>
 		/// Gets a flag determining if the browser was attached to an existing open browser.
@@ -60,7 +66,7 @@ namespace TestR
 		/// <summary>
 		/// Gets a list of all elements on the current page.
 		/// </summary>
-		public abstract ElementCollection Elements { get; }
+		public ElementCollection Elements { get; private set; }
 
 		/// <summary>
 		/// Gets the ID of the browser.
@@ -156,6 +162,11 @@ namespace TestR
 		public abstract void NavigateTo(string uri);
 
 		/// <summary>
+		/// Refresh the browser to the current page.
+		/// </summary>
+		public abstract void Refresh();
+
+		/// <summary>
 		/// Waits until the browser to complete any outstanding operations.
 		/// </summary>
 		public abstract void WaitForComplete();
@@ -197,11 +208,40 @@ namespace TestR
 		/// <summary>
 		/// Inserts the test script into the current page.
 		/// </summary>
-		protected void LinkToTestScript()
+		protected string GetTestScript()
 		{
-			var scriptFilePath = GetTestFileFullPath("TestR.js");
-			var script = "var script = document.createElement('script'); script.src = '" + scriptFilePath + "'; document.getElementsByTagName('head')[0].appendChild(script)";
-			ExecuteJavascript(script);
+			var assembly = Assembly.GetExecutingAssembly();
+
+			using (var stream = assembly.GetManifestResourceStream("TestR.TestR.js"))
+			if (stream != null)
+			{
+				using (var reader = new StreamReader(stream))
+				{
+					return reader.ReadToEnd();
+				}
+			}
+
+			return string.Empty;
+		}
+
+		/// <summary>
+		/// Get the elements via the TestR script.
+		/// </summary>
+		protected void GetElementsFromScript()
+		{
+			Elements.Clear();
+
+			var data = ExecuteJavascript("JSON.stringify(TestR.getElements())");
+			Logger.Write(data, LogLevel.Trace);
+
+			var array = (JArray) JsonConvert.DeserializeObject(data);
+			if (array == null)
+			{
+				return;
+			}
+
+			Logger.Write("Array Length: " + array.Count(), LogLevel.Trace);
+			Elements.AddRange(array, this);
 		}
 
 		#endregion

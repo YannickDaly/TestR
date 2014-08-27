@@ -9,9 +9,8 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Expando;
 using System.Threading;
 using mshtml;
+using NLog;
 using SHDocVw;
-using TestR.Collections;
-using TestR.Extensions;
 using TestR.Helpers;
 
 #endregion
@@ -60,22 +59,6 @@ namespace TestR.Browsers
 		#region Properties
 
 		/// <summary>
-		/// Gets the current active element.
-		/// </summary>
-		public override Element ActiveElement
-		{
-			get { return new Element(new InternetExplorerElement(((IHTMLDocument2) _browser.Document).activeElement, this)); }
-		}
-
-		/// <summary>
-		/// Gets the list of element in the current document.
-		/// </summary>
-		public override ElementCollection Elements
-		{
-			get { return new InternetExplorerElementCollection(((IHTMLDocument2) _browser.Document).all, this).ToElementCollection(); }
-		}
-
-		/// <summary>
 		/// Gets the ID of the browser.
 		/// </summary>
 		public override int Id
@@ -117,30 +100,9 @@ namespace TestR.Browsers
 				throw new Exception("Failed to run script because no document is loaded.");
 			}
 
-			var resultName = "TestR_Script_Result";
-			var errorName = "TestR_Script_Error";
-
-			var wrappedCommand = string.Format("document.{0} = ''; document.{1} = ''; try {{ document.{0} = String(eval('{2}')) }} catch (error) {{ document.{1} = error }}; console.log('Result: ' + document.{0}); console.log('Error: ' + document.{1});",
-				resultName, errorName, script.Replace("'", "\\'"));
-
-			var watch = Stopwatch.StartNew();
-			var timeout = TimeSpan.FromMilliseconds(1000);
-			var lastException = new Exception("Failed to execute the JavaScript.");
-
-			do
-			{
-				try
-				{
-					document.parentWindow.execScript(wrappedCommand, "javascript");
-					return GetJavascriptResult(errorName) ?? GetJavascriptResult(resultName);
-				}
-				catch
-				{
-					Thread.Sleep(50);
-				}
-			} while (watch.Elapsed <= timeout);
-
-			throw lastException;
+			Logger.Write(script, LogLevel.Trace);
+			document.parentWindow.execScript("TestR.execute('" + script.Replace("'", "\\'") + "')", "javascript");
+			return GetJavascriptResult();
 		}
 
 		/// <summary>
@@ -165,8 +127,17 @@ namespace TestR.Browsers
 			object absoluteUri = uri;
 			_browser.Navigate2(ref absoluteUri, ref nil, ref nil, ref nil, ref nil);
 			WaitForComplete();
+			Refresh();
+		}
+
+		/// <summary>
+		/// Refresh the browser to the current page.
+		/// </summary>
+		public override void Refresh()
+		{
+			InjectJavascript(GetTestScript());
 			DetectJavascriptLibraries();
-			LinkToTestScript();
+			GetElementsFromScript();
 		}
 
 		/// <summary>
@@ -216,12 +187,31 @@ namespace TestR.Browsers
 			}
 		}
 
-		private string GetJavascriptResult(string name)
+		private string GetJavascriptResult()
 		{
-			var expando = (IExpando) _browser.Document;
-			var property = expando.GetProperty(name, BindingFlags.Default);
-			var value = property.GetValue(expando, null).ToString();
-			return string.IsNullOrWhiteSpace(value) ? null : value;
+			try
+			{
+				var expando = (IExpando) _browser.Document;
+				var propertyInfo = expando.GetProperty("executeResult", BindingFlags.Default);
+				var property = propertyInfo.GetValue(expando, null);
+				var value = property.ToString();
+				return string.IsNullOrWhiteSpace(value) ? null : value;
+			}
+			catch
+			{
+				return string.Empty;
+			}
+		}
+
+		private void InjectJavascript(string script)
+		{
+			var document = _browser.Document as IHTMLDocument2;
+			if (document == null)
+			{
+				throw new Exception("Failed to run script because no document is loaded.");
+			}
+
+			document.parentWindow.execScript(script, "javascript");
 		}
 
 		#endregion

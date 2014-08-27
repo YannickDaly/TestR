@@ -3,12 +3,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using TestR.Elements;
+using Newtonsoft.Json.Linq;
 using TestR.Extensions;
 
 #endregion
 
-namespace TestR.Collections
+namespace TestR
 {
 	/// <summary>
 	/// Represents a collection of specific type of elements.
@@ -54,6 +54,13 @@ namespace TestR.Collections
 		/// <summary>
 		/// Initializes an instance of the ElementCollection class.
 		/// </summary>
+		public ElementCollection()
+		{
+		}
+
+		/// <summary>
+		/// Initializes an instance of the ElementCollection class.
+		/// </summary>
 		/// <param name="collection"></param>
 		public ElementCollection(IEnumerable<Element> collection)
 		{
@@ -67,9 +74,9 @@ namespace TestR.Collections
 		/// <summary>
 		/// Gets a list of all button elements.
 		/// </summary>
-		public ElementCollection<ButtonElement> Buttons
+		public ElementCollection Buttons
 		{
-			get { return this.OfType<ButtonElement>().ToElementCollection(); }
+			get { return this.Where(x => x.ElementType == ElementType.Button).ToElementCollection(); }
 		}
 
 		/// <summary>
@@ -84,25 +91,25 @@ namespace TestR.Collections
 		/// <summary>
 		/// Gets a list of all link elements.
 		/// </summary>
-		public ElementCollection<LinkElement> Links
+		public ElementCollection Links
 		{
-			get { return this.OfType<LinkElement>().ToElementCollection(); }
+			get { return this.Where(x => x.ElementType == ElementType.Link).ToElementCollection(); }
 		}
 
 		/// <summary>
 		/// Gets a list of all span elements.
 		/// </summary>
-		public ElementCollection<SpanElement> Spans
+		public ElementCollection Spans
 		{
-			get { return this.OfType<SpanElement>().ToElementCollection(); }
+			get { return this.Where(x => x.ElementType == ElementType.Span).ToElementCollection(); }
 		}
 
 		/// <summary>
 		/// Gets a list of all text input elements.
 		/// </summary>
-		public ElementCollection<TextInputElement> TextInputs
+		public ElementCollection TextInputs
 		{
-			get { return this.OfType<TextInputElement>().ToElementCollection(); }
+			get { return this.Where(x => x.ElementType == ElementType.TextInput).ToElementCollection(); }
 		}
 
 		#endregion
@@ -113,54 +120,67 @@ namespace TestR.Collections
 		/// Adds a collection of elements and initializes them as their specific element type.
 		/// </summary>
 		/// <param name="collection">The collection of elements to add.</param>
-		private void AddRange(IEnumerable<Element> collection)
+		public void AddRange(IEnumerable<Element> collection)
 		{
 			foreach (var item in collection)
 			{
 				switch (item.TagName.ToLower())
 				{
 					case "button":
-						Add(new ButtonElement(item.BrowserElement));
-						continue;
+						item.ElementType = ElementType.Button;
+						break;
 
 					case "input":
 						var type = item.GetAttributeValue("type").ToLower();
 						switch (type)
 						{
 							case "button":
-								Add(new ButtonElement(item.BrowserElement));
-								continue;
+								item.ElementType = ElementType.Button;
+								break;
 
 							case "email":
 							case "hidden":
 							case "password":
 							case "search":
 							case "text":
-								Add(new TextInputElement(item.BrowserElement));
-								continue;
+								item.ElementType = ElementType.TextInput;
+								break;
 
 							default:
-								Add(item);
-								continue;
+								item.ElementType = ElementType.Unknown;
+								break;
 						}
+						break;
 
 					case "span":
-						Add(new SpanElement(item.BrowserElement));
+						item.ElementType = ElementType.Span;
 						break;
 
 					case "textarea":
-						Add(new TextInputElement(item.BrowserElement));
-						continue;
+						item.ElementType = ElementType.TextInput;
+						break;
 
 					case "a":
-						Add(new LinkElement(item.BrowserElement));
-						continue;
+						item.ElementType = ElementType.Link;
+						break;
 
 					default:
-						Add(item);
-						continue;
+						item.ElementType = ElementType.Unknown;
+						break;
 				}
+
+				Add(item);
 			}
+		}
+
+		/// <summary>
+		/// Adds an JArray collection of elements to this collection.
+		/// </summary>
+		/// <param name="collection">The collection of elements.</param>
+		/// <param name="browser">The browser the element belong to.</param>
+		public void AddRange(JArray collection, Browser browser)
+		{
+			AddRange(collection.Select(x => new Element(x, browser)));
 		}
 
 		#endregion

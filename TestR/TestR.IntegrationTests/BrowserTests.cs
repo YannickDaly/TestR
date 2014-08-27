@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Linq;
 using System.Management.Automation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,6 +17,27 @@ namespace TestR.IntegrationTests
 		#region Methods
 
 		[TestMethod]
+		public void Redirect()
+		{
+			foreach (var browser in GetBrowsers())
+			{
+				using (browser)
+				{
+					var expected = TestHelper.GetTestFileFullPath("Index.html");
+					browser.NavigateTo(expected);
+					TestHelper.AreEqual(expected, browser.Uri);
+
+					var redirectLink = browser.Elements.Links["redirectLink"];
+					redirectLink.Click();
+					browser.Refresh();
+
+					expected = TestHelper.GetTestFileFullPath("Inputs.html");
+					TestHelper.AreEqual(expected, browser.Uri);
+				}
+			}
+		}
+
+		[TestMethod]
 		public void AngularInputTrigger()
 		{
 			foreach (var browser in GetBrowsers())
@@ -29,13 +51,13 @@ namespace TestR.IntegrationTests
 
 					email.TypeText("test");
 					var expected = "ng-dirty ng-valid-required ng-invalid ng-invalid-email".Split(' ');
-					var actual = email.GetAttributeValue("class").Split(' ');
+					var actual = email.GetAttributeValue("class", true).Split(' ');
 					TestHelper.AreEqual("test", email.Value);
 					TestHelper.AllExists(expected, actual);
 
 					email.TypeText("test@domain.com");
 					expected = "ng-dirty ng-valid-required ng-valid ng-valid-email".Split(' ');
-					actual = email.GetAttributeValue("class").Split(' ');
+					actual = email.GetAttributeValue("class", true).Split(' ');
 					TestHelper.AreEqual("testtest@domain.com", email.Value);
 					TestHelper.AllExists(expected, actual);
 				}
@@ -71,6 +93,7 @@ namespace TestR.IntegrationTests
 					button.Click();
 
 					var textArea = browser.Elements.TextInputs["textarea"];
+					Assert.IsNotNull(textArea, "Could not find the textarea.");
 					Assert.AreEqual(button.Id, textArea.Value);
 				}
 			}
@@ -140,9 +163,7 @@ namespace TestR.IntegrationTests
 			{
 				using (browser)
 				{
-					browser.BringToFront();
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("Angular.html"));
-
 					Assert.IsTrue(browser.JavascriptLibraries.Contains(JavaScriptLibrary.Angular));
 				}
 			}
@@ -155,9 +176,7 @@ namespace TestR.IntegrationTests
 			{
 				using (browser)
 				{
-					browser.BringToFront();
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("JQuery.html"));
-
 					Assert.IsTrue(browser.JavascriptLibraries.Contains(JavaScriptLibrary.JQuery));
 				}
 			}
@@ -170,9 +189,7 @@ namespace TestR.IntegrationTests
 			{
 				using (browser)
 				{
-					browser.BringToFront();
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("Inputs.html"));
-
 					Assert.AreEqual(0, browser.JavascriptLibraries.Count());
 				}
 			}
@@ -185,7 +202,6 @@ namespace TestR.IntegrationTests
 			{
 				using (browser)
 				{
-					browser.AutoClose = false;
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("inputs.html"));
 					var inputs = browser.Elements.TextInputs.ToList();
 					Assert.AreEqual(5, inputs.Count);
@@ -200,7 +216,6 @@ namespace TestR.IntegrationTests
 			{
 				using (browser)
 				{
-					browser.AutoClose = false;
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
 					var elements = browser.Elements.Where(x => x.Class.Contains("red"));
 					Assert.AreEqual(1, elements.Count());
@@ -215,10 +230,27 @@ namespace TestR.IntegrationTests
 			{
 				using (browser)
 				{
-					browser.AutoClose = false;
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
 					var elements = browser.Elements.Where(x => x.Text == "SPAN with ID of 1");
 					Assert.AreEqual(1, elements.Count());
+				}
+			}
+		}
+
+		[TestMethod]
+		public void Focus()
+		{
+			foreach (var browser in GetBrowsers())
+			{
+				using (browser)
+				{
+					browser.NavigateTo(TestHelper.GetTestFileFullPath("inputs.html"));
+
+					var expected = browser.Elements.TextInputs.Last();
+					Assert.AreNotEqual(expected.Id, browser.ActiveElement.Id);
+
+					expected.Focus();
+					Assert.AreEqual(expected.Id, browser.ActiveElement.Id);
 				}
 			}
 		}
@@ -230,7 +262,6 @@ namespace TestR.IntegrationTests
 			{
 				using (browser)
 				{
-					browser.AutoClose = false;
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
 					var input = browser.Elements["inputName"];
 					Assert.IsNotNull(input, "Failed to find input by name of 'inputName'.");
@@ -246,10 +277,10 @@ namespace TestR.IntegrationTests
 			{
 				using (browser)
 				{
-					browser.BringToFront();
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("inputs.html"));
 
-					foreach (var element in browser.Elements.Where(t => t.TagName == "input"))
+					var inputElements = browser.Elements.Where(t => t.TagName == "input").ToList();
+					foreach (var element in inputElements)
 					{
 						var originalColor = element.GetStyleAttributeValue("background-color");
 						element.Highlight(true);
@@ -268,27 +299,10 @@ namespace TestR.IntegrationTests
 			{
 				using (browser)
 				{
-					var expected = TestHelper.GetTestFileFullPath("Index.html");
-					browser.AutoClose = false;
+					var expected = "http://www.bing.com/";
 					browser.BringToFront();
 					browser.NavigateTo(expected);
 					Assert.AreEqual(expected, browser.Uri);
-				}
-			}
-		}
-
-		[TestMethod]
-		public void SetFocus()
-		{
-			foreach (var browser in GetBrowsers())
-			{
-				using (browser)
-				{
-					browser.NavigateTo(TestHelper.GetTestFileFullPath("inputs.html"));
-					var expected = browser.Elements.TextInputs.Last();
-					Assert.AreNotEqual(expected.Id, browser.ActiveElement.Id);
-					expected.Focus();
-					Assert.AreEqual(expected.Id, browser.ActiveElement.Id);
 				}
 			}
 		}
@@ -300,10 +314,9 @@ namespace TestR.IntegrationTests
 			{
 				using (browser)
 				{
-					browser.BringToFront();
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("inputs.html"));
-
 					var inputs = browser.Elements.TextInputs;
+
 					foreach (var input in inputs)
 					{
 						input.TypeText(input.Id);

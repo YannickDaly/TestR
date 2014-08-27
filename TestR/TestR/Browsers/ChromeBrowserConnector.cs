@@ -6,11 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
+using System.Runtime.Remoting.Messaging;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using NLog;
 using TestR.Extensions;
@@ -34,7 +36,6 @@ namespace TestR.Browsers
 
 		#region Fields
 
-		private readonly ChromeBrowser _browser;
 		private readonly JsonSerializerSettings _jsonSerializerSettings;
 		private readonly List<dynamic> _socketResponses;
 		private readonly string _uri;
@@ -50,29 +51,16 @@ namespace TestR.Browsers
 		/// Initializes a new instance of the Browser class.
 		/// </summary>
 		/// <param name="uri"></param>
-		/// <param name="browser"></param>
-		public ChromeBrowserConnector(string uri, ChromeBrowser browser)
+		public ChromeBrowserConnector(string uri)
 		{
-			_browser = browser;
 			_currentUrl = string.Empty;
 			_jsonSerializerSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
 			_socketResponses = new List<dynamic>();
 			_uri = uri;
-
-			Elements = new List<ChromeElement>();
 		}
 
 		#endregion
-
-		#region Properties
-
-		/// <summary>
-		/// Gets a list of elements for the current loaded page.
-		/// </summary>
-		public List<ChromeElement> Elements { get; private set; }
-
-		#endregion
-
+		
 		#region Methods
 
 		/// <summary>
@@ -146,8 +134,17 @@ namespace TestR.Browsers
 			{
 				return data;
 			}
+			
+			var value = response.result.result.value;
+			if (value == null)
+			{
+				return string.Empty;
+			}
 
-			return response.result.result.value ?? string.Empty;
+			var typeName = value.GetType().Name;
+			return typeName != "JValue" 
+				? JsonConvert.SerializeObject(value) 
+				: (string) value;
 		}
 
 		/// <summary>
@@ -156,7 +153,7 @@ namespace TestR.Browsers
 		/// <param name="element"></param>
 		/// <param name="name"></param>
 		/// <returns></returns>
-		public string GetProperty(ChromeElement element, string name)
+		public string GetProperty(Element element, string name)
 		{
 			// Get property by id.
 			return ExecuteJavascript("document.getElementById('" + element.Id + "')." + name);
@@ -188,10 +185,8 @@ namespace TestR.Browsers
 			};
 
 			SendRequestAndReadResponse(request, x => x.id == request.Id);
-			var body = Utility.Retry(() => GetDocument(), 5, 500);
-			AddElementAndChildren(body, Elements);
 		}
-
+		
 		/// <summary>
 		/// Type character into the browser.
 		/// </summary>
@@ -220,21 +215,9 @@ namespace TestR.Browsers
 		/// <param name="name"></param>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		public string SetAttribute(ChromeElement element, string name, string value)
+		public string SetAttribute(Element element, string name, string value)
 		{
-			var request = new
-			{
-				Id = _requestId++,
-				Method = "DOM.setAttributeValue",
-				Params = new
-				{
-					element.NodeId,
-					Name = name,
-					Value = value,
-				}
-			};
-
-			return SendRequestAndReadResponse(request, x => x.id == request.Id || x.method == "DOM.attributeModified");
+			return ExecuteJavascript(string.Format("TestR.setAttribute('{0}', '{1}', '{2}')", element.Id, name, value));
 		}
 
 		/// <summary>
@@ -247,42 +230,6 @@ namespace TestR.Browsers
 			{
 				_socket.Dispose();
 				_socket = null;
-			}
-		}
-
-		private void AddElementAndChildren(dynamic node, ICollection<ChromeElement> collection)
-		{
-			if (node.nodeType != 1 || node.nodeName == "SCRIPT")
-			{
-				return;
-			}
-
-			var element = new ChromeElement(node, _browser);
-			element.Initialize();
-
-			collection.Add(element);
-
-			if (node.childNodeCount <= 0)
-			{
-				return;
-			}
-
-			if (node.children != null)
-			{
-				foreach (var item in node.children)
-				{
-					AddElementAndChildren(item, collection);
-				}
-
-				return;
-			}
-
-			var result = RequestChildNodes((int) node.nodeId).AsJToken() as dynamic;
-			var nodes = result["params"].nodes;
-
-			foreach (var childItem in nodes)
-			{
-				AddElementAndChildren(childItem, collection);
 			}
 		}
 
@@ -331,7 +278,12 @@ namespace TestR.Browsers
 			}
 		}
 
-		private dynamic GetDocument()
+		/// <summary>
+		/// Get the current document in the browser.
+		/// </summary>
+		/// <returns>The dynamic version of the document.</returns>
+		/// <exception cref="Exception"></exception>
+		public dynamic GetDocument()
 		{
 			var request = new
 			{
