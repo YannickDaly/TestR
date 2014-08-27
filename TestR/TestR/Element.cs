@@ -63,7 +63,7 @@ namespace TestR
 		/// </summary>
 		public string Class
 		{
-			get { return GetAttributeValue("class"); }
+			get { return GetAttributeValue("className", true); }
 		}
 
 		/// <summary>
@@ -100,7 +100,7 @@ namespace TestR
 		/// </summary>
 		public string Text
 		{
-			get { return GetAttributeValue("innerText"); }
+			get { return GetAttributeValue("innerText", true); }
 		}
 
 		/// <summary>
@@ -116,7 +116,7 @@ namespace TestR
 		/// </summary>
 		public string Value
 		{
-			get { return GetAttributeValue("value"); }
+			get { return GetAttributeValue("value", true); }
 			set { SetAttributeValue("value", value); }
 		}
 
@@ -161,23 +161,28 @@ namespace TestR
 		/// Gets an attribute value by the provided name.
 		/// </summary>
 		/// <param name="name">The name of the attribute to read.</param>
-		/// <param name="forceRefresh">A flag to force the element to refresh.</param>
+		/// <param name="refresh">A flag to force the element to refresh.</param>
 		/// <returns>The attribute value.</returns>
-		public string GetAttributeValue(string name, bool forceRefresh = false)
+		public string GetAttributeValue(string name, bool refresh = false)
 		{
 			name = PropertiesToRename.ContainsKey(name) ? PropertiesToRename[name] : name;
+			string value;
 
-			if (!forceRefresh)
+			if (refresh)
 			{
-				var attributeValue = GetElementAttribute(name);
-				if (attributeValue != null)
-				{
-					return attributeValue;
-				}
+				var script = "TestR.getElementValue('" + Id + "','" + name + "')";
+				value = Browser.ExecuteJavascript(script);
+			}
+			else
+			{
+				value = GetElementAttribute(name);
 			}
 
-			var script = "TestR.getElementValue('" + Id + "','" + name + "')";
-			var value = Browser.ExecuteJavascript(script);
+			if (string.IsNullOrWhiteSpace(value))
+			{
+				return string.Empty;
+			}
+			
 			if (name.ToLower() == "selected" && value.ToLower() == "selected")
 			{
 				value = "true";

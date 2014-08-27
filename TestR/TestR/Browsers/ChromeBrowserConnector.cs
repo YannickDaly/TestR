@@ -6,13 +6,11 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.WebSockets;
-using System.Runtime.Remoting.Messaging;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using NLog;
 using TestR.Extensions;
@@ -60,7 +58,7 @@ namespace TestR.Browsers
 		}
 
 		#endregion
-		
+
 		#region Methods
 
 		/// <summary>
@@ -84,7 +82,7 @@ namespace TestR.Browsers
 			var sessionWsEndpoint = new Uri(session.WebSocketDebuggerUrl);
 			_socket = new ClientWebSocket();
 
-			if (!_socket.ConnectAsync(sessionWsEndpoint, CancellationToken.None).Wait(500))
+			if (!_socket.ConnectAsync(sessionWsEndpoint, CancellationToken.None).Wait(5000))
 			{
 				throw new Exception("Failed to connect to the server.");
 			}
@@ -134,7 +132,7 @@ namespace TestR.Browsers
 			{
 				return data;
 			}
-			
+
 			var value = response.result.result.value;
 			if (value == null)
 			{
@@ -142,23 +140,35 @@ namespace TestR.Browsers
 			}
 
 			var typeName = value.GetType().Name;
-			return typeName != "JValue" 
-				? JsonConvert.SerializeObject(value) 
+			return typeName != "JValue"
+				? JsonConvert.SerializeObject(value)
 				: (string) value;
 		}
 
 		/// <summary>
-		/// 
+		/// Get the current document in the browser.
 		/// </summary>
-		/// <param name="element"></param>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		public string GetProperty(Element element, string name)
+		/// <returns>The dynamic version of the document.</returns>
+		/// <exception cref="Exception"></exception>
+		public dynamic GetDocument()
 		{
-			// Get property by id.
-			return ExecuteJavascript("document.getElementById('" + element.Id + "')." + name);
-		}
+			var request = new
+			{
+				Id = _requestId++,
+				Method = "DOM.getDocument"
+			};
 
+			var document = SendRequestAndReadResponse(request, x => x.id == request.Id).AsJToken() as dynamic;
+			var body = FindBody(document.result.root);
+			if (body == null)
+			{
+				throw new Exception("Failed to get the body.");
+			}
+
+			_currentUrl = document.result.root.documentURL;
+			return body;
+		}
+		
 		/// <summary>
 		/// 
 		/// </summary>
@@ -187,39 +197,6 @@ namespace TestR.Browsers
 			SendRequestAndReadResponse(request, x => x.id == request.Id);
 		}
 		
-		/// <summary>
-		/// Type character into the browser.
-		/// </summary>
-		/// <param name="key">The key to be typed.</param>
-		public void SendKey(string key)
-		{
-			var request = new
-			{
-				Id = _requestId++,
-				Method = "Input.dispatchKeyEvent",
-				Params = new
-				{
-					Text = key,
-					UnmodifiedText = key,
-					Type = "keyDown",
-				}
-			};
-
-			SendRequestAndReadResponse(request, x => x.id == request.Id);
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="element"></param>
-		/// <param name="name"></param>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		public string SetAttribute(Element element, string name, string value)
-		{
-			return ExecuteJavascript(string.Format("TestR.setAttribute('{0}', '{1}', '{2}')", element.Id, name, value));
-		}
-
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
@@ -260,7 +237,7 @@ namespace TestR.Browsers
 		private List<RemoteSessionsResponse> GetAvailableSessions()
 		{
 			var request = (HttpWebRequest) WebRequest.Create(_uri + JsonPostfix);
-			using (var response = Utility.Retry(request.GetResponse, 10, 100))
+			using (var response = Utility.Retry(request.GetResponse, 50, 100))
 			{
 				var stream = response.GetResponseStream();
 				if (stream == null)
@@ -276,30 +253,6 @@ namespace TestR.Browsers
 					return sessions;
 				}
 			}
-		}
-
-		/// <summary>
-		/// Get the current document in the browser.
-		/// </summary>
-		/// <returns>The dynamic version of the document.</returns>
-		/// <exception cref="Exception"></exception>
-		public dynamic GetDocument()
-		{
-			var request = new
-			{
-				Id = _requestId++,
-				Method = "DOM.getDocument"
-			};
-
-			var document = SendRequestAndReadResponse(request, x => x.id == request.Id).AsJToken() as dynamic;
-			var body = FindBody(document.result.root);
-			if (body == null)
-			{
-				throw new Exception("Failed to get the body.");
-			}
-
-			_currentUrl = document.result.root.documentURL;
-			return body;
 		}
 
 		private bool ReadResponseAsync()
@@ -335,21 +288,6 @@ namespace TestR.Browsers
 			}
 		}
 
-		private string RequestChildNodes(int nodeId)
-		{
-			var request = new
-			{
-				Id = _requestId++,
-				Method = "DOM.requestChildNodes",
-				Params = new
-				{
-					NodeId = nodeId
-				}
-			};
-
-			return SendRequestAndReadResponse(request, x => x.method == "DOM.setChildNodes");
-		}
-
 		private void SendRequest<T>(T request)
 		{
 			var json = JsonConvert.SerializeObject(request, _jsonSerializerSettings);
@@ -361,7 +299,7 @@ namespace TestR.Browsers
 		private string SendRequestAndReadResponse(dynamic request, Func<dynamic, bool> action)
 		{
 			SendRequest(request);
-			var response = Utility.Retry(() => _socketResponses.First(action), 20, 100, "Failed to get a response...");
+			var response = Utility.Retry(() => _socketResponses.First(action), 50, 100, "Failed to get a response...");
 			_socketResponses.Remove(response);
 			return response.ToString();
 		}

@@ -1,6 +1,5 @@
 ﻿#region References
 
-using System;
 using System.Linq;
 using System.Management.Automation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,27 +14,6 @@ namespace TestR.IntegrationTests
 	public class BrowserTests : BrowserTestCmdlet
 	{
 		#region Methods
-
-		[TestMethod]
-		public void Redirect()
-		{
-			foreach (var browser in GetBrowsers())
-			{
-				using (browser)
-				{
-					var expected = TestHelper.GetTestFileFullPath("Index.html");
-					browser.NavigateTo(expected);
-					TestHelper.AreEqual(expected, browser.Uri);
-
-					var redirectLink = browser.Elements.Links["redirectLink"];
-					redirectLink.Click();
-					browser.Refresh();
-
-					expected = TestHelper.GetTestFileFullPath("Inputs.html");
-					TestHelper.AreEqual(expected, browser.Uri);
-				}
-			}
-		}
 
 		[TestMethod]
 		public void AngularInputTrigger()
@@ -303,6 +281,27 @@ namespace TestR.IntegrationTests
 					browser.BringToFront();
 					browser.NavigateTo(expected);
 					Assert.AreEqual(expected, browser.Uri);
+				}
+			}
+		}
+
+		[TestMethod]
+		public void Redirect()
+		{
+			foreach (var browser in GetBrowsers())
+			{
+				using (browser)
+				{
+					var expected = TestHelper.GetTestFileFullPath("Index.html");
+					browser.NavigateTo(expected);
+					TestHelper.AreEqual(expected, browser.Uri);
+
+					var redirectLink = browser.Elements.Links["redirectLink"];
+					redirectLink.Click();
+					browser.Refresh();
+
+					expected = TestHelper.GetTestFileFullPath("Inputs.html");
+					TestHelper.AreEqual(expected, browser.Uri);
 				}
 			}
 		}

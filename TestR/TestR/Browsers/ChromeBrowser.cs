@@ -2,7 +2,6 @@
 
 using System;
 using System.Diagnostics;
-using TestR.Extensions;
 using TestR.Helpers;
 
 #endregion
@@ -16,6 +15,11 @@ namespace TestR.Browsers
 	public class ChromeBrowser : Browser
 	{
 		#region Constants
+
+		/// <summary>
+		/// The name of the browser. 
+		/// </summary>
+		public const string Name = "chrome";
 
 		private const string DebugArgument = "--remote-debugging-port=9222";
 
@@ -59,7 +63,7 @@ namespace TestR.Browsers
 		#endregion
 
 		#region Properties
-		
+
 		/// <summary>
 		/// The connector to communicate with the browser.
 		/// </summary>
@@ -90,18 +94,6 @@ namespace TestR.Browsers
 			get { return _window.Handle; }
 		}
 
-		/// <summary>
-		/// Move the window and resize it.
-		/// </summary>
-		/// <param name="x">The x coordinate to move to.</param>
-		/// <param name="y">The y coordinate to move to.</param>
-		/// <param name="width">The width of the window.</param>
-		/// <param name="height">The height of the window.</param>
-		public override void MoveWindow(int x, int y, int width, int height)
-		{
-			_window.MoveWindow(x, y, width, height);
-		}
-
 		#endregion
 
 		#region Methods
@@ -114,6 +106,18 @@ namespace TestR.Browsers
 		public override string ExecuteJavascript(string script)
 		{
 			return Connector.ExecuteJavascript(script);
+		}
+
+		/// <summary>
+		/// Move the window and resize it.
+		/// </summary>
+		/// <param name="x">The x coordinate to move to.</param>
+		/// <param name="y">The y coordinate to move to.</param>
+		/// <param name="width">The width of the window.</param>
+		/// <param name="height">The height of the window.</param>
+		public override void MoveWindow(int x, int y, int width, int height)
+		{
+			_window.MoveWindow(x, y, width, height);
 		}
 
 		/// <summary>
@@ -135,13 +139,6 @@ namespace TestR.Browsers
 			ExecuteJavascript(GetTestScript());
 			DetectJavascriptLibraries();
 			GetElementsFromScript();
-		}
-
-		/// <summary>
-		/// Waits until the browser to complete any outstanding operations.
-		/// </summary>
-		public override void WaitForComplete()
-		{
 		}
 
 		/// <summary>
@@ -188,7 +185,7 @@ namespace TestR.Browsers
 		/// <returns>The browser instance or null if not found.</returns>
 		public static Browser Attach()
 		{
-			var window = Window.FindWindow("chrome", DebugArgument);
+			var window = Window.FindWindow(Name, DebugArgument);
 			return window != null ? new ChromeBrowser(window) : null;
 		}
 
@@ -202,29 +199,21 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
-		/// Closes all instances of the Chrome browser.
-		/// </summary>
-		public static void CloseAllBrowsers()
-		{
-			Window.CloseAll("chrome");
-		}
-
-		/// <summary>
 		/// Attempts to create a new browser. If one is not found then we'll make sure it was started with the 
 		/// remote debugger argument. If not an exception will be thrown.
 		/// </summary>
 		/// <returns>The browser instance.</returns>
 		private static Process Create()
 		{
-			var window1 = Window.FindWindow("chrome");
-			var window2 = Window.FindWindow("chrome", DebugArgument);
+			var window1 = Window.FindWindow(Name);
+			var window2 = Window.FindWindow(Name, DebugArgument);
 			if (window1 != null && window2 == null)
 			{
 				throw new Exception("The first instance of Chrome was not started with the remote debugger enabled.");
 			}
 
 			// Create a new instance and return it.
-			return CreateInstance("chrome.exe", DebugArgument);
+			return CreateInstance(string.Format("{0}.exe", Name), DebugArgument);
 		}
 
 		#endregion

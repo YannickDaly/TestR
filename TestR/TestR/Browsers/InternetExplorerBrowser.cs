@@ -22,6 +22,15 @@ namespace TestR.Browsers
 	/// </summary>
 	public class InternetExplorerBrowser : Browser
 	{
+		#region Constants
+
+		/// <summary>
+		/// The name of the browser.
+		/// </summary>
+		public const string Name = "iexplore";
+
+		#endregion
+
 		#region Fields
 
 		private readonly Window _window;
@@ -126,7 +135,6 @@ namespace TestR.Browsers
 			object nil = null;
 			object absoluteUri = uri;
 			_browser.Navigate2(ref absoluteUri, ref nil, ref nil, ref nil, ref nil);
-			WaitForComplete();
 			Refresh();
 		}
 
@@ -135,30 +143,10 @@ namespace TestR.Browsers
 		/// </summary>
 		public override void Refresh()
 		{
+			WaitForComplete();
 			InjectJavascript(GetTestScript());
 			DetectJavascriptLibraries();
 			GetElementsFromScript();
-		}
-
-		/// <summary>
-		/// Waits until the browser to complete any outstanding operations.
-		/// </summary>
-		public override void WaitForComplete()
-		{
-			if (_browser == null)
-			{
-				return;
-			}
-
-			Utility.Wait(() => !_browser.Busy && _browser.ReadyState == tagREADYSTATE.READYSTATE_COMPLETE);
-
-			var document = _browser.Document as IHTMLDocument2;
-			if (document == null)
-			{
-				return;
-			}
-
-			Utility.Wait(() => document.readyState == "complete"); // || document.readyState == "interactive");
 		}
 
 		/// <summary>
@@ -214,6 +202,27 @@ namespace TestR.Browsers
 			document.parentWindow.execScript(script, "javascript");
 		}
 
+		/// <summary>
+		/// Waits until the browser to complete any outstanding operations.
+		/// </summary>
+		private void WaitForComplete()
+		{
+			if (_browser == null)
+			{
+				return;
+			}
+
+			Utility.Wait(() => !_browser.Busy && _browser.ReadyState == tagREADYSTATE.READYSTATE_COMPLETE);
+
+			var document = _browser.Document as IHTMLDocument2;
+			if (document == null)
+			{
+				return;
+			}
+
+			Utility.Wait(() => document.readyState == "complete"); // || document.readyState == "interactive");
+		}
+
 		#endregion
 
 		#region Static Methods
@@ -224,7 +233,7 @@ namespace TestR.Browsers
 		/// <returns>An instance of an Internet Explorer browser.</returns>
 		public static InternetExplorerBrowser Attach()
 		{
-			var window = Window.FindWindow("iexplore");
+			var window = Window.FindWindow(Name);
 			return window != null ? new InternetExplorerBrowser(window.GetInternetExplorer()) : null;
 		}
 
@@ -270,14 +279,6 @@ namespace TestR.Browsers
 
 				File.Delete(file);
 			}
-		}
-
-		/// <summary>
-		/// Closes all instances of the Internet Explorer browser.
-		/// </summary>
-		public static void CloseAllBrowsers()
-		{
-			Window.CloseAll("iexplore");
 		}
 
 		/// <summary>

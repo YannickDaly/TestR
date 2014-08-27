@@ -28,25 +28,26 @@ namespace TestR.PowerShell
 		/// <summary>
 		/// Gets or sets the flag to automatically close the browser on disposing of the browser.
 		/// </summary>
-		[Parameter(Mandatory = false)]
+		[Parameter]
 		public bool AutoClose { get; set; }
 
 		/// <summary>
 		/// Gets or sets the default browser size. If the size width and height are 0 then browser will use its default size and position.
 		/// If it is set the browsers will be move and sized side by side using the top left corner.
 		/// </summary>
+		[Parameter]
 		public Size BrowserSize { get; set; }
 
 		/// <summary>
 		/// Gets or sets the browser type to run each test with. You can specify a single browser, combination, or all.
 		/// </summary>
-		[Parameter(Mandatory = false)]
+		[Parameter]
 		public BrowserType BrowserType { get; set; }
 
 		/// <summary>
 		/// Gets or set a flag to tell the browser to slow down user input so test can be monitored.
 		/// </summary>
-		[Parameter(Mandatory = false)]
+		[Parameter]
 		public bool SlowMotion { get; set; }
 
 		#endregion

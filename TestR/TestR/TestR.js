@@ -1,7 +1,7 @@
 ﻿var TestR = {
 	properties: [
 		"selected", "textContent", "className", "checked", "readOnly", "multiple", "value", "nodeType", "innerText",
-		"innerHTML", "baseURI", "src", "href", "rowIndex", "cellIndex", "id", "name", "tagName", "class"
+		"innerHTML", "baseURI", "src", "href", "rowIndex", "cellIndex", "id", "name", "tagName"
 	],
 	triggerEvent: function (element, eventName, values) {
 		var eventObj = document.createEventObject
@@ -29,14 +29,14 @@
 
 		for (var i = 0; i < allElements.length; i++) {
 			var element = allElements[i];
-			if (element.id === "undefined" || element.id === "") {
-				element.id = "testR-" + id++;
+			if (element.id === undefined || element.id === '') {
+				element.id = 'testR-' + id++;
 			}
 
 			var item = {
 				id: element.id,
-				name: element.name || "",
-				tagName: element.tagName || "",
+				name: element.name || '',
+				tagName: (element.tagName || '').toLowerCase(),
 				attributes: [],
 			}
 			
@@ -54,10 +54,16 @@
 				item.attributes.push(attribute.value);
 			}
 
-			if (item.type) {
-				item.attributes.push("type");
-				item.attributes.push(item.type);
-			}
+			TestR.properties.forEach(function (name) {
+				if (element[name] !== null && element[name] !== undefined) {
+					item.attributes.push(name);
+					if (typeof element[name] === 'string') {
+						item.attributes.push(element[name]);
+					} else {
+						item.attributes.push(JSON.stringify(element[name]));
+					}
+				}
+			});
 
 			response.push(item);
 		}
@@ -67,14 +73,15 @@
 	getElementValue: function (id, name) {
 		var element = document.getElementById(id);
 		if (element === undefined || element === null) {
-			return "";
+			return '';
 		}
 
-		if (TestR.properties.contains(name)) {
-			return element[name].toString();
-		} else {
-			return element.attributes[name].toString();
+		var value = TestR.properties.contains(name) ? element[name] : element.attributes[name];
+		if (value !== null && value !== undefined) {
+			return value.toString();
 		}
+
+		return '';
 	},
 	setElementValue: function (id, name, value) {
 		var element = document.getElementById(id);

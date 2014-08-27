@@ -167,11 +167,6 @@ namespace TestR
 		public abstract void Refresh();
 
 		/// <summary>
-		/// Waits until the browser to complete any outstanding operations.
-		/// </summary>
-		public abstract void WaitForComplete();
-
-		/// <summary>
 		/// Runs script to detect specific libraries.
 		/// </summary>
 		protected void DetectJavascriptLibraries()
@@ -278,12 +273,12 @@ namespace TestR
 		{
 			if (((int) type & (int) BrowserType.Chrome) == (int) BrowserType.Chrome)
 			{
-				ChromeBrowser.CloseAllBrowsers();
+				Window.CloseAll(ChromeBrowser.Name);
 			}
 
 			if (((int) type & (int) BrowserType.InternetExplorer) == (int) BrowserType.InternetExplorer)
 			{
-				InternetExplorerBrowser.CloseAllBrowsers();
+				Window.CloseAll(InternetExplorerBrowser.Name);
 			}
 		}
 

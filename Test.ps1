@@ -1,13 +1,11 @@
 param (
-    [Parameter(Mandatory = $false)]
+    [Parameter()]
     [switch] $SlowMotion,
-    [Parameter(Mandatory = $false)]
+    [Parameter()]
     [switch] $AutoClose,
-    [Parameter(Mandatory = $false)]
-    [switch] $RandomOrder
+    [Parameter()]
+    [TestR.BrowserType] $BrowserType
 )
-
-Import-Module TestR.IntegrationTests
 
 $tests = Get-Command -Module TestR.IntegrationTests
 $arguments = ""
@@ -22,6 +20,10 @@ if ($AutoClose) {
 
 if ($SlowMotion) {
     $arguments += " -SlowMotion"
+}
+
+if ($BrowserType) {
+    $arguments += " -BrowserType " + $BrowserType
 }
 
 if ($PSBoundParameters.ContainsKey("Verbose")){
@@ -48,3 +50,5 @@ foreach ($test in $tests)
         break
     }
 }
+
+[TestR.Browser]::CloseAllBrowsers([TestR.BrowserType]::All)

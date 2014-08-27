@@ -42,7 +42,7 @@ namespace TestR.PowerShell
 		{
 			if (ClearCookies)
 			{
-				InternetExplorerBrowser.CloseAllBrowsers();
+				Browser.CloseAllBrowsers(BrowserType.InternetExplorer);
 				InternetExplorerBrowser.ClearCookies(CookieUri ?? string.Empty);
 				Thread.Sleep(250);
 				WriteObject(new InternetExplorerBrowser());

@@ -21,7 +21,7 @@ namespace TestR.PowerShell
 
 		protected override void ProcessRecord()
 		{
-			InternetExplorerBrowser.CloseAllBrowsers();
+			Browser.CloseAllBrowsers(BrowserType.InternetExplorer);
 			InternetExplorerBrowser.ClearCookies(Uri ?? string.Empty);
 		}
 
