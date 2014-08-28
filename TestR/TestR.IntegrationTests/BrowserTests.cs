@@ -25,9 +25,8 @@ namespace TestR.IntegrationTests
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("Angular.html"));
 
 					var email = browser.Elements.TextInputs["email"];
-					Assert.IsNotNull(email, "Failed to find the email input.");
-
 					email.TypeText("test");
+
 					var expected = "ng-dirty ng-valid-required ng-invalid ng-invalid-email".Split(' ');
 					var actual = email.GetAttributeValue("class", true).Split(' ');
 					TestHelper.AreEqual("test", email.Value);
@@ -41,7 +40,7 @@ namespace TestR.IntegrationTests
 				}
 			}
 		}
-		
+
 		[TestMethod]
 		public void BringToFront()
 		{
@@ -65,18 +64,14 @@ namespace TestR.IntegrationTests
 				using (browser)
 				{
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
+					browser.Elements["button"].Click();
 
-					var button = browser.Elements["button"];
-					Assert.IsNotNull(button, "Could not find the button.");
-					button.Click();
-
-					var textArea = browser.Elements.TextInputs["textarea"];
-					Assert.IsNotNull(textArea, "Could not find the textarea.");
-					Assert.AreEqual(button.Id, textArea.Value);
+					var actual = browser.Elements.TextInputs["textarea"].Text;
+					Assert.AreEqual("button", actual);
 				}
 			}
 		}
-		
+
 		[TestMethod]
 		public void ClickButtonByName()
 		{
@@ -85,13 +80,10 @@ namespace TestR.IntegrationTests
 				using (browser)
 				{
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
-
-					var button = browser.Elements["buttonByName"];
-					Assert.IsNotNull(button, "Could not find the button.");
-					button.Click();
+					browser.Elements["buttonByName"].Click();
 
 					var textArea = browser.Elements.TextInputs["textarea"];
-					Assert.AreEqual(button.Name, textArea.Value);
+					Assert.AreEqual("buttonByName", textArea.Value);
 				}
 			}
 		}
@@ -104,13 +96,10 @@ namespace TestR.IntegrationTests
 				using (browser)
 				{
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
-
-					var button = browser.Elements.Buttons["inputButton"];
-					Assert.IsNotNull(button, "Could not find the input button.");
-					button.Click();
+					browser.Elements.Buttons["inputButton"].Click();
 
 					var textArea = browser.Elements.TextInputs["textarea"];
-					Assert.AreEqual(button.Id, textArea.Value);
+					Assert.AreEqual("inputButton", textArea.Value);
 				}
 			}
 		}
@@ -123,13 +112,10 @@ namespace TestR.IntegrationTests
 				using (browser)
 				{
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
-
-					var button = browser.Elements["link"];
-					Assert.IsNotNull(button, "Could not find the button.");
-					button.Click();
+					browser.Elements["link"].Click();
 
 					var textArea = browser.Elements.TextInputs["textarea"];
-					Assert.AreEqual(button.Id, textArea.Value);
+					Assert.AreEqual("link", textArea.Value);
 				}
 			}
 		}
@@ -241,9 +227,8 @@ namespace TestR.IntegrationTests
 				using (browser)
 				{
 					browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
-					var input = browser.Elements["inputName"];
-					Assert.IsNotNull(input, "Failed to find input by name of 'inputName'.");
-					Assert.AreEqual("inputName", input.Name);
+					var actual = browser.Elements["inputName"].Name;
+					Assert.AreEqual("inputName", actual);
 				}
 			}
 		}
@@ -296,8 +281,7 @@ namespace TestR.IntegrationTests
 					browser.NavigateTo(expected);
 					TestHelper.AreEqual(expected, browser.Uri.ToLower());
 
-					var redirectLink = browser.Elements.Links["redirectLink"];
-					redirectLink.Click();
+					browser.Elements.Links["redirectLink"].Click();
 					browser.Refresh();
 
 					expected = TestHelper.GetTestFileFullPath("Inputs.html").ToLower();

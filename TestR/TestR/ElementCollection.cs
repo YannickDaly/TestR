@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using TestR.Extensions;
 
@@ -85,7 +86,12 @@ namespace TestR
 		/// <param name="idOrName">The ID or Name of the element.</param>
 		public Element this[string idOrName]
 		{
-			get { return this.FirstOrDefault(x => x.Id == idOrName || x.Name == idOrName); }
+			get 
+			{ 
+				var response = this.FirstOrDefault(x => x.Id == idOrName || x.Name == idOrName);
+				Assert.IsNotNull(response, "Failed to find the element by the index of " + idOrName + ".");
+				return response;
+			}
 		}
 
 		/// <summary>

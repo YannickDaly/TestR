@@ -135,7 +135,7 @@ namespace TestR.Browsers
 		/// </summary>
 		public override void Refresh()
 		{
-			Utility.Retry(() => Connector.GetDocument(), 5, 500);
+			Utility.Retry(() => Connector.GetUri(), 10, 500);
 			ExecuteJavascript(GetTestScript());
 			DetectJavascriptLibraries();
 			GetElementsFromScript();

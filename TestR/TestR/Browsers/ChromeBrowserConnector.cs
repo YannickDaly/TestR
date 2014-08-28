@@ -37,7 +37,6 @@ namespace TestR.Browsers
 		private readonly JsonSerializerSettings _jsonSerializerSettings;
 		private readonly List<dynamic> _socketResponses;
 		private readonly string _uri;
-		private string _currentUrl;
 		private int _requestId;
 		private ClientWebSocket _socket;
 
@@ -51,7 +50,6 @@ namespace TestR.Browsers
 		/// <param name="uri"></param>
 		public ChromeBrowserConnector(string uri)
 		{
-			_currentUrl = string.Empty;
 			_jsonSerializerSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
 			_socketResponses = new List<dynamic>();
 			_uri = uri;
@@ -150,7 +148,7 @@ namespace TestR.Browsers
 		/// </summary>
 		/// <returns>The dynamic version of the document.</returns>
 		/// <exception cref="Exception"></exception>
-		public dynamic GetDocument()
+		public dynamic GetUri()
 		{
 			var request = new
 			{
@@ -162,22 +160,12 @@ namespace TestR.Browsers
 			var body = FindBody(document.result.root);
 			if (body == null)
 			{
-				throw new Exception("Failed to get the body.");
+				throw new Exception("Failed to get the URI.");
 			}
 
-			_currentUrl = document.result.root.documentURL;
-			return body;
+			return document.result.root.documentURL;
 		}
 		
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		public string GetUri()
-		{
-			return _currentUrl;
-		}
-
 		/// <summary>
 		/// Navigates the browser to the provided URI.
 		/// </summary>

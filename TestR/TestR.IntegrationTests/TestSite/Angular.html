@@ -21,21 +21,31 @@
 
 		<script src="./Scripts/jquery-2.1.1.js"></script>
 		<script src="./Scripts/angular.js"></script>
+		<script src="./Scripts/angular-route.js"></script>
 
 		<script type="text/javascript" language="javascript">
 
 			console.log(typeof angular);
 
-			angular.module('app', [])
-				.controller('testController', [
-					'$scope',
-					function ($scope) {
-						$scope.message = "Hello World";
-						$scope.user = {
-							email: ''
-						};
+			var app = angular.module('app', ['ngRoute'])
+				.config([
+					'$httpProvider', '$routeProvider',
+					function ($httpProvider, $routeProvider) {
+						$routeProvider
+							.when('/', { controller: 'testController' })
+							.otherwise('/', { controller: 'testController' });
 					}
 				]);
+
+			app.controller('testController', [
+				'$scope',
+				function ($scope) {
+					$scope.message = "Hello World";
+					$scope.user = {
+						email: ''
+					};
+				}
+			]);
 
 			$(document).ready(function () {
 				document.addEventListener("keydown", function (e) {
