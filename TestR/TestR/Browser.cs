@@ -25,6 +25,7 @@ namespace TestR
 		#region Fields
 
 		private readonly Stopwatch _watch;
+		private ElementCollection _elements;
 
 		#endregion
 
@@ -50,7 +51,7 @@ namespace TestR
 		/// </summary>
 		public Element ActiveElement
 		{
-			get { return Elements[ExecuteJavascript("document.activeElement.id")]; }
+			get { return Elements[ExecuteScript("document.activeElement.id")]; }
 		}
 
 		/// <summary>
@@ -66,7 +67,21 @@ namespace TestR
 		/// <summary>
 		/// Gets a list of all elements on the current page.
 		/// </summary>
-		public ElementCollection Elements { get; private set; }
+		public ElementCollection Elements
+		{
+			get
+			{
+				Reconcile();
+				return _elements;
+			}
+
+			private set { _elements = value; }
+		}
+
+		/// <summary>
+		/// Check to see if the browser has changed if so process the changes.
+		/// </summary>
+		protected abstract void Reconcile();
 
 		/// <summary>
 		/// Gets the ID of the browser.
@@ -107,15 +122,6 @@ namespace TestR
 		#region Methods
 
 		/// <summary>
-		/// Move the window and resize it.
-		/// </summary>
-		/// <param name="x">The x coordinate to move to.</param>
-		/// <param name="y">The y coordinate to move to.</param>
-		/// <param name="width">The width of the window.</param>
-		/// <param name="height">The height of the window.</param>
-		public abstract void MoveWindow(int x, int y, int width, int height);
-
-		/// <summary>
 		/// Brings the referenced Internet Explorer to the front (makes it the top window)
 		/// </summary>
 		public void BringToFront()
@@ -143,7 +149,17 @@ namespace TestR
 		/// </summary>
 		/// <param name="script"></param>
 		/// <returns></returns>
-		public abstract string ExecuteJavascript(string script);
+		public string ExecuteScript(string script)
+		{
+			var response = ExecuteJavaScript(script);
+			if (response.Contains("TestR is not defined"))
+			{
+				InjectTestScript();
+				return ExecuteJavaScript(script);
+			}
+
+			return response;
+		}
 
 		/// <summary>
 		/// Check to see if the browser is current the foreground window. 
@@ -156,15 +172,19 @@ namespace TestR
 		}
 
 		/// <summary>
+		/// Move the window and resize it.
+		/// </summary>
+		/// <param name="x">The x coordinate to move to.</param>
+		/// <param name="y">The y coordinate to move to.</param>
+		/// <param name="width">The width of the window.</param>
+		/// <param name="height">The height of the window.</param>
+		public abstract void MoveWindow(int x, int y, int width, int height);
+
+		/// <summary>
 		/// Navigates the browser to the provided URI.
 		/// </summary>
 		/// <param name="uri">The URI to navigate to.</param>
 		public abstract void NavigateTo(string uri);
-
-		/// <summary>
-		/// Refresh the browser to the current page.
-		/// </summary>
-		public abstract void Refresh();
 
 		/// <summary>
 		/// Runs script to detect specific libraries.
@@ -177,13 +197,13 @@ namespace TestR
 			}
 
 			var libraries = new List<JavaScriptLibrary>();
-			var hasLibrary = ExecuteJavascript("typeof jQuery !== 'undefined'");
+			var hasLibrary = ExecuteScript("typeof jQuery !== 'undefined'");
 			if (hasLibrary.Equals("true", StringComparison.OrdinalIgnoreCase))
 			{
 				libraries.Add(JavaScriptLibrary.JQuery);
 			}
 
-			hasLibrary = ExecuteJavascript("typeof angular !== 'undefined'");
+			hasLibrary = ExecuteScript("typeof angular !== 'undefined'");
 			if (hasLibrary.Equals("true", StringComparison.OrdinalIgnoreCase))
 			{
 				libraries.Add(JavaScriptLibrary.Angular);
@@ -201,32 +221,20 @@ namespace TestR
 		}
 
 		/// <summary>
-		/// Inserts the test script into the current page.
+		/// Execute JavaScript code in the current document.
 		/// </summary>
-		protected string GetTestScript()
-		{
-			var assembly = Assembly.GetExecutingAssembly();
-
-			using (var stream = assembly.GetManifestResourceStream("TestR.TestR.js"))
-			if (stream != null)
-			{
-				using (var reader = new StreamReader(stream))
-				{
-					return reader.ReadToEnd();
-				}
-			}
-
-			return string.Empty;
-		}
+		/// <param name="script">The code script to execute.</param>
+		/// <returns>The response from the execution.</returns>
+		protected abstract string ExecuteJavaScript(string script);
 
 		/// <summary>
 		/// Get the elements via the TestR script.
 		/// </summary>
 		protected void GetElementsFromScript()
 		{
-			Elements.Clear();
+			_elements.Clear();
 
-			var data = ExecuteJavascript("JSON.stringify(TestR.getElements())");
+			var data = ExecuteScript("JSON.stringify(TestR.getElements())");
 			Logger.Write(data, LogLevel.Trace);
 
 			var array = (JArray) JsonConvert.DeserializeObject(data);
@@ -236,8 +244,34 @@ namespace TestR
 			}
 
 			Logger.Write("Array Length: " + array.Count(), LogLevel.Trace);
-			Elements.AddRange(array, this);
+			_elements.AddRange(array, this);
 		}
+
+		/// <summary>
+		/// Inserts the test script into the current page.
+		/// </summary>
+		protected string GetTestScript()
+		{
+			var assembly = Assembly.GetExecutingAssembly();
+
+			using (var stream = assembly.GetManifestResourceStream("TestR.TestR.js"))
+			{
+				if (stream != null)
+				{
+					using (var reader = new StreamReader(stream))
+					{
+						return reader.ReadToEnd();
+					}
+				}
+			}
+
+			return string.Empty;
+		}
+
+		/// <summary>
+		/// Injects the test script into the browser.
+		/// </summary>
+		protected abstract void InjectTestScript();
 
 		#endregion
 

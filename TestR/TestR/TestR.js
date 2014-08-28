@@ -94,14 +94,7 @@
 		} else {
 			element.setAttribute(name, value);
 		}
-	},
-	execute: function (script) {
-		try {
-			document.executeResult = String(eval(script));
-		} catch (error) {
-			document.executeResult = error;
-		};
-	},
+	}
 };
 
 Array.prototype.contains = function (obj) {

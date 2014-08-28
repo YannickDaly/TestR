@@ -133,7 +133,7 @@ namespace TestR
 		/// </summary>
 		public void Click()
 		{
-			Browser.ExecuteJavascript("document.getElementById('" + Id + "').click()");
+			Browser.ExecuteScript("document.getElementById('" + Id + "').click()");
 		}
 
 		/// <summary>
@@ -150,7 +150,7 @@ namespace TestR
 			}
 
 			var script = "TestR.triggerEvent(document.getElementById('" + Id + "'), '" + eventName.ToLower() + "', [" + values + "]);";
-			Browser.ExecuteJavascript(script);
+			Browser.ExecuteScript(script);
 		}
 
 		/// <summary>
@@ -158,7 +158,7 @@ namespace TestR
 		/// </summary>
 		public void Focus()
 		{
-			Browser.ExecuteJavascript("document.getElementById('" + Id + "').focus()");
+			Browser.ExecuteScript("document.getElementById('" + Id + "').focus()");
 		}
 
 		/// <summary>
@@ -175,7 +175,7 @@ namespace TestR
 			if (refresh)
 			{
 				var script = "TestR.getElementValue('" + Id + "','" + name + "')";
-				value = Browser.ExecuteJavascript(script);
+				value = Browser.ExecuteScript(script);
 			}
 			else
 			{
@@ -244,7 +244,7 @@ namespace TestR
 		{
 			name = PropertiesToRename.ContainsKey(name) ? PropertiesToRename[name] : name;
 			var script = "TestR.setElementValue('" + Id + "','" + name + "','" + value + "')";
-			_browser.ExecuteJavascript(script);
+			_browser.ExecuteScript(script);
 			AddOrUpdateElementAttribute(name, value);
 		}
 
@@ -401,7 +401,7 @@ namespace TestR
 			if (Browser.JavascriptLibraries.Contains(JavaScriptLibrary.Angular)
 				&& Browser.JavascriptLibraries.Contains(JavaScriptLibrary.JQuery))
 			{
-				Browser.ExecuteJavascript("angular.element('#" + Id + "').trigger('input');");
+				Browser.ExecuteScript("angular.element('#" + Id + "').trigger('input');");
 			}
 		}
 

@@ -57,6 +57,15 @@ namespace TestR.Browsers
 
 		#endregion
 
+		#region Properties
+
+		/// <summary>
+		/// Gets or sets a flag indicating the browser has changed locations itself.
+		/// </summary>
+		public bool BrowserHasNavigated { get; set; }
+
+		#endregion
+
 		#region Methods
 
 		/// <summary>
@@ -108,7 +117,7 @@ namespace TestR.Browsers
 		/// </summary>
 		/// <param name="script"></param>
 		/// <returns></returns>
-		public string ExecuteJavascript(string script)
+		public string ExecuteJavaScript(string script)
 		{
 			var request = new
 			{
@@ -165,7 +174,7 @@ namespace TestR.Browsers
 
 			return document.result.root.documentURL;
 		}
-		
+
 		/// <summary>
 		/// Navigates the browser to the provided URI.
 		/// </summary>
@@ -184,7 +193,7 @@ namespace TestR.Browsers
 
 			SendRequestAndReadResponse(request, x => x.id == request.Id);
 		}
-		
+
 		/// <summary>
 		/// Reloads the current page.
 		/// </summary>
@@ -202,7 +211,7 @@ namespace TestR.Browsers
 
 			SendRequestAndReadResponse(request, x => x.id == request.Id);
 		}
-		
+
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
@@ -280,8 +289,14 @@ namespace TestR.Browsers
 
 				var response = builder.ToString();
 				Logger.Write("Debugger Response: " + response, LogLevel.Trace);
-				_socketResponses.Add(response.AsJToken() as dynamic);
 
+				if (response == "{\"method\":\"DOM.documentUpdated\"}")
+				{
+					BrowserHasNavigated = true;
+					return true;
+				}
+
+				_socketResponses.Add(response.AsJToken() as dynamic);
 				return true;
 			}
 			catch (ObjectDisposedException)

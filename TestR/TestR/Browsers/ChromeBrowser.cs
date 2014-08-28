@@ -57,7 +57,8 @@ namespace TestR.Browsers
 		public ChromeBrowser(Window window)
 		{
 			_window = window;
-			ConnectInstance();
+			Connector = new ChromeBrowserConnector("http://localhost:9222");
+			Connector.Connect();
 		}
 
 		#endregion
@@ -68,6 +69,20 @@ namespace TestR.Browsers
 		/// The connector to communicate with the browser.
 		/// </summary>
 		public ChromeBrowserConnector Connector { get; private set; }
+
+		/// <summary>
+		/// Check to see if the browser has changed if so process the changes.
+		/// </summary>
+		protected override void Reconcile()
+		{
+			if (!Connector.BrowserHasNavigated)
+			{
+				return;
+			}
+
+			Refresh();
+			Connector.BrowserHasNavigated = false;
+		}
 
 		/// <summary>
 		/// Gets the ID of the browser.
@@ -99,13 +114,21 @@ namespace TestR.Browsers
 		#region Methods
 
 		/// <summary>
+		/// Injects the test script into the browser.
+		/// </summary>
+		protected override void InjectTestScript()
+		{
+			ExecuteJavaScript(GetTestScript());
+		}
+
+		/// <summary>
 		/// Execute JavaScript code in the current document.
 		/// </summary>
 		/// <param name="script"></param>
 		/// <returns></returns>
-		public override string ExecuteJavascript(string script)
+		protected override string ExecuteJavaScript(string script)
 		{
-			return Connector.ExecuteJavascript(script);
+			return Connector.ExecuteJavaScript(script);
 		}
 
 		/// <summary>
@@ -127,16 +150,13 @@ namespace TestR.Browsers
 		public override void NavigateTo(string uri)
 		{
 			Connector.NavigateTo(uri);
+			Utility.Retry(() => Connector.GetUri(), 10, 500);
 			Refresh();
 		}
 
-		/// <summary>
-		/// Refresh the browser to the current page.
-		/// </summary>
-		public override void Refresh()
+		private void Refresh()
 		{
-			Utility.Retry(() => Connector.GetUri(), 10, 500);
-			ExecuteJavascript(GetTestScript());
+			InjectTestScript();
 			DetectJavascriptLibraries();
 			GetElementsFromScript();
 		}
@@ -167,12 +187,6 @@ namespace TestR.Browsers
 			}
 
 			base.Dispose(disposing);
-		}
-
-		private void ConnectInstance()
-		{
-			Connector = new ChromeBrowserConnector("http://localhost:9222");
-			Connector.Connect();
 		}
 
 		#endregion

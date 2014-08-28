@@ -35,6 +35,7 @@ namespace TestR.Browsers
 
 		private readonly Window _window;
 		private InternetExplorer _browser;
+		private bool _browserHasNavigated;
 
 		#endregion
 
@@ -52,7 +53,9 @@ namespace TestR.Browsers
 		private InternetExplorerBrowser(InternetExplorer browser)
 		{
 			_browser = browser;
+			_browser.DocumentComplete += BrowserOnDocumentComplete;
 			_browser.Visible = true;
+			_browserHasNavigated = false;
 			_window = new Window(new IntPtr(_browser.HWND), Name);
 
 			Attached = true;
@@ -80,7 +83,11 @@ namespace TestR.Browsers
 		/// </summary>
 		public override string Uri
 		{
-			get { return _browser.LocationURL; }
+			get
+			{
+				WaitForComplete();
+				return _browser.LocationURL;
+			}
 		}
 
 		/// <summary>
@@ -95,24 +102,6 @@ namespace TestR.Browsers
 		#endregion
 
 		#region Methods
-
-		/// <summary>
-		/// Execute JavaScript code in the current document.
-		/// </summary>
-		/// <param name="script">The script to run.</param>
-		/// <returns>The response when executing.</returns>
-		public override string ExecuteJavascript(string script)
-		{
-			var document = _browser.Document as IHTMLDocument2;
-			if (document == null)
-			{
-				throw new Exception("Failed to run script because no document is loaded.");
-			}
-
-			Logger.Write(script, LogLevel.Trace);
-			document.parentWindow.execScript("TestR.execute('" + script.Replace("'", "\\'") + "')", "javascript");
-			return GetJavascriptResult();
-		}
 
 		/// <summary>
 		/// Move the window and resize it.
@@ -138,17 +127,6 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
-		/// Refresh the browser to the current page.
-		/// </summary>
-		public override void Refresh()
-		{
-			WaitForComplete();
-			InjectJavascript(GetTestScript());
-			DetectJavascriptLibraries();
-			GetElementsFromScript();
-		}
-
-		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
 		/// <param name="disposing">True if disposing and false if otherwise.</param>
@@ -167,11 +145,70 @@ namespace TestR.Browsers
 				Thread.Sleep(50);
 			}
 
-			if (_browser != null && AutoClose)
+			if (_browser != null)
 			{
-				_browser.Quit();
+				_browser.DocumentComplete -= BrowserOnDocumentComplete;
+
+				if (AutoClose)
+				{
+					_browser.Quit();
+				}
+
 				_browser = null;
 			}
+		}
+
+		/// <summary>
+		/// Execute JavaScript code in the current document.
+		/// </summary>
+		/// <param name="script">The script to run.</param>
+		/// <returns>The response when executing.</returns>
+		protected override string ExecuteJavaScript(string script)
+		{
+			var document = _browser.Document as IHTMLDocument2;
+			if (document == null)
+			{
+				throw new Exception("Failed to run script because no document is loaded.");
+			}
+
+			Logger.Write(script, LogLevel.Trace);
+			var wrappedScript = "try { document.executeResult = String(eval('" + script.Replace("'", "\\'") + "')); } catch (error) { document.executeResult = error; }";
+			document.parentWindow.execScript(wrappedScript, "javascript");
+			return GetJavascriptResult();
+		}
+
+		/// <summary>
+		/// Injects the test script into the browser.
+		/// </summary>
+		protected override void InjectTestScript()
+		{
+			var document = _browser.Document as IHTMLDocument2;
+			if (document == null)
+			{
+				throw new Exception("Failed to run script because no document is loaded.");
+			}
+
+			var window = document.parentWindow;
+			window.execScript(GetTestScript(), "javascript");
+		}
+
+		/// <summary>
+		/// Check to see if the browser has changed if so process the changes.
+		/// </summary>
+		protected override void Reconcile()
+		{
+			if (!_browserHasNavigated)
+			{
+				return;
+			}
+
+			Refresh();
+			_browserHasNavigated = false;
+		}
+
+		private void BrowserOnDocumentComplete(object pDisp, ref object url)
+		{
+			_browserHasNavigated = true;
 		}
 
 		private string GetJavascriptResult()
@@ -190,15 +227,15 @@ namespace TestR.Browsers
 			}
 		}
 
-		private void InjectJavascript(string script)
+		/// <summary>
+		/// Refreshed the state of the browser.
+		/// </summary>
+		private void Refresh()
 		{
-			var document = _browser.Document as IHTMLDocument2;
-			if (document == null)
-			{
-				throw new Exception("Failed to run script because no document is loaded.");
-			}
-
-			document.parentWindow.execScript(script, "javascript");
+			WaitForComplete();
+			InjectTestScript();
+			DetectJavascriptLibraries();
+			GetElementsFromScript();
 		}
 
 		/// <summary>
