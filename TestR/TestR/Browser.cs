@@ -79,11 +79,6 @@ namespace TestR
 		}
 
 		/// <summary>
-		/// Check to see if the browser has changed if so process the changes.
-		/// </summary>
-		protected abstract void Reconcile();
-
-		/// <summary>
 		/// Gets the ID of the browser.
 		/// </summary>
 		public abstract int Id { get; }
@@ -237,14 +232,21 @@ namespace TestR
 			var data = ExecuteScript("JSON.stringify(TestR.getElements())");
 			Logger.Write(data, LogLevel.Trace);
 
-			var array = (JArray) JsonConvert.DeserializeObject(data);
-			if (array == null)
+			try
 			{
-				return;
-			}
+				var array = (JArray) JsonConvert.DeserializeObject(data);
+				if (array == null)
+				{
+					return;
+				}
 
-			Logger.Write("Array Length: " + array.Count(), LogLevel.Trace);
-			_elements.AddRange(array, this);
+				Logger.Write("Array Length: " + array.Count(), LogLevel.Trace);
+				_elements.AddRange(array, this);
+			}
+			catch (Exception ex)
+			{
+				Logger.Write(ex.Message, LogLevel.Fatal);
+			}
 		}
 
 		/// <summary>
@@ -272,6 +274,11 @@ namespace TestR
 		/// Injects the test script into the browser.
 		/// </summary>
 		protected abstract void InjectTestScript();
+
+		/// <summary>
+		/// Check to see if the browser has changed if so process the changes.
+		/// </summary>
+		protected abstract void Reconcile();
 
 		#endregion
 

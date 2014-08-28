@@ -79,9 +79,6 @@ namespace TestR
 			return response;
 		}
 
-		[DllImport("user32.dll", SetLastError = true)]
-		internal static extern bool MoveWindow(IntPtr hWnd, int x, int y, int nWidth, int nHeight, bool bRepaint);
-
 		[DllImport("user32", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		internal static extern bool EnumChildWindows(IntPtr hWndParent, EnumChildWindowProc lpEnumFunc, IntPtr lParam);
@@ -95,6 +92,9 @@ namespace TestR
 		[DllImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		internal static extern bool IsWindowVisible(IntPtr hWnd);
+
+		[DllImport("user32.dll", SetLastError = true)]
+		internal static extern bool MoveWindow(IntPtr hWnd, int x, int y, int nWidth, int nHeight, bool bRepaint);
 
 		[DllImport("oleacc", SetLastError = true)]
 		internal static extern Int32 ObjectFromLresult(Int32 lResult, ref Guid riid, Int32 wParam, ref IHTMLDocument2 ppvObject);

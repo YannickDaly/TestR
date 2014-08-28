@@ -86,8 +86,8 @@ namespace TestR
 		/// <param name="idOrName">The ID or Name of the element.</param>
 		public Element this[string idOrName]
 		{
-			get 
-			{ 
+			get
+			{
 				var response = this.FirstOrDefault(x => x.Id == idOrName || x.Name == idOrName);
 				Assert.IsNotNull(response, "Failed to find the element by the index of " + idOrName + ".");
 				return response;

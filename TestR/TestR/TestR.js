@@ -26,7 +26,6 @@
 		var allElements = document.body.getElementsByTagName('*');
 		var id = 1;
 
-
 		for (var i = 0; i < allElements.length; i++) {
 			var element = allElements[i];
 			if (element.id === undefined || element.id === '') {
@@ -38,10 +37,9 @@
 				name: element.name || '',
 				tagName: (element.tagName || '').toLowerCase(),
 				attributes: [],
-			}
-			
+			};
 			item.tagName = item.tagName.toLowerCase();
-			
+
 			for (var j = 0; j < element.attributes.length; j++) {
 				var attribute = element.attributes[j];
 				if (attribute.nodeName === undefined || attribute.nodeName.length <= 0) {
@@ -105,6 +103,5 @@ Array.prototype.contains = function (obj) {
 	}
 
 	return false;
-}
-
+};
 console.log("TestR injected...");

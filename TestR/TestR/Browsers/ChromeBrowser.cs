@@ -71,20 +71,6 @@ namespace TestR.Browsers
 		public ChromeBrowserConnector Connector { get; private set; }
 
 		/// <summary>
-		/// Check to see if the browser has changed if so process the changes.
-		/// </summary>
-		protected override void Reconcile()
-		{
-			if (!Connector.BrowserHasNavigated)
-			{
-				return;
-			}
-
-			Refresh();
-			Connector.BrowserHasNavigated = false;
-		}
-
-		/// <summary>
 		/// Gets the ID of the browser.
 		/// </summary>
 		public override int Id
@@ -114,24 +100,6 @@ namespace TestR.Browsers
 		#region Methods
 
 		/// <summary>
-		/// Injects the test script into the browser.
-		/// </summary>
-		protected override void InjectTestScript()
-		{
-			ExecuteJavaScript(GetTestScript());
-		}
-
-		/// <summary>
-		/// Execute JavaScript code in the current document.
-		/// </summary>
-		/// <param name="script"></param>
-		/// <returns></returns>
-		protected override string ExecuteJavaScript(string script)
-		{
-			return Connector.ExecuteJavaScript(script);
-		}
-
-		/// <summary>
 		/// Move the window and resize it.
 		/// </summary>
 		/// <param name="x">The x coordinate to move to.</param>
@@ -152,13 +120,6 @@ namespace TestR.Browsers
 			Connector.NavigateTo(uri);
 			Utility.Retry(() => Connector.GetUri(), 10, 500);
 			Refresh();
-		}
-
-		private void Refresh()
-		{
-			InjectTestScript();
-			DetectJavascriptLibraries();
-			GetElementsFromScript();
 		}
 
 		/// <summary>
@@ -187,6 +148,45 @@ namespace TestR.Browsers
 			}
 
 			base.Dispose(disposing);
+		}
+
+		/// <summary>
+		/// Execute JavaScript code in the current document.
+		/// </summary>
+		/// <param name="script"></param>
+		/// <returns></returns>
+		protected override string ExecuteJavaScript(string script)
+		{
+			return Connector.ExecuteJavaScript(script);
+		}
+
+		/// <summary>
+		/// Injects the test script into the browser.
+		/// </summary>
+		protected override void InjectTestScript()
+		{
+			ExecuteJavaScript(GetTestScript());
+		}
+
+		/// <summary>
+		/// Check to see if the browser has changed if so process the changes.
+		/// </summary>
+		protected override void Reconcile()
+		{
+			if (!Connector.BrowserHasNavigated)
+			{
+				return;
+			}
+
+			Refresh();
+			Connector.BrowserHasNavigated = false;
+		}
+
+		private void Refresh()
+		{
+			InjectTestScript();
+			DetectJavascriptLibraries();
+			GetElementsFromScript();
 		}
 
 		#endregion

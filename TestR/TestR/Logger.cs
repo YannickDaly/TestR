@@ -15,7 +15,11 @@ namespace TestR
 	{
 		#region Fields
 
-		private static readonly NLog.Logger _logger;
+		private static readonly NLog.Logger _benchmarkLogger;
+		private static readonly ConsoleTarget _consoleTarget;
+		private static readonly NLog.Logger _verboseLogger;
+		private static bool _enableBenchmarking;
+		private static bool _enableTracing;
 
 		#endregion
 
@@ -23,7 +27,12 @@ namespace TestR
 
 		static Logger()
 		{
-			_logger = LogManager.GetLogger("TestR");
+			_verboseLogger = LogManager.GetLogger("TestR");
+			_benchmarkLogger = LogManager.GetLogger("TestR.Benchmark");
+			_consoleTarget = new ConsoleTarget();
+			_consoleTarget.Layout = "${longdate} ${message}";
+			_enableBenchmarking = false;
+			_enableTracing = false;
 		}
 
 		#endregion
@@ -33,14 +42,29 @@ namespace TestR
 		/// <summary>
 		/// Enable console tracing. This really should only be used for debugging / troubleshooting.
 		/// </summary>
-		public static void EnableConsoleTracing()
+		public static void EnableBenchmarking(bool enable = true)
 		{
-			var consoleTarget = new ConsoleTarget();
-			consoleTarget.Layout = "${longdate} ${message}";
-			var loggingConfiguration = new LoggingConfiguration();
-			loggingConfiguration.AddTarget("Console", consoleTarget);
-			loggingConfiguration.LoggingRules.Add(new LoggingRule("*", LogLevel.Trace, consoleTarget));
-			LogManager.Configuration = loggingConfiguration;
+			_enableBenchmarking = enable;
+			UpdateConfiguration();
+		}
+
+		/// <summary>
+		/// Enable console tracing. This really should only be used for debugging / troubleshooting.
+		/// </summary>
+		public static void EnableConsoleTracing(bool enable = true)
+		{
+			_enableTracing = enable;
+			UpdateConfiguration();
+		}
+
+		/// <summary>
+		/// Mark a location for benchmarking.
+		/// </summary>
+		/// <param name="location">The location to mark.</param>
+		/// <returns>The mark of the location.</returns>
+		public static LoggerMark Mark(string location)
+		{
+			return new LoggerMark(location, _benchmarkLogger);
 		}
 
 		/// <summary>
@@ -52,24 +76,40 @@ namespace TestR
 		{
 			if (level == LogLevel.Debug)
 			{
-				_logger.Debug(message);
+				_verboseLogger.Debug(message);
 			}
 			else if (level == LogLevel.Fatal)
 			{
-				_logger.Fatal(message);
+				_verboseLogger.Fatal(message);
 			}
 			else if (level == LogLevel.Trace)
 			{
-				_logger.Trace(message);
+				_verboseLogger.Trace(message);
 			}
 			else if (level == LogLevel.Warn)
 			{
-				_logger.Warn(message);
+				_verboseLogger.Warn(message);
 			}
 			else
 			{
-				_logger.Info(message);
+				_verboseLogger.Info(message);
 			}
+		}
+
+		private static void UpdateConfiguration()
+		{
+			var loggingConfiguration = new LoggingConfiguration();
+			loggingConfiguration.AddTarget("Console", _consoleTarget);
+			if (_enableBenchmarking)
+			{
+				loggingConfiguration.LoggingRules.Add(new LoggingRule("TestR.Benchmark", LogLevel.Trace, _consoleTarget));
+			}
+
+			if (_enableTracing)
+			{
+				loggingConfiguration.LoggingRules.Add(new LoggingRule("TestR", LogLevel.Trace, _consoleTarget));
+			}
+			LogManager.Configuration = loggingConfiguration;
 		}
 
 		#endregion
