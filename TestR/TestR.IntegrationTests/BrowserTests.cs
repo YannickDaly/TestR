@@ -271,7 +271,7 @@ namespace TestR.IntegrationTests
 		}
 
 		[TestMethod]
-		public void Redirect()
+		public void RedirectByLink()
 		{
 			foreach (var browser in GetBrowsers())
 			{
@@ -279,13 +279,36 @@ namespace TestR.IntegrationTests
 				{
 					var expected = TestHelper.GetTestFileFullPath("Index.html").ToLower();
 					browser.NavigateTo(expected);
-					TestHelper.AreEqual(expected, browser.Uri.ToLower());
+					Assert.AreEqual(expected, browser.Uri.ToLower());
 
+					// Redirect by the link.
 					browser.Elements.Links["redirectLink"].Click();
-					browser.Refresh();
 
 					expected = TestHelper.GetTestFileFullPath("Inputs.html").ToLower();
-					TestHelper.AreEqual(expected, browser.Uri.ToLower());
+					Assert.AreEqual(expected, browser.Uri.ToLower());
+					browser.Elements["submit"].Click();
+				}
+			}
+		}
+
+		[TestMethod]
+		public void RedirectByScript()
+		{
+			foreach (var browser in GetBrowsers())
+			{
+				using (browser)
+				{
+					var expected = TestHelper.GetTestFileFullPath("Index.html").ToLower();
+					browser.NavigateTo(expected);
+					Assert.AreEqual(expected, browser.Uri.ToLower());
+					Assert.IsNotNull(browser.Elements["link"], "Failed to find the link element.");
+
+					// Redirect by a script.
+					browser.ExecuteScript("document.location.href = 'inputs.html'");
+
+					expected = TestHelper.GetTestFileFullPath("inputs.html").ToLower();
+					Assert.AreEqual(expected, browser.Uri.ToLower());
+					browser.Elements["submit"].Click();
 				}
 			}
 		}
