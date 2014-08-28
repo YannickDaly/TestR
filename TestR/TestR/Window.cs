@@ -31,9 +31,10 @@ namespace TestR
 		/// Instantiates an instance of the Window class.
 		/// </summary>
 		/// <param name="handle">The handle of the window.</param>
-		public Window(IntPtr handle)
+		/// <param name="name">The file name of the process. Ex. iexplore, chrome, etc.</param>
+		public Window(IntPtr handle, string name)
 		{
-			_process = Process.GetProcessesByName("iexplore").First(x => x.MainWindowHandle == handle);
+			_process = Process.GetProcessesByName(name).First(x => x.MainWindowHandle == handle);
 		}
 
 		/// <summary>
@@ -84,7 +85,7 @@ namespace TestR
 		}
 
 		/// <summary>
-		/// Gets the browser from the window.
+		/// Gets the InternetExplorer class from the window.
 		/// </summary>
 		/// <returns>The InternetExplorer hosted in the window.</returns>
 		public InternetExplorer GetInternetExplorer()

@@ -309,15 +309,6 @@ namespace TestR
 			return process;
 		}
 
-		private static string GetTestFileFullPath(string relativePath)
-		{
-			var name = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) ?? "";
-			name += "\\" + relativePath;
-			name = name.Replace("\\", "/");
-			name = name.Replace("file:/", "file:///");
-			return name;
-		}
-
 		#endregion
 	}
 }

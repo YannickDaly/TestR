@@ -100,7 +100,11 @@ namespace TestR
 		/// </summary>
 		public string Text
 		{
-			get { return GetAttributeValue("innerText", true); }
+			get
+			{
+				var name = ElementType == ElementType.TextInput ? "value" : "innerText";
+				return GetAttributeValue(name, true);
+			}
 		}
 
 		/// <summary>

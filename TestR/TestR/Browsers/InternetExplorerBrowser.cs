@@ -53,7 +53,7 @@ namespace TestR.Browsers
 		{
 			_browser = browser;
 			_browser.Visible = true;
-			_window = new Window(new IntPtr(_browser.HWND));
+			_window = new Window(new IntPtr(_browser.HWND), Name);
 
 			Attached = true;
 
@@ -132,9 +132,8 @@ namespace TestR.Browsers
 		/// <param name="uri">The URI to navigate to.</param>
 		public override sealed void NavigateTo(string uri)
 		{
-			object nil = null;
-			object absoluteUri = uri;
-			_browser.Navigate2(ref absoluteUri, ref nil, ref nil, ref nil, ref nil);
+			_browser.Navigate(uri);
+			WaitForComplete();
 			Refresh();
 		}
 

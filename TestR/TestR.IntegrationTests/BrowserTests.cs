@@ -41,7 +41,7 @@ namespace TestR.IntegrationTests
 				}
 			}
 		}
-
+		
 		[TestMethod]
 		public void BringToFront()
 		{
@@ -76,7 +76,7 @@ namespace TestR.IntegrationTests
 				}
 			}
 		}
-
+		
 		[TestMethod]
 		public void ClickButtonByName()
 		{
@@ -280,7 +280,7 @@ namespace TestR.IntegrationTests
 					var expected = "http://www.bing.com/";
 					browser.BringToFront();
 					browser.NavigateTo(expected);
-					Assert.AreEqual(expected, browser.Uri);
+					Assert.AreEqual(expected, browser.Uri.ToLower());
 				}
 			}
 		}
@@ -292,16 +292,16 @@ namespace TestR.IntegrationTests
 			{
 				using (browser)
 				{
-					var expected = TestHelper.GetTestFileFullPath("Index.html");
+					var expected = TestHelper.GetTestFileFullPath("Index.html").ToLower();
 					browser.NavigateTo(expected);
-					TestHelper.AreEqual(expected, browser.Uri);
+					TestHelper.AreEqual(expected, browser.Uri.ToLower());
 
 					var redirectLink = browser.Elements.Links["redirectLink"];
 					redirectLink.Click();
 					browser.Refresh();
 
-					expected = TestHelper.GetTestFileFullPath("Inputs.html");
-					TestHelper.AreEqual(expected, browser.Uri);
+					expected = TestHelper.GetTestFileFullPath("Inputs.html").ToLower();
+					TestHelper.AreEqual(expected, browser.Uri.ToLower());
 				}
 			}
 		}

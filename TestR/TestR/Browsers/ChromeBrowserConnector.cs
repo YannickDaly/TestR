@@ -198,6 +198,24 @@ namespace TestR.Browsers
 		}
 		
 		/// <summary>
+		/// Reloads the current page.
+		/// </summary>
+		public void ReLoad()
+		{
+			var request = new
+			{
+				Id = _requestId++,
+				Method = "Page.reload",
+				Params = new
+				{
+					ignoreCache = true
+				}
+			};
+
+			SendRequestAndReadResponse(request, x => x.id == request.Id);
+		}
+		
+		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
 		/// <param name="disposing">True if deposing and false if otherwise.</param>
