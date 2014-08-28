@@ -27,9 +27,6 @@ using (var browser = new InternetExplorerBrowser())
 }
 ```
 
-New: Added Chrome support!
-
-Coming Soon:
-
-* Element relatioship support.
+###### Coming Soon:
+* Element relationship support.
 * Auto-detection of DOM changes.
