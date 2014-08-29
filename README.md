@@ -32,3 +32,8 @@ using (var browser = ChromeBrowser.AttachOrCreate())
 	browser.WaitForRedirect();
 }
 ```
+
+#### Coming Soon
+
+* More element attributes.
+* More specific element implementation with their unique attributes.
