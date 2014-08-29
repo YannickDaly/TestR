@@ -12,18 +12,12 @@ Integration testing framework for developers. TestR allows automating testing of
 ### Searching Bing
 
 ```
-using (var browser = new InternetExplorerBrowser())
+using (var browser = InternetExplorerBrowser.AttachOrCreate())
 {
-	browser.AutoClose = false;
-	browser.NavigateTo("http://bing.com");
-
-	var input = browser.Elements["q"];
-	Assert.IsNotNull(input, "Could not find the search input.");
-	input.TypeText("Bobby Cannon");
-
-	var button = browser.Elements["go"];
-	Assert.IsNotNull(button, "Could not find the search button.");
-	button.Click();
+    browser.NavigateTo("http://bing.com");
+    browser.Elements.TextInputs["sb_form_q"].TypeText("Bobby Cannon");
+    browser.Elements["sb_form_go"].Click();
+    browser.WaitForRedirect();
 }
 ```
 
