@@ -57,11 +57,10 @@ Copy-Item "$destination\TestR.PowerShell.$version.nupkg" "$nugetDestination" -fo
 .\ResetAssemblyInfos.ps1
 
 $modulesPath = "C:\Workspaces\PowerShell"
-if (Test-Path $modulesPath -PathType Container) {
-    Remove-Item $modulesPath -Force -Recurse
+if (!(Test-Path $modulesPath -PathType Container)) {
+    New-Item $modulesPath -ItemType Directory | Out-Null
 }
 
-New-Item $modulesPath -ItemType Directory | Out-Null
 $modules = "TestR.Powershell", "TestR.IntegrationTests", "TestR.UnitTests"
 
 foreach ($module in $modules) {

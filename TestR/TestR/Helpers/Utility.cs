@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Net;
 using System.Threading;
 
 #endregion
@@ -52,7 +53,7 @@ namespace TestR.Helpers
 		/// <param name="message">The option message to throw if the retry limit is triggered.</param>
 		/// <typeparam name="T">The type of the action response.</typeparam>
 		/// <returns>The action response.</returns>
-		public static T Retry<T>(Func<T> action, int retryCount = 5, int delay = 50, string message = null)
+		public static T Retry<T>(Func<T> action, int retryCount = 5, int delay = 100, string message = null)
 		{
 			var lastError = new Exception("Could not complete the retries.");
 
@@ -61,6 +62,35 @@ namespace TestR.Helpers
 				try
 				{
 					return action();
+				}
+				catch (Exception ex)
+				{
+					lastError = ex;
+					Thread.Sleep(delay);
+				}
+			}
+
+			throw string.IsNullOrWhiteSpace(message) ? lastError : new Exception(message);
+		}
+		
+		/// <summary>
+		/// Retry the action until it completes or hit the retry limit..
+		/// </summary>
+		/// <param name="action">The action to perform.</param>
+		/// <param name="retryCount">The number of times to retry the action.</param>
+		/// <param name="delay">The delay (in milliseconds) between each action attempt.</param>
+		/// <param name="message">The option message to throw if the retry limit is triggered.</param>
+		/// <returns>The action response.</returns>
+		public static void Retry(Action action, int retryCount = 5, int delay = 100, string message = null)
+		{
+			var lastError = new Exception("Could not complete the retries.");
+
+			for (var i = 0; i < retryCount; i++)
+			{
+				try
+				{
+					action();
+					return;
 				}
 				catch (Exception ex)
 				{

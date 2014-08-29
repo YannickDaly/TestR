@@ -26,6 +26,7 @@ namespace TestR
 
 		private readonly Stopwatch _watch;
 		private ElementCollection _elements;
+		private bool _isReconciling;
 
 		#endregion
 
@@ -37,7 +38,8 @@ namespace TestR
 		protected Browser()
 		{
 			_watch = Stopwatch.StartNew();
-			AutoClose = true;
+			_isReconciling = false;
+			AutoClose = false;
 			JavascriptLibraries = new JavaScriptLibrary[0];
 			Elements = new ElementCollection();
 		}
@@ -51,7 +53,16 @@ namespace TestR
 		/// </summary>
 		public Element ActiveElement
 		{
-			get { return Elements[ExecuteScript("document.activeElement.id")]; }
+			get
+			{
+				var id = ExecuteScript("document.activeElement.id");
+				if (string.IsNullOrWhiteSpace(id) || !_elements.ContainsKey(id))
+				{
+					return null;
+				}
+
+				return Elements[id];
+			}
 		}
 
 		/// <summary>
@@ -107,6 +118,16 @@ namespace TestR
 		public abstract string Uri { get; }
 
 		/// <summary>
+		/// Gets or sets a flag indicating the browser has navigated to another page.
+		/// </summary>
+		protected abstract bool BrowserHasNavigated { get; set; }
+
+		/// <summary>
+		/// The URI last navigated to by the API.
+		/// </summary>
+		protected string LastUriNavigatedTo { get; set; }
+
+		/// <summary>
 		/// Gets the window handle of the current browser.
 		/// </summary>
 		/// <value>Window handle of the current browser.</value>
@@ -121,9 +142,12 @@ namespace TestR
 		/// </summary>
 		public void BringToFront()
 		{
-			NativeMethods.SetFocus(WindowHandle);
-			var result = Utility.Retry(() => NativeMethods.SetForegroundWindow(WindowHandle));
-			if (!result)
+			try
+			{
+				NativeMethods.SetFocus(WindowHandle);
+				NativeMethods.SetForegroundWindow(WindowHandle);
+			}
+			catch
 			{
 				Logger.Write("Failed to set " + GetType().Name + " as the foreground window (" + WindowHandle + ").", LogLevel.Warn);
 			}
@@ -132,7 +156,6 @@ namespace TestR
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
-		/// <filterpriority>2</filterpriority>
 		public void Dispose()
 		{
 			Dispose(true);
@@ -179,7 +202,36 @@ namespace TestR
 		/// Navigates the browser to the provided URI.
 		/// </summary>
 		/// <param name="uri">The URI to navigate to.</param>
-		public abstract void NavigateTo(string uri);
+		public void NavigateTo(string uri)
+		{
+			BrowserNavigateTo(uri);
+			LastUriNavigatedTo = uri;
+		}
+
+		/// <summary>
+		/// Wait for the browser page to redirect to a different URI.
+		/// </summary>
+		public void WaitForRedirect()
+		{
+			if (!Utility.Wait(() => LastUriNavigatedTo != BrowserGetUri() || BrowserHasNavigated, 5000))
+			{
+				throw new Exception("Browser never redirected...");
+			}
+
+			Refresh();
+		}
+
+		/// <summary>
+		/// Reads the current URI directly from the browser.
+		/// </summary>
+		/// <returns>The current URI that was read from the browser.</returns>
+		protected abstract string BrowserGetUri();
+
+		/// <summary>
+		/// Browser implementation of navigate to
+		/// </summary>
+		/// <param name="uri">The URI to navigate to.</param>
+		protected abstract void BrowserNavigateTo(string uri);
 
 		/// <summary>
 		/// Runs script to detect specific libraries.
@@ -229,11 +281,11 @@ namespace TestR
 		{
 			_elements.Clear();
 
-			var data = ExecuteScript("JSON.stringify(TestR.getElements())");
-			Logger.Write(data, LogLevel.Trace);
-
-			try
+			Utility.Retry(() =>
 			{
+				var data = ExecuteScript("JSON.stringify(TestR.getElements())");
+				Logger.Write(data, LogLevel.Trace);
+
 				var array = (JArray) JsonConvert.DeserializeObject(data);
 				if (array == null)
 				{
@@ -242,11 +294,7 @@ namespace TestR
 
 				Logger.Write("Array Length: " + array.Count(), LogLevel.Trace);
 				_elements.AddRange(array, this);
-			}
-			catch (Exception ex)
-			{
-				Logger.Write(ex.Message, LogLevel.Fatal);
-			}
+			});
 		}
 
 		/// <summary>
@@ -276,9 +324,36 @@ namespace TestR
 		protected abstract void InjectTestScript();
 
 		/// <summary>
-		/// Check to see if the browser has changed if so process the changes.
+		/// Check to see if the browser has changed if so process the changes. 
 		/// </summary>
-		protected abstract void Reconcile();
+		protected void Reconcile()
+		{
+			if (_isReconciling)
+			{
+				return;
+			}
+
+			try
+			{
+				_isReconciling = true;
+				if (!BrowserHasNavigated && LastUriNavigatedTo == Uri)
+				{
+					return;
+				}
+				Refresh();
+				BrowserHasNavigated = false;
+				LastUriNavigatedTo = Uri;
+			}
+			finally
+			{
+				_isReconciling = false;
+			}
+		}
+
+		/// <summary>
+		/// Refresh the state because the browser has navigated.
+		/// </summary>
+		protected abstract void Refresh();
 
 		#endregion
 
@@ -310,7 +385,7 @@ namespace TestR
 		/// Closes all browsers of the provided type.
 		/// </summary>
 		/// <param name="type">The type of the browser to close.</param>
-		public static void CloseAllBrowsers(BrowserType type)
+		public static void CloseBrowsers(BrowserType type)
 		{
 			if (((int) type & (int) BrowserType.Chrome) == (int) BrowserType.Chrome)
 			{

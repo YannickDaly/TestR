@@ -63,6 +63,9 @@
     <Content Include="TestSite\Angular.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="TestSite\Relationships.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestSite\Index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

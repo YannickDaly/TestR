@@ -1,6 +1,9 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #endregion
@@ -13,6 +16,26 @@ namespace TestR
 	public static class Validate
 	{
 		#region Static Methods
+
+		/// <summary>
+		/// Checks to see if both list contain the same items but ignores order.
+		/// </summary>
+		/// <param name="expected">The list of expected items.</param>
+		/// <param name="actual">The list of actual items.</param>
+		/// <typeparam name="T">The type of the item in the lists.</typeparam>
+		public static void AllExists<T>(IList<T> expected, IList<T> actual)
+		{
+			var builder = new StringBuilder();
+			foreach (var item in expected.Except(actual))
+			{
+				builder.AppendLine("Missing [" + item + "] in actual collection.");
+			}
+
+			if (builder.Length > 0)
+			{
+				Assert.Fail(builder.ToString());
+			}
+		}
 
 		/// <summary>
 		/// Ensures the correct exception is thrown.

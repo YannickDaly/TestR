@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using TestR.Elements;
 using TestR.Extensions;
 
 #endregion
@@ -34,12 +35,17 @@ namespace TestR
 		#region Properties
 
 		/// <summary>
-		/// Access an element by the ID or Name.
+		/// Access an element by the ID.
 		/// </summary>
-		/// <param name="idOrName">The ID or Name of the element.</param>
-		public T this[string idOrName]
+		/// <param name="id">The ID of the element.</param>
+		public T this[string id]
 		{
-			get { return this.FirstOrDefault(x => x.Id == idOrName || x.Name == idOrName); }
+			get
+			{
+				var response = this.FirstOrDefault(x => x.Id == id);
+				Assert.IsNotNull(response, "Failed to find the element by the index of " + id + ".");
+				return response;
+			}
 		}
 
 		#endregion
@@ -62,10 +68,10 @@ namespace TestR
 		/// <summary>
 		/// Initializes an instance of the ElementCollection class.
 		/// </summary>
-		/// <param name="collection"></param>
+		/// <param name="collection">The collection of elements to add to this collection.</param>
 		public ElementCollection(IEnumerable<Element> collection)
 		{
-			AddRange(collection);
+			this.AddRange(collection);
 		}
 
 		#endregion
@@ -75,21 +81,21 @@ namespace TestR
 		/// <summary>
 		/// Gets a list of all button elements.
 		/// </summary>
-		public ElementCollection Buttons
+		public ElementCollection<Button> Buttons
 		{
-			get { return this.Where(x => x.ElementType == ElementType.Button).ToElementCollection(); }
+			get { return OfType<Button>(); }
 		}
 
 		/// <summary>
-		/// Access an element by the ID or Name.
+		/// Access an element by the ID.
 		/// </summary>
-		/// <param name="idOrName">The ID or Name of the element.</param>
-		public Element this[string idOrName]
+		/// <param name="id">The ID of the element.</param>
+		public Element this[string id]
 		{
 			get
 			{
-				var response = this.FirstOrDefault(x => x.Id == idOrName || x.Name == idOrName);
-				Assert.IsNotNull(response, "Failed to find the element by the index of " + idOrName + ".");
+				var response = this.FirstOrDefault(x => x.Id == id);
+				Assert.IsNotNull(response, "Failed to find the element by the index of " + id + ".");
 				return response;
 			}
 		}
@@ -97,25 +103,25 @@ namespace TestR
 		/// <summary>
 		/// Gets a list of all link elements.
 		/// </summary>
-		public ElementCollection Links
+		public ElementCollection<Link> Links
 		{
-			get { return this.Where(x => x.ElementType == ElementType.Link).ToElementCollection(); }
+			get { return OfType<Link>(); }
 		}
 
 		/// <summary>
 		/// Gets a list of all span elements.
 		/// </summary>
-		public ElementCollection Spans
+		public ElementCollection<Span> Spans
 		{
-			get { return this.Where(x => x.ElementType == ElementType.Span).ToElementCollection(); }
+			get { return OfType<Span>(); }
 		}
 
 		/// <summary>
 		/// Gets a list of all text input elements.
 		/// </summary>
-		public ElementCollection TextInputs
+		public ElementCollection<TextInput> TextInputs
 		{
-			get { return this.Where(x => x.ElementType == ElementType.TextInput).ToElementCollection(); }
+			get { return OfType<TextInput>(); }
 		}
 
 		#endregion
@@ -125,57 +131,55 @@ namespace TestR
 		/// <summary>
 		/// Adds a collection of elements and initializes them as their specific element type.
 		/// </summary>
-		/// <param name="collection">The collection of elements to add.</param>
-		public void AddRange(IEnumerable<Element> collection)
+		/// <param name="token">The collection of elements to add.</param>
+		/// <param name="browser"></param>
+		public void Add(JToken token, Browser browser)
 		{
-			foreach (var item in collection)
+			var element = new Element(token, browser, this);
+			switch (element.TagName)
 			{
-				switch (item.TagName.ToLower())
-				{
-					case "button":
-						item.ElementType = ElementType.Button;
-						break;
+				case "button":
+					Add(new Button(token, browser, this));
+					return;
 
-					case "input":
-						var type = item.GetAttributeValue("type").ToLower();
-						switch (type)
-						{
-							case "button":
-								item.ElementType = ElementType.Button;
-								break;
+				case "input":
+					var type = element.GetAttributeValue("type").ToLower();
+					switch (type)
+					{
+						case "button":
+						case "submit":
+						case "reset":
+							Add(new Button(token, browser, this));
+							return;
 
-							case "email":
-							case "hidden":
-							case "password":
-							case "search":
-							case "text":
-								item.ElementType = ElementType.TextInput;
-								break;
+						case "email":
+						case "hidden":
+						case "password":
+						case "search":
+						case "text":
+							Add(new TextInput(token, browser, this));
+							return;
 
-							default:
-								item.ElementType = ElementType.Unknown;
-								break;
-						}
-						break;
+						default:
+							Add(element);
+							return;
+					}
 
-					case "span":
-						item.ElementType = ElementType.Span;
-						break;
+				case "span":
+					Add(new Span(token, browser, this));
+					return;
 
-					case "textarea":
-						item.ElementType = ElementType.TextInput;
-						break;
+				case "textarea":
+					Add(new TextInput(token, browser, this));
+					return;
 
-					case "a":
-						item.ElementType = ElementType.Link;
-						break;
+				case "a":
+					Add(new Link(token, browser, this));
+					return;
 
-					default:
-						item.ElementType = ElementType.Unknown;
-						break;
-				}
-
-				Add(item);
+				default:
+					Add(element);
+					return;
 			}
 		}
 
@@ -186,7 +190,27 @@ namespace TestR
 		/// <param name="browser">The browser the element belong to.</param>
 		public void AddRange(JArray collection, Browser browser)
 		{
-			AddRange(collection.Select(x => new Element(x, browser)));
+			collection.ForEach(x => Add(x, browser));
+		}
+
+		/// <summary>
+		/// Checks to see if the collection contains the provided ID.
+		/// </summary>
+		/// <param name="id">The ID to check for.</param>
+		/// <returns>True if the key is found or false if otherwise.</returns>
+		public bool ContainsKey(string id)
+		{
+			return this.Any(x => x.Id == id);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		public ElementCollection<T> OfType<T>() where T : Element
+		{
+			return this.Where(x => x.GetType() == typeof (T)).Cast<T>().ToElementCollection<T>();
 		}
 
 		#endregion

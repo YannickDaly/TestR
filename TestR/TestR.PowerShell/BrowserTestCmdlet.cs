@@ -1,8 +1,10 @@
 ﻿#region References
 
+using System;
 using System.Collections.Generic;
 using System.Management.Automation;
 using System.Management.Automation.Host;
+using System.Text;
 using TestR.Browsers;
 
 #endregion
@@ -54,34 +56,88 @@ namespace TestR.PowerShell
 
 		#region Methods
 
-		public IEnumerable<Browser> GetBrowsers()
+		public void ForEachBrowser(Action<Browser> action)
+		{
+			var asserts = new Dictionary<string, Exception>();
+			foreach (var browser in GetBrowsers(asserts))
+			{
+				using (browser)
+				{
+					try
+					{
+						action(browser);
+					}
+					catch (Exception ex)
+					{
+						asserts.Add(browser.GetType().Name, ex);
+					}
+				}
+			}
+
+			if (asserts.Count <= 0)
+			{
+				return;
+			}
+
+			var builder = new StringBuilder();
+			foreach (var assert in asserts)
+			{
+				builder.AppendLine(assert.Key + " : " + assert.Value.Message);
+			}
+
+			throw new Exception(builder.ToString());
+		}
+
+		private void ArrangeBrowsers(IList<Browser> browsers)
+		{
+			if (BrowserSize.Width == 0 || BrowserSize.Height == 0)
+			{
+				return;
+			}
+
+			for (var i = 0; i < browsers.Count; i++)
+			{
+				browsers[i].MoveWindow((BrowserSize.Width * i), 0, BrowserSize.Width, BrowserSize.Height);
+			}
+		}
+
+		private IEnumerable<Browser> GetBrowsers(Dictionary<string, Exception> asserts)
 		{
 			var response = new List<Browser>();
 
 			if (HasBrowserType(BrowserType.Chrome))
 			{
-				var chrome = ChromeBrowser.AttachOrCreate();
-				chrome.AutoClose = AutoClose;
-				chrome.SlowMotion = SlowMotion;
-				response.Add(chrome);
+				try
+				{
+					var chrome = ChromeBrowser.AttachOrCreate();
+					chrome.AutoClose = AutoClose;
+					chrome.SlowMotion = SlowMotion;
+					response.Add(chrome);
+				}
+				catch (Exception ex)
+				{
+					asserts.Add(typeof (ChromeBrowser).Name, ex);
+				}
 			}
 
 			if (HasBrowserType(BrowserType.InternetExplorer))
 			{
-				var internetExplorer = InternetExplorerBrowser.AttachOrCreate();
-				internetExplorer.AutoClose = AutoClose;
-				internetExplorer.SlowMotion = SlowMotion;
-				response.Add(internetExplorer);
-			}
-
-			if (BrowserSize.Width != 0 && BrowserSize.Height != 0)
-			{
-				for (var i = 0; i < response.Count; i++)
+				try
 				{
-					response[i].MoveWindow((BrowserSize.Width * i), 0, BrowserSize.Width, BrowserSize.Height);
+					var internetExplorer = AutoClose
+						? InternetExplorerBrowser.Create()
+						: InternetExplorerBrowser.AttachOrCreate();
+					internetExplorer.AutoClose = AutoClose;
+					internetExplorer.SlowMotion = SlowMotion;
+					response.Add(internetExplorer);
+				}
+				catch (Exception ex)
+				{
+					asserts.Add(typeof (InternetExplorerBrowser).Name, ex);
 				}
 			}
 
+			ArrangeBrowsers(response);
 			return response;
 		}
 

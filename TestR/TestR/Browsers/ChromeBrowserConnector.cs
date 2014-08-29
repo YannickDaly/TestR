@@ -64,6 +64,11 @@ namespace TestR.Browsers
 		/// </summary>
 		public bool BrowserHasNavigated { get; set; }
 
+		/// <summary>
+		/// Gets the current URI of the browser.
+		/// </summary>
+		public string Uri { get; private set; }
+
 		#endregion
 
 		#region Methods
@@ -153,29 +158,6 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
-		/// Get the current document in the browser.
-		/// </summary>
-		/// <returns>The dynamic version of the document.</returns>
-		/// <exception cref="Exception"></exception>
-		public dynamic GetUri()
-		{
-			var request = new
-			{
-				Id = _requestId++,
-				Method = "DOM.getDocument"
-			};
-
-			var document = SendRequestAndReadResponse(request, x => x.id == request.Id).AsJToken() as dynamic;
-			var body = FindBody(document.result.root);
-			if (body == null)
-			{
-				throw new Exception("Failed to get the URI.");
-			}
-
-			return document.result.root.documentURL;
-		}
-
-		/// <summary>
 		/// Navigates the browser to the provided URI.
 		/// </summary>
 		/// <param name="uri">The URI to navigate the browser to.</param>
@@ -192,6 +174,7 @@ namespace TestR.Browsers
 			};
 
 			SendRequestAndReadResponse(request, x => x.id == request.Id);
+			Refresh();
 		}
 
 		/// <summary>
@@ -210,6 +193,15 @@ namespace TestR.Browsers
 			};
 
 			SendRequestAndReadResponse(request, x => x.id == request.Id);
+			Refresh();
+		}
+
+		/// <summary>
+		/// Refreshes the state of the connector.
+		/// </summary>
+		public void Refresh()
+		{
+			Uri = GetCurrentUri();
 		}
 
 		/// <summary>
@@ -223,6 +215,32 @@ namespace TestR.Browsers
 				_socket.Dispose();
 				_socket = null;
 			}
+		}
+
+		/// <summary>
+		/// Get the current document in the browser.
+		/// </summary>
+		/// <returns>The dynamic version of the document.</returns>
+		/// <exception cref="Exception"></exception>
+		public string GetCurrentUri()
+		{
+			var request = new
+			{
+				Id = _requestId++,
+				Method = "DOM.getDocument"
+			};
+
+			return Utility.Retry(() =>
+			{
+				var document = SendRequestAndReadResponse(request, x => x.id == request.Id).AsJToken() as dynamic;
+				var body = FindBody(document.result.root);
+				if (body == null)
+				{
+					throw new Exception("Failed to get the URI.");
+				}
+
+				return document.result.root.documentURL;
+			}, 4, 250);
 		}
 
 		private dynamic FindBody(dynamic node)
@@ -252,7 +270,7 @@ namespace TestR.Browsers
 		private List<RemoteSessionsResponse> GetAvailableSessions()
 		{
 			var request = (HttpWebRequest) WebRequest.Create(_uri + JsonPostfix);
-			using (var response = Utility.Retry(request.GetResponse, 50, 100))
+			using (var response = Utility.Retry<WebResponse>(request.GetResponse))
 			{
 				var stream = response.GetResponseStream();
 				if (stream == null)

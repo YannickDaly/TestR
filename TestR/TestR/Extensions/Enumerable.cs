@@ -46,22 +46,22 @@ namespace TestR.Extensions
 		/// Converts a IEnumerable collection into an ElementCollection.
 		/// </summary>
 		/// <param name="collection">The collection to be converted.</param>
-		/// <typeparam name="T">The type of the item in the collection.</typeparam>
-		/// <returns>The new element collection of item.</returns>
-		public static ElementCollection<T> ToElementCollection<T>(this IEnumerable<T> collection)
-			where T : Element
-		{
-			return new ElementCollection<T>(collection);
-		}
-
-		/// <summary>
-		/// Converts a IEnumerable collection into an ElementCollection.
-		/// </summary>
-		/// <param name="collection">The collection to be converted.</param>
 		/// <returns>The new element collection of item.</returns>
 		public static ElementCollection ToElementCollection(this IEnumerable<Element> collection)
 		{
 			return new ElementCollection(collection);
+		}
+		
+		/// <summary>
+		/// Converts a IEnumerable collection into an ElementCollection.
+		/// </summary>
+		/// <param name="collection">The collection to be converted.</param>
+		/// <typeparam name="T">The type of the item in the collection.</typeparam>
+		/// <returns>The new element collection of item.</returns>
+		public static ElementCollection<T> ToElementCollection<T>(this IEnumerable<T> collection) 
+			where T : Element
+		{
+			return new ElementCollection<T>(collection);
 		}
 
 		#endregion

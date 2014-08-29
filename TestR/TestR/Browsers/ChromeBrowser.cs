@@ -2,7 +2,6 @@
 
 using System;
 using System.Diagnostics;
-using TestR.Helpers;
 
 #endregion
 
@@ -83,7 +82,20 @@ namespace TestR.Browsers
 		/// </summary>
 		public override string Uri
 		{
-			get { return Connector.GetUri(); }
+			get
+			{
+				Reconcile();
+				return Connector.Uri;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets a flag indicating the browser has navigated to another page.
+		/// </summary>
+		protected override bool BrowserHasNavigated
+		{
+			get { return Connector.BrowserHasNavigated; }
+			set { Connector.BrowserHasNavigated = value; }
 		}
 
 		/// <summary>
@@ -112,13 +124,21 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
+		/// Reads the current URI directly from the browser.
+		/// </summary>
+		/// <returns>The current URI that was read from the browser.</returns>
+		protected override string BrowserGetUri()
+		{
+			return Connector.GetCurrentUri();
+		}
+
+		/// <summary>
 		/// Navigates the browser to the provided URI.
 		/// </summary>
 		/// <param name="uri">The URI to navigate to.</param>
-		public override void NavigateTo(string uri)
+		protected override void BrowserNavigateTo(string uri)
 		{
 			Connector.NavigateTo(uri);
-			Utility.Retry(() => Connector.GetUri(), 10, 500);
 			Refresh();
 		}
 
@@ -169,21 +189,11 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
-		/// Check to see if the browser has changed if so process the changes.
+		/// Refreshed the state of the browser.
 		/// </summary>
-		protected override void Reconcile()
+		protected override void Refresh()
 		{
-			if (!Connector.BrowserHasNavigated)
-			{
-				return;
-			}
-
-			Refresh();
-			Connector.BrowserHasNavigated = false;
-		}
-
-		private void Refresh()
-		{
+			Connector.Refresh();
 			InjectTestScript();
 			DetectJavascriptLibraries();
 			GetElementsFromScript();

@@ -31,14 +31,18 @@
 			if (element.id === undefined || element.id === '') {
 				element.id = 'testR-' + id++;
 			}
+		}
 
+		for (i = 0; i < allElements.length; i++) {
+			element = allElements[i];
+			
 			var item = {
 				id: element.id,
+				parentId: element.parentNode.id,
 				name: element.name || '',
 				tagName: (element.tagName || '').toLowerCase(),
 				attributes: [],
 			};
-			item.tagName = item.tagName.toLowerCase();
 
 			for (var j = 0; j < element.attributes.length; j++) {
 				var attribute = element.attributes[j];
@@ -65,7 +69,7 @@
 
 			response.push(item);
 		}
-
+		
 		return response;
 	},
 	getElementValue: function (id, name) {

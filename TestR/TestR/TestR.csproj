@@ -57,14 +57,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assert.cs" />
+    <Compile Include="Validate.cs" />
     <Compile Include="Browser.cs" />
     <Compile Include="Browsers\ChromeBrowser.cs" />
     <Compile Include="Browsers\ChromeBrowserConnector.cs" />
     <Compile Include="Browsers\InternetExplorerBrowser.cs" />
     <Compile Include="BrowserType.cs" />
     <Compile Include="ElementCollection.cs" />
-    <Compile Include="ElementType.cs" />
+    <Compile Include="Elements\Button.cs" />
+    <Compile Include="Elements\Link.cs" />
+    <Compile Include="Elements\Span.cs" />
+    <Compile Include="Elements\TextInput.cs" />
     <Compile Include="Extensions\Enumerable.cs" />
     <Compile Include="Extensions\String.cs" />
     <Compile Include="Helpers\Utility.cs" />

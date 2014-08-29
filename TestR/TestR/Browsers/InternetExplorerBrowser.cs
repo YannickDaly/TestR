@@ -35,7 +35,6 @@ namespace TestR.Browsers
 
 		private readonly Window _window;
 		private InternetExplorer _browser;
-		private bool _browserHasNavigated;
 
 		#endregion
 
@@ -55,15 +54,8 @@ namespace TestR.Browsers
 			_browser = browser;
 			_browser.DocumentComplete += BrowserOnDocumentComplete;
 			_browser.Visible = true;
-			_browserHasNavigated = false;
 			_window = new Window(new IntPtr(_browser.HWND), Name);
-
 			Attached = true;
-
-			if (_browser.LocationURL.Length <= 0)
-			{
-				NavigateTo("about:tabs");
-			}
 		}
 
 		#endregion
@@ -83,12 +75,13 @@ namespace TestR.Browsers
 		/// </summary>
 		public override string Uri
 		{
-			get
-			{
-				WaitForComplete();
-				return _browser.LocationURL;
-			}
+			get { return BrowserGetUri(); }
 		}
+
+		/// <summary>
+		/// Gets or sets a flag indicating the browser has navigated to another page.
+		/// </summary>
+		protected override bool BrowserHasNavigated { get; set; }
 
 		/// <summary>
 		/// Gets the window handle of the current browser.
@@ -116,10 +109,20 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
+		/// Reads the current URI directly from the browser.
+		/// </summary>
+		/// <returns>The current URI that was read from the browser.</returns>
+		protected override string BrowserGetUri()
+		{
+			WaitForComplete();
+			return _browser.LocationURL;
+		}
+
+		/// <summary>
 		/// Navigates the browser to the provided URI.
 		/// </summary>
 		/// <param name="uri">The URI to navigate to.</param>
-		public override sealed void NavigateTo(string uri)
+		protected override void BrowserNavigateTo(string uri)
 		{
 			_browser.Navigate(uri);
 			WaitForComplete();
@@ -136,6 +139,9 @@ namespace TestR.Browsers
 			{
 				return;
 			}
+
+			// Wait for the browser to calm down.
+			WaitForComplete();
 
 			// We cannot allow the browser to close within a second.
 			// I assume that addons need time to start before closing the browser.
@@ -193,22 +199,19 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
-		/// Check to see if the browser has changed if so process the changes.
+		/// Refreshed the state of the browser.
 		/// </summary>
-		protected override void Reconcile()
+		protected override void Refresh()
 		{
-			if (!_browserHasNavigated)
-			{
-				return;
-			}
-
-			Refresh();
-			_browserHasNavigated = false;
+			WaitForComplete();
+			InjectTestScript();
+			DetectJavascriptLibraries();
+			GetElementsFromScript();
 		}
 
 		private void BrowserOnDocumentComplete(object pDisp, ref object url)
 		{
-			_browserHasNavigated = true;
+			BrowserHasNavigated = true;
 		}
 
 		private string GetJavascriptResult()
@@ -228,17 +231,6 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
-		/// Refreshed the state of the browser.
-		/// </summary>
-		private void Refresh()
-		{
-			WaitForComplete();
-			InjectTestScript();
-			DetectJavascriptLibraries();
-			GetElementsFromScript();
-		}
-
-		/// <summary>
 		/// Waits until the browser to complete any outstanding operations.
 		/// </summary>
 		private void WaitForComplete()
@@ -248,15 +240,21 @@ namespace TestR.Browsers
 				return;
 			}
 
-			Utility.Wait(() => !_browser.Busy && _browser.ReadyState == tagREADYSTATE.READYSTATE_COMPLETE);
+			var states = new[] { tagREADYSTATE.READYSTATE_COMPLETE, tagREADYSTATE.READYSTATE_UNINITIALIZED };
+			Utility.Wait(() => !_browser.Busy && states.Contains(_browser.ReadyState), 2000);
+
+			if (_browser.ReadyState == tagREADYSTATE.READYSTATE_UNINITIALIZED)
+			{
+				return;
+			}
 
 			var document = _browser.Document as IHTMLDocument2;
 			if (document == null)
 			{
 				return;
 			}
-
-			Utility.Wait(() => document.readyState == "complete"); // || document.readyState == "interactive");
+				
+			Utility.Wait(() => document.readyState == "complete", 2000);
 		}
 
 		#endregion

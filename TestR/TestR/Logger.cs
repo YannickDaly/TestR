@@ -42,19 +42,29 @@ namespace TestR
 		/// <summary>
 		/// Enable console tracing. This really should only be used for debugging / troubleshooting.
 		/// </summary>
-		public static void EnableBenchmarking(bool enable = true)
+		public static bool EnableBenchmarking
 		{
-			_enableBenchmarking = enable;
-			UpdateConfiguration();
+			get { return _enableBenchmarking; }
+
+			set
+			{
+				_enableBenchmarking = value;
+				UpdateConfiguration();
+			}
 		}
 
 		/// <summary>
 		/// Enable console tracing. This really should only be used for debugging / troubleshooting.
 		/// </summary>
-		public static void EnableConsoleTracing(bool enable = true)
+		public static bool EnableConsoleTracing
 		{
-			_enableTracing = enable;
-			UpdateConfiguration();
+			get { return _enableTracing; }
+
+			set
+			{
+				_enableTracing = value;
+				UpdateConfiguration();
+			}
 		}
 
 		/// <summary>

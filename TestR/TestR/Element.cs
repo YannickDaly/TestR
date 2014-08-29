@@ -3,7 +3,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Newtonsoft.Json.Linq;
 using NLog;
+using TestR.Extensions;
 
 #endregion
 
@@ -19,12 +21,13 @@ namespace TestR
 		/// <summary>
 		/// Properties that need to be renamed when requested.
 		/// </summary>
-		public static readonly Dictionary<string, string> PropertiesToRename = new Dictionary<string, string>
+		protected static readonly Dictionary<string, string> PropertiesToRename = new Dictionary<string, string>
 		{
 			{ "class", "className" }
 		};
 
 		private readonly Browser _browser;
+		private readonly ElementCollection _collection;
 		private readonly dynamic _element;
 		private readonly string _highlightColor;
 		private readonly string _orginalColor;
@@ -34,14 +37,16 @@ namespace TestR
 		#region Constructors
 
 		/// <summary>
-		/// Initializes an instance of an Internet Explorer browser element.
+		/// Initializes an instance of a browser element.
 		/// </summary>
 		/// <param name="element">The browser element this is for.</param>
 		/// <param name="browser">The browser this element is associated with.</param>
-		public Element(dynamic element, Browser browser)
+		/// <param name="collection">The collection this element is associated with.</param>
+		public Element(JToken element, Browser browser, ElementCollection collection)
 		{
 			_element = element;
 			_browser = browser;
+			_collection = collection;
 			_orginalColor = GetStyleAttributeValue("backgroundColor") ?? "";
 			_highlightColor = "yellow";
 		}
@@ -63,13 +68,8 @@ namespace TestR
 		/// </summary>
 		public string Class
 		{
-			get { return GetAttributeValue("className", true); }
+			get { return this["class"]; }
 		}
-
-		/// <summary>
-		/// Gets or sets the type of the element.
-		/// </summary>
-		public ElementType ElementType { get; set; }
 
 		/// <summary>
 		/// Gets the ID of the element.
@@ -77,6 +77,48 @@ namespace TestR
 		public string Id
 		{
 			get { return _element.id; }
+		}
+
+		/// <summary>
+		/// Gets the ID of the element's parent.
+		/// </summary>
+		public string ParentId
+		{
+			get { return _element.parentId; }
+		}
+
+		/// <summary>
+		/// Gets the children for this element.
+		/// </summary>
+		public ElementCollection Children
+		{
+			get { return _collection.Where(x => x.ParentId == Id).ToElementCollection(); }
+		}
+
+		/// <summary>
+		/// Gets or sets an attribute or property by name.
+		/// </summary>
+		/// <param name="name">The name of the attribute or property to read.</param>
+		public string this[string name]
+		{
+			get { return GetAttributeValue(name, true); }
+			set { SetAttributeValue(name, value); }
+		}
+
+		/// <summary>
+		/// The parent element of this element. Returns null if there is no parent.
+		/// </summary>
+		public Element Parent
+		{
+			get
+			{
+				if (string.IsNullOrWhiteSpace(ParentId) || !_collection.ContainsKey(ParentId))
+				{
+					return null;
+				}
+
+				return _collection[ParentId];
+			}
 		}
 
 		/// <summary>
@@ -93,35 +135,6 @@ namespace TestR
 		public string TagName
 		{
 			get { return _element.tagName; }
-		}
-
-		/// <summary>
-		/// Gets the text of the element.
-		/// </summary>
-		public string Text
-		{
-			get
-			{
-				var name = ElementType == ElementType.TextInput ? "value" : "innerText";
-				return GetAttributeValue(name, true);
-			}
-		}
-
-		/// <summary>
-		///  Gets the delay (in milliseconds) between each character.
-		/// </summary>
-		public int TypingDelay
-		{
-			get { return Browser.SlowMotion ? 50 : 1; }
-		}
-
-		/// <summary>
-		/// Gets or sets the value for the text input.
-		/// </summary>
-		public string Value
-		{
-			get { return GetAttributeValue("value", true); }
-			set { SetAttributeValue("value", value); }
 		}
 
 		#endregion
@@ -283,39 +296,6 @@ namespace TestR
 		}
 
 		/// <summary>
-		/// Type text into the element.
-		/// </summary>
-		/// <param name="value">The value to be typed.</param>
-		public void TypeText(string value)
-		{
-			Focus();
-			Highlight(true);
-
-			if (!Browser.SlowMotion)
-			{
-				SetAttributeValue("value", GetAttributeValue("value", true) + value);
-				FireEvent("onChange", new Dictionary<string, string>());
-			}
-			else
-			{
-				foreach (var character in value)
-				{
-					var eventProperty = GetKeyCodeEventProperty(character);
-					FireEvent("keyDown", eventProperty);
-					FireEvent("keyPress", eventProperty);
-					FireEvent("keyUp", eventProperty);
-
-					var newValue = GetAttributeValue("value", true) + character;
-					SetAttributeValue("value", newValue);
-					Thread.Sleep(TypingDelay);
-				}
-			}
-
-			Highlight(false);
-			TriggerElement();
-		}
-
-		/// <summary>
 		/// Get the key code event properties for the character.
 		/// </summary>
 		/// <param name="character">The character to get the event properties for.</param>
@@ -348,6 +328,23 @@ namespace TestR
 			return value;
 		}
 
+		/// <summary>
+		/// Triggers the element via the Angular function "trigger".
+		/// </summary>
+		protected void TriggerElement()
+		{
+			if (Browser.JavascriptLibraries.Contains(JavaScriptLibrary.Angular)
+				&& Browser.JavascriptLibraries.Contains(JavaScriptLibrary.JQuery))
+			{
+				Browser.ExecuteScript("angular.element('#" + Id + "').trigger('input');");
+			}
+		}
+
+		/// <summary>
+		/// Add or updates the cached attributes for this element.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
 		private void AddOrUpdateElementAttribute(string name, string value)
 		{
 			for (var i = 0; i < _element.attributes.Count; i++)
@@ -378,6 +375,11 @@ namespace TestR
 			return null;
 		}
 
+		/// <summary>
+		/// Sets the element attribute value. If the attribute is not found we'll add it.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
 		private void SetElementAttributeValue(string name, string value)
 		{
 			for (var i = 0; i < _element.attributes.Count; i++)
@@ -391,18 +393,9 @@ namespace TestR
 				_element.attributes[i] = value;
 				return;
 			}
-		}
 
-		/// <summary>
-		/// Triggers the element via the Angular function "trigger".
-		/// </summary>
-		private void TriggerElement()
-		{
-			if (Browser.JavascriptLibraries.Contains(JavaScriptLibrary.Angular)
-				&& Browser.JavascriptLibraries.Contains(JavaScriptLibrary.JQuery))
-			{
-				Browser.ExecuteScript("angular.element('#" + Id + "').trigger('input');");
-			}
+			_element.attributes.Add(name);
+			_element.attributes.Add(value);
 		}
 
 		#endregion
