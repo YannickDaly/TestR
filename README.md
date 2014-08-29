@@ -20,7 +20,3 @@ using (var browser = InternetExplorerBrowser.AttachOrCreate())
     browser.WaitForRedirect();
 }
 ```
-
-###### Coming Soon:
-* Element relationship support.
-* Auto-detection of DOM changes.
