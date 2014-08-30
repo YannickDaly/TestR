@@ -124,12 +124,25 @@ namespace TestR.PowerShell
 			{
 				try
 				{
-					var internetExplorer = AutoClose
-						? InternetExplorerBrowser.Create()
-						: InternetExplorerBrowser.AttachOrCreate();
+					var internetExplorer = InternetExplorerBrowser.AttachOrCreate();
 					internetExplorer.AutoClose = AutoClose;
 					internetExplorer.SlowMotion = SlowMotion;
 					response.Add(internetExplorer);
+				}
+				catch (Exception ex)
+				{
+					asserts.Add(typeof (InternetExplorerBrowser).Name, ex);
+				}
+			}
+
+			if (HasBrowserType(BrowserType.Firefox))
+			{
+				try
+				{
+					var firefox = FirefoxBrowser.AttachOrCreate();
+					firefox.AutoClose = AutoClose;
+					firefox.SlowMotion = SlowMotion;
+					response.Add(firefox);
 				}
 				catch (Exception ex)
 				{

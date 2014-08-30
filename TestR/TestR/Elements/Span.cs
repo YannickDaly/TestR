@@ -33,8 +33,8 @@ namespace TestR.Elements
 		/// </summary>
 		public string Text
 		{
-			get { return this["innerText"]; }
-			set { this["innerText"] = value; }
+			get { return this[Browser.Type == BrowserType.Firefox ? "textContent" : "innerText"]; }
+			set { this[Browser.Type == BrowserType.Firefox ? "textContent" : "innerText"] = value; }
 		}
 
 		#endregion

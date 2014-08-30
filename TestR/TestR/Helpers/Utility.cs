@@ -2,7 +2,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Net;
 using System.Threading;
 
 #endregion
@@ -72,7 +71,7 @@ namespace TestR.Helpers
 
 			throw string.IsNullOrWhiteSpace(message) ? lastError : new Exception(message);
 		}
-		
+
 		/// <summary>
 		/// Retry the action until it completes or hit the retry limit..
 		/// </summary>

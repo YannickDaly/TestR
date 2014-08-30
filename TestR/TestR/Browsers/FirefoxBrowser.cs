@@ -8,22 +8,17 @@ using System.Diagnostics;
 namespace TestR.Browsers
 {
 	/// <summary>
-	/// This is the place hold for what may be Chrome support.
+	/// This is the place hold for what may be FireFox support.
 	/// </summary>
 	/// <exclude />
-	public class ChromeBrowser : Browser
+	public class FirefoxBrowser : Browser
 	{
 		#region Constants
 
 		/// <summary>
 		/// The name of the browser. 
 		/// </summary>
-		public const string Name = "chrome";
-
-		/// <summary>
-		/// The debugging argument for starting the browser.
-		/// </summary>
-		private const string DebugArgument = "--remote-debugging-port=9222";
+		public const string Name = "firefox";
 
 		#endregion
 
@@ -36,30 +31,30 @@ namespace TestR.Browsers
 		#region Constructors
 
 		/// <summary>
-		/// Initializes a new instance of the ChromeBrowser class.
+		/// Initializes a new instance of the FirefoxBrowser class.
 		/// </summary>
-		public ChromeBrowser()
+		public FirefoxBrowser()
 			: this(Create())
 		{
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the ChromeBrowser class.
+		/// Initializes a new instance of the FirefoxBrowser class.
 		/// </summary>
 		/// <param name="process">The process of the existing browser.</param>
-		public ChromeBrowser(Process process)
+		public FirefoxBrowser(Process process)
 			: this(new Window(process))
 		{
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the ChromeBrowser class.
+		/// Initializes a new instance of the FirefoxBrowser class.
 		/// </summary>
 		/// <param name="window">The window of the existing browser.</param>
-		public ChromeBrowser(Window window)
+		public FirefoxBrowser(Window window)
 		{
 			_window = window;
-			Connector = new ChromeBrowserConnector("http://localhost:9222");
+			Connector = new FirefoxBrowserConnector("localhost", 6000);
 			Connector.Connect();
 		}
 
@@ -70,7 +65,7 @@ namespace TestR.Browsers
 		/// <summary>
 		/// The connector to communicate with the browser.
 		/// </summary>
-		public ChromeBrowserConnector Connector { get; private set; }
+		public FirefoxBrowserConnector Connector { get; private set; }
 
 		/// <summary>
 		/// Gets the ID of the browser.
@@ -97,7 +92,7 @@ namespace TestR.Browsers
 		/// </summary>
 		internal override BrowserType Type
 		{
-			get { return BrowserType.Chrome; }
+			get { return BrowserType.Firefox; }
 		}
 
 		/// <summary>
@@ -220,8 +215,8 @@ namespace TestR.Browsers
 		/// <returns>The browser instance or null if not found.</returns>
 		public static Browser Attach()
 		{
-			var window = Window.FindWindow(Name, DebugArgument);
-			return window != null ? new ChromeBrowser(window) : null;
+			var window = Window.FindWindow(Name);
+			return window != null ? new FirefoxBrowser(window) : null;
 		}
 
 		/// <summary>
@@ -230,25 +225,21 @@ namespace TestR.Browsers
 		/// <returns>The browser instance.</returns>
 		public static Browser AttachOrCreate()
 		{
-			return Attach() ?? new ChromeBrowser(Create());
+			return Attach() ?? new FirefoxBrowser(Create());
 		}
 
 		/// <summary>
-		/// Attempts to create a new browser. If one is not found then we'll make sure it was started with the 
-		/// remote debugger argument. If not an exception will be thrown.
+		/// Attempts to create a new browser.
 		/// </summary>
+		/// <remarks>
+		/// The Firefox browser must have the "listen 6000" command run in the console to enable remote debugging. A newly created
+		/// browser will not be able to connect until someone manually starts the remote debugger.
+		/// </remarks>
 		/// <returns>The browser instance.</returns>
 		public static Process Create()
 		{
-			var window1 = Window.FindWindow(Name);
-			var window2 = Window.FindWindow(Name, DebugArgument);
-			if (window1 != null && window2 == null)
-			{
-				throw new Exception("The first instance of Chrome was not started with the remote debugger enabled.");
-			}
-
 			// Create a new instance and return it.
-			return CreateInstance(string.Format("{0}.exe", Name), DebugArgument);
+			return CreateInstance(string.Format("{0}.exe", Name));
 		}
 
 		#endregion

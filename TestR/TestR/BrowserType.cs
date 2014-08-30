@@ -16,6 +16,11 @@
 		InternetExplorer = 0x02,
 
 		/// <summary>
+		/// Represents a Firefox browser.
+		/// </summary>
+		Firefox = 0x04,
+
+		/// <summary>
 		/// Represents all browser types.
 		/// </summary>
 		All = 0xFF,

@@ -158,6 +158,32 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
+		/// Get the current document in the browser.
+		/// </summary>
+		/// <returns>The dynamic version of the document.</returns>
+		/// <exception cref="Exception"></exception>
+		public string GetCurrentUri()
+		{
+			var request = new
+			{
+				Id = _requestId++,
+				Method = "DOM.getDocument"
+			};
+
+			return Utility.Retry(() =>
+			{
+				var document = SendRequestAndReadResponse(request, x => x.id == request.Id).AsJToken() as dynamic;
+				var body = FindBody(document.result.root);
+				if (body == null)
+				{
+					throw new Exception("Failed to get the URI.");
+				}
+
+				return document.result.root.documentURL;
+			}, 4, 250);
+		}
+
+		/// <summary>
 		/// Navigates the browser to the provided URI.
 		/// </summary>
 		/// <param name="uri">The URI to navigate the browser to.</param>
@@ -215,32 +241,6 @@ namespace TestR.Browsers
 				_socket.Dispose();
 				_socket = null;
 			}
-		}
-
-		/// <summary>
-		/// Get the current document in the browser.
-		/// </summary>
-		/// <returns>The dynamic version of the document.</returns>
-		/// <exception cref="Exception"></exception>
-		public string GetCurrentUri()
-		{
-			var request = new
-			{
-				Id = _requestId++,
-				Method = "DOM.getDocument"
-			};
-
-			return Utility.Retry(() =>
-			{
-				var document = SendRequestAndReadResponse(request, x => x.id == request.Id).AsJToken() as dynamic;
-				var body = FindBody(document.result.root);
-				if (body == null)
-				{
-					throw new Exception("Failed to get the URI.");
-				}
-
-				return document.result.root.documentURL;
-			}, 4, 250);
 		}
 
 		private dynamic FindBody(dynamic node)

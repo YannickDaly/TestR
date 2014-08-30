@@ -21,7 +21,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("Angular.html"));
+				browser.NavigateTo("http://localhost/Angular.html");
 
 				var email = browser.Elements.TextInputs["email"];
 				email.TypeText("test");
@@ -53,7 +53,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
+				browser.NavigateTo("http://localhost/index.html");
 				browser.Elements["button"].Click();
 
 				var actual = browser.Elements.TextInputs["textarea"].Text;
@@ -66,7 +66,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
+				browser.NavigateTo("http://localhost/index.html");
 				browser.Elements.First(x => x.Name == "buttonByName").Click();
 
 				var textArea = browser.Elements.TextInputs["textarea"];
@@ -79,7 +79,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
+				browser.NavigateTo("http://localhost/index.html");
 				browser.Elements.Buttons["inputButton"].Click();
 
 				var textArea = browser.Elements.TextInputs["textarea"];
@@ -92,7 +92,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
+				browser.NavigateTo("http://localhost/index.html");
 				browser.Elements["link"].Click();
 
 				var textArea = browser.Elements.TextInputs["textarea"];
@@ -105,7 +105,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("Angular.html"));
+				browser.NavigateTo("http://localhost/Angular.html");
 				Assert.IsTrue(browser.JavascriptLibraries.Contains(JavaScriptLibrary.Angular));
 			});
 		}
@@ -115,7 +115,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("JQuery.html"));
+				browser.NavigateTo("http://localhost/JQuery.html");
 				Assert.IsTrue(browser.JavascriptLibraries.Contains(JavaScriptLibrary.JQuery));
 			});
 		}
@@ -125,7 +125,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("Inputs.html"));
+				browser.NavigateTo("http://localhost/Inputs.html");
 				Assert.AreEqual(0, browser.JavascriptLibraries.Count());
 			});
 		}
@@ -135,7 +135,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("relationships.html"));
+				browser.NavigateTo("http://localhost/relationships.html");
 				var children = browser.Elements["parent1div"].Children;
 
 				var expected = new[] { "child1div", "child2span", "child3br", "child4input" };
@@ -149,7 +149,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("relationships.html"));
+				browser.NavigateTo("http://localhost/relationships.html");
 				var element = browser.Elements["child1div"].Parent;
 				Assert.AreEqual("parent1div", element.Id);
 			});
@@ -160,7 +160,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("inputs.html"));
+				browser.NavigateTo("http://localhost/inputs.html");
 				var inputs = browser.Elements.TextInputs.ToList();
 				Assert.AreEqual(5, inputs.Count);
 			});
@@ -171,7 +171,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
+				browser.NavigateTo("http://localhost/index.html");
 				var elements = browser.Elements.Where(x => x.Class.Contains("red"));
 				Assert.AreEqual(1, elements.Count());
 			});
@@ -182,7 +182,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
+				browser.NavigateTo("http://localhost/index.html");
 				var elements = browser.Elements.Where(x => x["class"].Contains("red"));
 				Assert.AreEqual(1, elements.Count());
 			});
@@ -193,7 +193,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
+				browser.NavigateTo("http://localhost/index.html");
 				var elements = browser.Elements.OfType<Span>().Where(x => x.Text == "SPAN with ID of 1");
 				Assert.AreEqual(1, elements.Count());
 			});
@@ -204,7 +204,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
+				browser.NavigateTo("http://localhost/index.html");
 				var elements = browser.Elements.OfType<TextInput>().Where(x => x.Text == "Hello World");
 				Assert.AreEqual(1, elements.Count());
 			});
@@ -215,7 +215,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("inputs.html"));
+				browser.NavigateTo("http://localhost/inputs.html");
 
 				var expected = browser.Elements.TextInputs.Last();
 				Assert.IsNull(browser.ActiveElement, "There should not be an active element.");
@@ -230,7 +230,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("index.html"));
+				browser.NavigateTo("http://localhost/index.html");
 				var actual = browser.Elements.First(x => x.Name == "inputName").Name;
 				Assert.AreEqual("inputName", actual);
 			});
@@ -241,7 +241,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("inputs.html"));
+				browser.NavigateTo("http://localhost/inputs.html");
 
 				var inputElements = browser.Elements.Where(t => t.TagName == "input").ToList();
 				foreach (var element in inputElements)
@@ -272,7 +272,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				var expected = TestHelper.GetTestFileFullPath("Index.html").ToLower();
+				var expected = "http://localhost/index.html";
 				browser.NavigateTo(expected);
 				Assert.AreEqual(expected, browser.Uri.ToLower());
 
@@ -280,7 +280,7 @@ namespace TestR.IntegrationTests
 				browser.Elements.Links["redirectLink"].Click();
 				browser.WaitForRedirect();
 
-				expected = TestHelper.GetTestFileFullPath("Inputs.html").ToLower();
+				expected = "http://localhost/inputs.html";
 				Assert.AreEqual(expected, browser.Uri.ToLower());
 				browser.Elements["submit"].Click();
 			});
@@ -291,7 +291,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				var expected = TestHelper.GetTestFileFullPath("Index.html").ToLower();
+				var expected = "http://localhost/index.html";
 				browser.NavigateTo(expected);
 				Assert.AreEqual(expected, browser.Uri.ToLower());
 				Assert.IsNotNull(browser.Elements["link"], "Failed to find the link element.");
@@ -300,7 +300,7 @@ namespace TestR.IntegrationTests
 				browser.ExecuteScript("document.location.href = 'inputs.html'");
 				browser.WaitForRedirect();
 
-				expected = TestHelper.GetTestFileFullPath("inputs.html").ToLower();
+				expected = "http://localhost/inputs.html";
 				Assert.AreEqual(expected, browser.Uri.ToLower());
 				browser.Elements["submit"].Click();
 			});
@@ -311,7 +311,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				browser.NavigateTo(TestHelper.GetTestFileFullPath("inputs.html"));
+				browser.NavigateTo("http://localhost/inputs.html");
 				var inputs = browser.Elements.TextInputs;
 
 				foreach (var input in inputs)

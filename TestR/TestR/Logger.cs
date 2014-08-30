@@ -37,7 +37,7 @@ namespace TestR
 
 		#endregion
 
-		#region Static Methods
+		#region Properties
 
 		/// <summary>
 		/// Enable console tracing. This really should only be used for debugging / troubleshooting.
@@ -66,6 +66,10 @@ namespace TestR
 				UpdateConfiguration();
 			}
 		}
+
+		#endregion
+
+		#region Static Methods
 
 		/// <summary>
 		/// Mark a location for benchmarking.

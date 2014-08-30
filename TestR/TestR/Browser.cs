@@ -118,6 +118,11 @@ namespace TestR
 		public abstract string Uri { get; }
 
 		/// <summary>
+		/// Gets the type of the browser.
+		/// </summary>
+		internal abstract BrowserType Type { get; }
+
+		/// <summary>
 		/// Gets or sets a flag indicating the browser has navigated to another page.
 		/// </summary>
 		protected abstract bool BrowserHasNavigated { get; set; }
@@ -281,20 +286,17 @@ namespace TestR
 		{
 			_elements.Clear();
 
-			Utility.Retry(() =>
+			var data = ExecuteScript("JSON.stringify(TestR.getElements())");
+			Logger.Write(data, LogLevel.Trace);
+
+			var array = (JArray) JsonConvert.DeserializeObject(data);
+			if (array == null)
 			{
-				var data = ExecuteScript("JSON.stringify(TestR.getElements())");
-				Logger.Write(data, LogLevel.Trace);
+				return;
+			}
 
-				var array = (JArray) JsonConvert.DeserializeObject(data);
-				if (array == null)
-				{
-					return;
-				}
-
-				Logger.Write("Array Length: " + array.Count(), LogLevel.Trace);
-				_elements.AddRange(array, this);
-			});
+			Logger.Write("Array Length: " + array.Count(), LogLevel.Trace);
+			_elements.AddRange(array, this);
 		}
 
 		/// <summary>
@@ -304,7 +306,7 @@ namespace TestR
 		{
 			var assembly = Assembly.GetExecutingAssembly();
 
-			using (var stream = assembly.GetManifestResourceStream("TestR.TestR.js"))
+			using (var stream = assembly.GetManifestResourceStream("TestR.TestR.min.js"))
 			{
 				if (stream != null)
 				{
@@ -395,6 +397,11 @@ namespace TestR
 			if (((int) type & (int) BrowserType.InternetExplorer) == (int) BrowserType.InternetExplorer)
 			{
 				Window.CloseAll(InternetExplorerBrowser.Name);
+			}
+
+			if (((int) type & (int) BrowserType.Firefox) == (int) BrowserType.Firefox)
+			{
+				Window.CloseAll(FirefoxBrowser.Name);
 			}
 		}
 

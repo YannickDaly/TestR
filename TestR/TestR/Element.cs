@@ -56,35 +56,23 @@ namespace TestR
 		#region Properties
 
 		/// <summary>
+		/// Gets or sets the access key attribute.
+		/// </summary>
+		/// <remarks>
+		/// Specifies a shortcut key to activate/focus an element.
+		/// </remarks>
+		public string AccessKey
+		{
+			get { return this["accesskey"]; }
+			set { this["accesskey"] = value; }
+		}
+
+		/// <summary>
 		/// Gets the browser this element is currently associated with.
 		/// </summary>
 		public Browser Browser
 		{
 			get { return _browser; }
-		}
-
-		/// <summary>
-		/// Gets the class value of the element.
-		/// </summary>
-		public string Class
-		{
-			get { return this["class"]; }
-		}
-
-		/// <summary>
-		/// Gets the ID of the element.
-		/// </summary>
-		public string Id
-		{
-			get { return _element.id; }
-		}
-
-		/// <summary>
-		/// Gets the ID of the element's parent.
-		/// </summary>
-		public string ParentId
-		{
-			get { return _element.parentId; }
 		}
 
 		/// <summary>
@@ -96,6 +84,53 @@ namespace TestR
 		}
 
 		/// <summary>
+		/// Gets the class attribute.
+		/// </summary>
+		/// <remarks>
+		/// Specifies one or more classnames for an element (refers to a class in a style sheet).
+		/// </remarks>
+		public string Class
+		{
+			get { return this["class"]; }
+			set { this["class"] = value; }
+		}
+
+		/// <summary>
+		/// Gets or sets the dropzone attribute of the element.
+		/// </summary>
+		/// <remarks>
+		/// HTML5: Specifies whether the dragged data is copied, moved, or linked, when dropped.
+		/// </remarks>
+		public string DropZone
+		{
+			get { return this["dropzone"]; }
+			set { this["dropzone"] = value; }
+		}
+
+		/// <summary>
+		/// Gets or sets the hidden attribute of the element.
+		/// </summary>
+		/// <remarks>
+		/// HTML5: Specifies that an element is not yet, or is no longer, relevant.
+		/// </remarks>
+		public string Hidden
+		{
+			get { return this["hidden"]; }
+			set { this["hidden"] = value; }
+		}
+
+		/// <summary>
+		/// Gets the ID of the element.
+		/// </summary>
+		/// <remarks>
+		/// Specifies a unique id for an element.
+		/// </remarks>
+		public string Id
+		{
+			get { return _element.id; }
+		}
+
+		/// <summary>
 		/// Gets or sets an attribute or property by name.
 		/// </summary>
 		/// <param name="name">The name of the attribute or property to read.</param>
@@ -103,6 +138,15 @@ namespace TestR
 		{
 			get { return GetAttributeValue(name, true); }
 			set { SetAttributeValue(name, value); }
+		}
+
+		/// <summary>
+		/// Gets or sets the name of the element.
+		/// </summary>
+		public string Name
+		{
+			get { return _element.name; }
+			set { _element.name = value; }
 		}
 
 		/// <summary>
@@ -122,11 +166,35 @@ namespace TestR
 		}
 
 		/// <summary>
-		/// Gets the name of the element.
+		/// Gets the ID of the element's parent.
 		/// </summary>
-		public string Name
+		public string ParentId
 		{
-			get { return _element.name; }
+			get { return _element.parentId; }
+		}
+
+		/// <summary>
+		/// Gets the style of the element. 
+		/// </summary>
+		/// <remarks>
+		/// Specifies an inline CSS style for an element
+		/// </remarks>
+		public string Style
+		{
+			get { return this["style"]; }
+			set { this["style"] = value; }
+		}
+
+		/// <summary>
+		/// Gets or sets the tab index of the element.
+		/// </summary>
+		/// <remarks>
+		/// Specifies the tabbing order of an element
+		/// </remarks>
+		public string TabIndex
+		{
+			get { return this["tabindex"]; }
+			set { this["tabindex"] = value; }
 		}
 
 		/// <summary>

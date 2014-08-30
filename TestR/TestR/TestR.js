@@ -1,25 +1,27 @@
 ﻿var TestR = {
 	properties: [
-		"selected", "textContent", "className", "checked", "readOnly", "multiple", "value", "nodeType", "innerText",
-		"innerHTML", "baseURI", "src", "href", "rowIndex", "cellIndex", "id", "name", "tagName"
+		'selected', 'className', 'checked', 'readOnly', 'multiple', 'value', 'nodeType', 'innerText', 'src', 'href',
+		'rowIndex', 'cellIndex', 'id', 'name', 'tagName', 'textContent'
 	],
+	ignoredTags: ['script'],
+	ignoredProperties: ['tagName', 'id', 'name'],
 	triggerEvent: function (element, eventName, values) {
 		var eventObj = document.createEventObject
 			? document.createEventObject()
-			: document.createEvent("Events");
+			: document.createEvent('Events');
 
 		if (eventObj.initEvent) {
 			eventObj.initEvent(eventName, true, true);
 		}
 
 		for (var i = 0; i < values.length; i++) {
-			console.log(values[i].key + " : " + values[i].value);
+			console.log(values[i].key + ' : ' + values[i].value);
 			eventObj[values[i].key] = values[i].value;
 		}
 
 		element.dispatchEvent
 			? element.dispatchEvent(eventObj)
-			: element.fireEvent("on" + eventName, eventObj);
+			: element.fireEvent('on' + eventName, eventObj);
 	},
 	getElements: function () {
 		var response = [];
@@ -27,20 +29,24 @@
 		var id = 1;
 
 		for (var i = 0; i < allElements.length; i++) {
-			var element = allElements[i];
-			if (element.id === undefined || element.id === '') {
-				element.id = 'testR-' + id++;
+			if (allElements[i].id === undefined || allElements[i].id === '') {
+				allElements[i].id = 'testR-' + id++;
 			}
 		}
 
 		for (i = 0; i < allElements.length; i++) {
-			element = allElements[i];
-			
+			var element = allElements[i];
+			var tagName = (element.tagName).toLowerCase();
+
+			if (TestR.ignoredTags.contains(tagName)) {
+				continue;
+			}
+
 			var item = {
 				id: element.id,
 				parentId: element.parentNode.id,
 				name: element.name || '',
-				tagName: (element.tagName || '').toLowerCase(),
+				tagName: tagName,
 				attributes: [],
 			};
 
@@ -57,6 +63,9 @@
 			}
 
 			TestR.properties.forEach(function (name) {
+				if (TestR.ignoredProperties.contains(name)) {
+					return;
+				}
 				if (element[name] !== null && element[name] !== undefined) {
 					item.attributes.push(name);
 					if (typeof element[name] === 'string') {
@@ -69,7 +78,7 @@
 
 			response.push(item);
 		}
-		
+
 		return response;
 	},
 	getElementValue: function (id, name) {
@@ -108,4 +117,5 @@ Array.prototype.contains = function (obj) {
 
 	return false;
 };
-console.log("TestR injected...");
+
+console.log('TestR injected...');

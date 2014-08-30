@@ -79,6 +79,14 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
+		/// Gets the type of the browser.
+		/// </summary>
+		internal override BrowserType Type
+		{
+			get { return BrowserType.InternetExplorer; }
+		}
+
+		/// <summary>
 		/// Gets or sets a flag indicating the browser has navigated to another page.
 		/// </summary>
 		protected override bool BrowserHasNavigated { get; set; }
@@ -140,26 +148,28 @@ namespace TestR.Browsers
 				return;
 			}
 
-			// Wait for the browser to calm down.
-			WaitForComplete();
-
-			// We cannot allow the browser to close within a second.
-			// I assume that addons need time to start before closing the browser.
-			var timeout = TimeSpan.FromMilliseconds(1000);
-			while (Uptime <= timeout)
+			try
 			{
-				Thread.Sleep(50);
-			}
-
-			if (_browser != null)
-			{
-				_browser.DocumentComplete -= BrowserOnDocumentComplete;
-
-				if (AutoClose)
+				// We cannot allow the browser to close within a second.
+				// I assume that addons need time to start before closing the browser.
+				var timeout = TimeSpan.FromMilliseconds(1000);
+				while (Uptime <= timeout)
 				{
-					_browser.Quit();
+					Thread.Sleep(50);
 				}
 
+				if (_browser != null)
+				{
+					_browser.DocumentComplete -= BrowserOnDocumentComplete;
+
+					if (AutoClose)
+					{
+						_browser.Quit();
+					}
+				}
+			}
+			catch
+			{
 				_browser = null;
 			}
 		}
@@ -253,7 +263,7 @@ namespace TestR.Browsers
 			{
 				return;
 			}
-				
+
 			Utility.Wait(() => document.readyState == "complete", 2000);
 		}
 

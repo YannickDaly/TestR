@@ -25,5 +25,18 @@ namespace TestR.Elements
 		}
 
 		#endregion
+
+		#region Properties
+
+		/// <summary>
+		/// Gets or sets the text.
+		/// </summary>
+		public string Text
+		{
+			get { return this["value"]; }
+			set { this["value"] = value; }
+		}
+
+		#endregion
 	}
 }
