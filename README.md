@@ -9,14 +9,31 @@ Integration testing framework for developers. TestR allows automating testing of
 + Install-Package TestR.PowerShell (with PowerShell)
 
 
-### Searching Bing
+### Searching Bing using Internet Explorer
 
 ```
 using (var browser = InternetExplorerBrowser.AttachOrCreate())
 {
-    browser.NavigateTo("http://bing.com");
-    browser.Elements.TextInputs["sb_form_q"].TypeText("Bobby Cannon");
-    browser.Elements["sb_form_go"].Click();
-    browser.WaitForRedirect();
+	browser.NavigateTo("http://bing.com");
+	browser.Elements.TextInputs["sb_form_q"].TypeText("Bobby Cannon");
+	browser.Elements["sb_form_go"].Click();
+	browser.WaitForRedirect();
 }
 ```
+
+### Searching Amazon using Chrome
+
+```
+using (var browser = ChromeBrowser.AttachOrCreate()) 
+{
+	browser.NavigateTo("http://amazon.com");
+	browser.Elements.TextInputs["twotabsearchtextbox"].TypeText("protein powder");
+	browser.Elements.First(x => x.GetAttributeValue("title") == "Go").Click();
+	browser.WaitForRedirect();
+}
+```
+
+#### Coming Soon
+
+* More element attributes.
+* More specific element implementation with their unique attributes.
