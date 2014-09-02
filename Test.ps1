@@ -4,7 +4,9 @@ param (
     [Parameter()]
     [switch] $AutoClose,
     [Parameter()]
-    [TestR.BrowserType] $BrowserType
+    [TestR.BrowserType] $BrowserType,
+    [Parameter()]
+    [switch] $RandomOrder
 )
 
 $tests = Get-Command -Module TestR.IntegrationTests
@@ -35,6 +37,10 @@ foreach ($test in $tests)
     try
     {
         $testNames = Invoke-Expression "$test"
+        if ($RandomOrder) {
+            $testNames = $testNames | Get-Random -Count $testNames.Count
+        }
+
         foreach ($testName in $testNames)
         {
             Write-Host "$test.$testName ..." -NoNewline
@@ -50,5 +56,3 @@ foreach ($test in $tests)
         break
     }
 }
-
-[TestR.Browser]::CloseAllBrowsers([TestR.BrowserType]::All)

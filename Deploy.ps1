@@ -30,10 +30,10 @@ $revision = [Math]::Floor([DateTime]::UtcNow.TimeOfDay.TotalSeconds / 2)
 .\IncrementVersion.ps1 TestR\TestR.UnitTests $build $revision
 
 $msbuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
-cmd /c $msbuild "$scriptPath\TestR\TestR.sln" /p:Configuration="$Configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=13.0 /v:m /m
+cmd /c $msbuild "$scriptPath\TestR\TestR.sln" /p:Configuration="$Configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=12.0 /v:m /m
 
 if ($IncludeDocumentation) {
-    cmd /c $msbuild "$scriptPath\TestR\TestR.shfbproj" /p:Configuration="$Configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=13.0 /v:m /m
+    cmd /c $msbuild "$scriptPath\TestR\TestR.shfbproj" /p:Configuration="$Configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=12.0 /v:m /m
 }
 
 Set-Location $scriptPath

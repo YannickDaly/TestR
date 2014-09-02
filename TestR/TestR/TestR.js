@@ -118,4 +118,5 @@ Array.prototype.contains = function (obj) {
 	return false;
 };
 
+document.executeResult = '';
 console.log('TestR injected...');

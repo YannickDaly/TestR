@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Management.Automation;
 using System.Management.Automation.Host;
-using System.Text;
 using TestR.Browsers;
 
 #endregion
@@ -79,13 +78,13 @@ namespace TestR.PowerShell
 				return;
 			}
 
-			var builder = new StringBuilder();
+			var exception = new Exception("Test Failed.");
 			foreach (var assert in asserts)
 			{
-				builder.AppendLine(assert.Key + " : " + assert.Value.Message);
+				exception = new Exception(assert.Key, assert.Value);
 			}
 
-			throw new Exception(builder.ToString());
+			throw exception;
 		}
 
 		private void ArrangeBrowsers(IList<Browser> browsers)
@@ -120,21 +119,6 @@ namespace TestR.PowerShell
 				}
 			}
 
-			if (HasBrowserType(BrowserType.InternetExplorer))
-			{
-				try
-				{
-					var internetExplorer = InternetExplorerBrowser.AttachOrCreate();
-					internetExplorer.AutoClose = AutoClose;
-					internetExplorer.SlowMotion = SlowMotion;
-					response.Add(internetExplorer);
-				}
-				catch (Exception ex)
-				{
-					asserts.Add(typeof (InternetExplorerBrowser).Name, ex);
-				}
-			}
-
 			if (HasBrowserType(BrowserType.Firefox))
 			{
 				try
@@ -149,7 +133,22 @@ namespace TestR.PowerShell
 					asserts.Add(typeof (InternetExplorerBrowser).Name, ex);
 				}
 			}
-
+			
+			if (HasBrowserType(BrowserType.InternetExplorer))
+			{
+				try
+				{
+					var internetExplorer = InternetExplorerBrowser.AttachOrCreate();
+					internetExplorer.AutoClose = AutoClose;
+					internetExplorer.SlowMotion = SlowMotion;
+					response.Add(internetExplorer);
+				}
+				catch (Exception ex)
+				{
+					asserts.Add(typeof (InternetExplorerBrowser).Name, ex);
+				}
+			}
+			
 			ArrangeBrowsers(response);
 			return response;
 		}

@@ -122,6 +122,7 @@ namespace TestR.Browsers
 		/// <returns>The current URI that was read from the browser.</returns>
 		protected override string BrowserGetUri()
 		{
+			Reconcile();
 			WaitForComplete();
 			return _browser.LocationURL;
 		}
@@ -132,6 +133,7 @@ namespace TestR.Browsers
 		/// <param name="uri">The URI to navigate to.</param>
 		protected override void BrowserNavigateTo(string uri)
 		{
+			Logger.Write("InternetExplorerBrowser.NavigateTo(" + uri + ")", LogLevel.Trace);
 			_browser.Navigate(uri);
 			WaitForComplete();
 			Refresh();
@@ -150,23 +152,22 @@ namespace TestR.Browsers
 
 			try
 			{
+				if (_browser == null || !AutoClose)
+				{
+					return;
+				}
+
+				WaitForComplete();
+
 				// We cannot allow the browser to close within a second.
-				// I assume that addons need time to start before closing the browser.
+				// I assume that add ons need time to start before closing the browser.
 				var timeout = TimeSpan.FromMilliseconds(1000);
 				while (Uptime <= timeout)
 				{
 					Thread.Sleep(50);
 				}
 
-				if (_browser != null)
-				{
-					_browser.DocumentComplete -= BrowserOnDocumentComplete;
-
-					if (AutoClose)
-					{
-						_browser.Quit();
-					}
-				}
+				_browser.Quit();
 			}
 			catch
 			{
@@ -187,8 +188,10 @@ namespace TestR.Browsers
 				throw new Exception("Failed to run script because no document is loaded.");
 			}
 
-			Logger.Write(script, LogLevel.Trace);
-			var wrappedScript = "try { document.executeResult = String(eval('" + script.Replace("'", "\\'") + "')); } catch (error) { document.executeResult = error; }";
+			Logger.Write("Request: " + script, LogLevel.Trace);
+			var wrappedScript = "try { var result = eval('" + script.Replace("'", "\\'") + "'); document.executeResult = String(result); }" +
+				" catch (error) { document.executeResult = error.message; }";
+
 			document.parentWindow.execScript(wrappedScript, "javascript");
 			return GetJavascriptResult();
 		}
@@ -198,14 +201,24 @@ namespace TestR.Browsers
 		/// </summary>
 		protected override void InjectTestScript()
 		{
-			var document = _browser.Document as IHTMLDocument2;
-			if (document == null)
+			var document = Utility.Retry(() =>
 			{
-				throw new Exception("Failed to run script because no document is loaded.");
-			}
+				var htmlDocument = _browser.Document as IHTMLDocument2;
+				if (htmlDocument == null)
+				{
+					throw new Exception("Failed to run script because no document is loaded.");
+				}
+
+				return htmlDocument;
+			});
 
 			var window = document.parentWindow;
 			window.execScript(GetTestScript(), "javascript");
+			var test = ExecuteJavaScript("typeof TestR");
+			if (!test.Equals("object"))
+			{
+				throw new Exception("Failed to inject the TestR JavaScript. Eh? " + test);
+			}
 		}
 
 		/// <summary>
@@ -213,6 +226,7 @@ namespace TestR.Browsers
 		/// </summary>
 		protected override void Refresh()
 		{
+			Logger.Write("InternetExplorerBrowser.Refresh", LogLevel.Trace);
 			WaitForComplete();
 			InjectTestScript();
 			DetectJavascriptLibraries();
@@ -231,11 +245,13 @@ namespace TestR.Browsers
 				var expando = (IExpando) _browser.Document;
 				var propertyInfo = expando.GetProperty("executeResult", BindingFlags.Default);
 				var property = propertyInfo.GetValue(expando, null);
-				var value = property.ToString();
-				return string.IsNullOrWhiteSpace(value) ? null : value;
+				var result = property == null ? string.Empty : property.ToString();
+				Logger.Write("Response: " + result, LogLevel.Trace);
+				return result;
 			}
 			catch
 			{
+				// The document may have been redirected which means the member will not be there.
 				return string.Empty;
 			}
 		}
@@ -245,13 +261,18 @@ namespace TestR.Browsers
 		/// </summary>
 		private void WaitForComplete()
 		{
+			Logger.Write("InterenetExploreBrowser.WaitForComplete", LogLevel.Trace);
+
 			if (_browser == null)
 			{
 				return;
 			}
 
 			var states = new[] { tagREADYSTATE.READYSTATE_COMPLETE, tagREADYSTATE.READYSTATE_UNINITIALIZED };
-			Utility.Wait(() => !_browser.Busy && states.Contains(_browser.ReadyState), 2000);
+			if (!Utility.Wait(() => !_browser.Busy && states.Contains(_browser.ReadyState), 2500))
+			{
+				throw new Exception("The browser never finished loading...");
+			}
 
 			if (_browser.ReadyState == tagREADYSTATE.READYSTATE_UNINITIALIZED)
 			{
@@ -264,7 +285,10 @@ namespace TestR.Browsers
 				return;
 			}
 
-			Utility.Wait(() => document.readyState == "complete", 2000);
+			if (!Utility.Wait(() => document.readyState == "complete", 2500))
+			{
+				throw new Exception("The document never finished loading...");
+			}
 		}
 
 		#endregion
@@ -277,8 +301,14 @@ namespace TestR.Browsers
 		/// <returns>An instance of an Internet Explorer browser.</returns>
 		public static InternetExplorerBrowser Attach()
 		{
-			var window = Window.FindWindow(Name);
-			return window != null ? new InternetExplorerBrowser(window.GetInternetExplorer()) : null;
+			var foundBrowsers = (from InternetExplorer x in new ShellWindowsClass() select x).ToList();
+			if (foundBrowsers.Count <= 0)
+			{
+				return null;
+			}
+
+			var foundBrowser = foundBrowsers.FirstOrDefault(x => x.Visible && x.HWND != 0 && !(x.Busy && x.ReadyState == tagREADYSTATE.READYSTATE_LOADING));
+			return foundBrowser == null ? null : new InternetExplorerBrowser(foundBrowser);
 		}
 
 		/// <summary>

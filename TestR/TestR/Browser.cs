@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -19,7 +18,7 @@ namespace TestR
 	/// <summary>
 	/// This is the base class for browsers.
 	/// </summary>
-	/// <exclude>Test?</exclude>
+	/// <exclude></exclude>
 	public abstract class Browser : IDisposable
 	{
 		#region Fields
@@ -286,38 +285,17 @@ namespace TestR
 		{
 			_elements.Clear();
 
-			var data = ExecuteScript("JSON.stringify(TestR.getElements())");
-			Logger.Write(data, LogLevel.Trace);
-
-			var array = (JArray) JsonConvert.DeserializeObject(data);
-			if (array == null)
+			var array = Utility.Retry(() =>
 			{
-				return;
-			}
+				var data = ExecuteScript("JSON.stringify(TestR.getElements())");
+				Logger.Write(data, LogLevel.Trace);
+				return (JArray) JsonConvert.DeserializeObject(data);
+			});
 
-			Logger.Write("Array Length: " + array.Count(), LogLevel.Trace);
-			_elements.AddRange(array, this);
-		}
-
-		/// <summary>
-		/// Inserts the test script into the current page.
-		/// </summary>
-		protected string GetTestScript()
-		{
-			var assembly = Assembly.GetExecutingAssembly();
-
-			using (var stream = assembly.GetManifestResourceStream("TestR.TestR.min.js"))
+			if (array != null)
 			{
-				if (stream != null)
-				{
-					using (var reader = new StreamReader(stream))
-					{
-						return reader.ReadToEnd();
-					}
-				}
+				_elements.AddRange(array, this);
 			}
-
-			return string.Empty;
 		}
 
 		/// <summary>
@@ -403,6 +381,27 @@ namespace TestR
 			{
 				Window.CloseAll(FirefoxBrowser.Name);
 			}
+		}
+
+		/// <summary>
+		/// Inserts the test script into the current page.
+		/// </summary>
+		public static string GetTestScript()
+		{
+			var assembly = Assembly.GetExecutingAssembly();
+
+			using (var stream = assembly.GetManifestResourceStream("TestR.TestR.min.js"))
+			{
+				if (stream != null)
+				{
+					using (var reader = new StreamReader(stream))
+					{
+						return reader.ReadToEnd();
+					}
+				}
+			}
+
+			return string.Empty;
 		}
 
 		/// <summary>

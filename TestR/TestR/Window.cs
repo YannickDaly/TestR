@@ -7,7 +7,6 @@ using System.Management;
 using System.Runtime.InteropServices;
 using System.Text;
 using mshtml;
-using SHDocVw;
 using TestR.Helpers;
 
 #endregion
@@ -34,7 +33,8 @@ namespace TestR
 		/// <param name="name">The file name of the process. Ex. iexplore, chrome, etc.</param>
 		public Window(IntPtr handle, string name)
 		{
-			_process = Process.GetProcessesByName(name).First(x => x.MainWindowHandle == handle);
+			var processes = Utility.Retry(() => Process.GetProcessesByName(name), x => x.Length > 0);
+			_process = processes.First(x => x.MainWindowHandle == handle);
 		}
 
 		/// <summary>
@@ -82,27 +82,6 @@ namespace TestR
 		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
-		}
-
-		/// <summary>
-		/// Gets the InternetExplorer class from the window.
-		/// </summary>
-		/// <returns>The InternetExplorer hosted in the window.</returns>
-		public InternetExplorer GetInternetExplorer()
-		{
-			var document2 = Utility.Retry(() => GetDocumentFromWindow(Handle), r => r != null, 20, 100);
-			if (document2 == null)
-			{
-				throw new Exception("Failed to get the document from the window. " + Handle);
-			}
-
-			var htmlWindow = document2.parentWindow;
-			if (htmlWindow == null)
-			{
-				throw new Exception("Failed to get the HTML window from the document.");
-			}
-
-			return (InternetExplorer) NativeMethods.GetWebBrowserFromHtmlWindow(htmlWindow);
 		}
 
 		/// <summary>

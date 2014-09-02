@@ -260,8 +260,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				var expected = "http://www.bing.com/";
-				browser.BringToFront();
+				var expected = "http://localhost/index.html";
 				browser.NavigateTo(expected);
 				Assert.AreEqual(expected, browser.Uri.ToLower());
 			});

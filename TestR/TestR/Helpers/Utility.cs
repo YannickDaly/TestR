@@ -152,6 +152,18 @@ namespace TestR.Helpers
 			return true;
 		}
 
+		/// <summary>
+		/// Runs the action while the action returns true or the timeout is reached. Will delay in between actions of the provided time.
+		/// </summary>
+		/// <param name="action">The action to call.</param>
+		/// <param name="timeout">The timeout to attempt the action. This value is in milliseconds.</param>
+		/// <param name="delay">The delay in between actions. This value is in milliseconds.</param>
+		/// <returns>Returns true of the call completed successfully or false if it timed out.</returns>
+		public static bool While(Func<bool> action, int timeout = 1000, int delay = 25)
+		{
+			return Wait(() => !action(), timeout, delay);
+		}
+
 		#endregion
 	}
 }
