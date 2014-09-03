@@ -133,7 +133,7 @@ namespace TestR.PowerShell
 					asserts.Add(typeof (InternetExplorerBrowser).Name, ex);
 				}
 			}
-			
+
 			if (HasBrowserType(BrowserType.InternetExplorer))
 			{
 				try
@@ -148,7 +148,7 @@ namespace TestR.PowerShell
 					asserts.Add(typeof (InternetExplorerBrowser).Name, ex);
 				}
 			}
-			
+
 			ArrangeBrowsers(response);
 			return response;
 		}

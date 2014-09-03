@@ -48,7 +48,7 @@ namespace TestR.Elements
 			get { return this["href"]; }
 			set { this["href"] = value; }
 		}
-		
+
 		/// <summary>
 		/// Gets or set the hypertext reference of this link.
 		/// </summary>
@@ -73,7 +73,7 @@ namespace TestR.Elements
 			get { return this["target"]; }
 			set { this["target"] = value; }
 		}
-		
+
 		/// <summary>
 		/// Gets or set the media type of this link.
 		/// </summary>

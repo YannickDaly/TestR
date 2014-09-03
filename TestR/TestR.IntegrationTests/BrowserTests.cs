@@ -14,11 +14,6 @@ namespace TestR.IntegrationTests
 	[Cmdlet(VerbsDiagnostic.Test, "Browsers")]
 	public class BrowserTests : BrowserTestCmdlet
 	{
-		public BrowserTests()
-		{
-			BrowserType = BrowserType.InternetExplorer;
-		}
-
 		#region Methods
 
 		[TestMethod]
@@ -192,7 +187,7 @@ namespace TestR.IntegrationTests
 				Assert.AreEqual(1, elements.Count());
 			});
 		}
-		
+
 		[TestMethod]
 		public void FindSpanElementByText()
 		{

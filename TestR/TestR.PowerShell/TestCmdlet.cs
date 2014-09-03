@@ -40,11 +40,28 @@ namespace TestR.PowerShell
 
 			try
 			{
+				Initialize();
 				GetType().GetMethod(Name).Invoke(this, null);
 			}
 			catch (TargetInvocationException ex)
 			{
 				throw ex.InnerException;
+			}
+		}
+
+		private void Initialize()
+		{
+			var type = GetType();
+			var methods = type.GetMethods();
+
+			var initMethods = methods
+				.Where(x => x.CustomAttributes.Any(a => a.AttributeType.Name == "TestInitializeAttribute"))
+				.Select(x => x.Name)
+				.ToArray();
+
+			foreach (var name in initMethods)
+			{
+				GetType().GetMethod(name).Invoke(this, null);
 			}
 		}
 

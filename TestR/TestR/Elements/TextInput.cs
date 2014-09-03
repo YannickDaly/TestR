@@ -77,7 +77,7 @@ namespace TestR.Elements
 			get { return this["placeholder"]; }
 			set { this["placeholder"] = value; }
 		}
-		
+
 		/// <summary>
 		/// Gets or sets the read only attribute.
 		/// </summary>
