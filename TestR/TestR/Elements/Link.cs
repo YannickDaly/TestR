@@ -29,10 +29,10 @@ namespace TestR.Elements
 		#region Properties
 
 		/// <summary>
-		/// Gets or set the download attirbute of this link.
+		/// Gets or set the download attribute of this link.
 		/// </summary>
 		/// <remarks>
-		/// HTML5: Specifies that the target will be downloaded when a user clicks on the hyperlink
+		/// HTML5: Specifies that the target will be downloaded when a user clicks on the hyper link.
 		/// </remarks>
 		public string Download
 		{
@@ -41,12 +41,25 @@ namespace TestR.Elements
 		}
 
 		/// <summary>
-		/// Gets or set the HREF of this link.
+		/// Gets or set the hypertext reference of this link.
 		/// </summary>
 		public string Href
 		{
 			get { return this["href"]; }
 			set { this["href"] = value; }
+		}
+		
+		/// <summary>
+		/// Gets or set the hypertext reference of this link.
+		/// </summary>
+		/// <remarks>
+		/// The rel attribute specifies the relationship between the current document and the linked 
+		/// document. Only used if the href attribute is present.
+		/// </remarks>
+		public string Rel
+		{
+			get { return this["rel"]; }
+			set { this["rel"] = value; }
 		}
 
 		/// <summary>
@@ -59,6 +72,19 @@ namespace TestR.Elements
 		{
 			get { return this["target"]; }
 			set { this["target"] = value; }
+		}
+		
+		/// <summary>
+		/// Gets or set the media type of this link.
+		/// </summary>
+		/// <remarks>
+		/// The Internet media type of the linked document. Look at IANA Media Types for a complete 
+		/// list of standard media types.
+		/// </remarks>
+		public string Type
+		{
+			get { return this["type"]; }
+			set { this["type"] = value; }
 		}
 
 		#endregion

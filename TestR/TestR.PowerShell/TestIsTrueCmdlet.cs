@@ -28,6 +28,8 @@ namespace TestR.PowerShell
 			{
 				WriteError(new ErrorRecord(new Exception(Message), "-1", ErrorCategory.InvalidResult, this));
 			}
+
+			base.ProcessRecord();
 		}
 
 		#endregion

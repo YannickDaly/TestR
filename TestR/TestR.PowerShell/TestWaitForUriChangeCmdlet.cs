@@ -46,6 +46,8 @@ namespace TestR.PowerShell
 			{
 				WriteError(new ErrorRecord(new Exception("The browser failed to change its URI."), "-1", ErrorCategory.InvalidResult, this));
 			}
+
+			base.ProcessRecord();
 		}
 
 		#endregion

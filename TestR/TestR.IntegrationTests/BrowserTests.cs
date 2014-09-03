@@ -14,6 +14,11 @@ namespace TestR.IntegrationTests
 	[Cmdlet(VerbsDiagnostic.Test, "Browsers")]
 	public class BrowserTests : BrowserTestCmdlet
 	{
+		public BrowserTests()
+		{
+			BrowserType = BrowserType.InternetExplorer;
+		}
+
 		#region Methods
 
 		[TestMethod]
@@ -56,7 +61,7 @@ namespace TestR.IntegrationTests
 				browser.NavigateTo("http://localhost/index.html");
 				browser.Elements["button"].Click();
 
-				var actual = browser.Elements.TextInputs["textarea"].Text;
+				var actual = browser.Elements.TextArea["textarea"].Text;
 				Assert.AreEqual("button", actual);
 			});
 		}
@@ -69,7 +74,7 @@ namespace TestR.IntegrationTests
 				browser.NavigateTo("http://localhost/index.html");
 				browser.Elements.First(x => x.Name == "buttonByName").Click();
 
-				var textArea = browser.Elements.TextInputs["textarea"];
+				var textArea = browser.Elements.TextArea["textarea"];
 				Assert.AreEqual("buttonByName", textArea.Text);
 			});
 		}
@@ -82,7 +87,7 @@ namespace TestR.IntegrationTests
 				browser.NavigateTo("http://localhost/index.html");
 				browser.Elements.Buttons["inputButton"].Click();
 
-				var textArea = browser.Elements.TextInputs["textarea"];
+				var textArea = browser.Elements.TextArea["textarea"];
 				Assert.AreEqual("inputButton", textArea.Text);
 			});
 		}
@@ -95,7 +100,7 @@ namespace TestR.IntegrationTests
 				browser.NavigateTo("http://localhost/index.html");
 				browser.Elements["link"].Click();
 
-				var textArea = browser.Elements.TextInputs["textarea"];
+				var textArea = browser.Elements.TextArea["textarea"];
 				Assert.AreEqual("link", textArea.Text);
 			});
 		}
@@ -187,14 +192,14 @@ namespace TestR.IntegrationTests
 				Assert.AreEqual(1, elements.Count());
 			});
 		}
-
+		
 		[TestMethod]
 		public void FindSpanElementByText()
 		{
 			ForEachBrowser(browser =>
 			{
 				browser.NavigateTo("http://localhost/index.html");
-				var elements = browser.Elements.OfType<Span>().Where(x => x.Text == "SPAN with ID of 1");
+				var elements = browser.Elements.Spans.Where(x => x.Text == "SPAN with ID of 1");
 				Assert.AreEqual(1, elements.Count());
 			});
 		}

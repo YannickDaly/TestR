@@ -87,6 +87,22 @@ namespace TestR
 		}
 
 		/// <summary>
+		/// Gets a list of all form elements.
+		/// </summary>
+		public ElementCollection<Form> Forms
+		{
+			get { return OfType<Form>(); }
+		}
+
+		/// <summary>
+		/// Gets a list of all image elements.
+		/// </summary>
+		public ElementCollection<Image> Images
+		{
+			get { return OfType<Image>(); }
+		}
+
+		/// <summary>
 		/// Access an element by the ID.
 		/// </summary>
 		/// <param name="id">The ID of the element.</param>
@@ -117,6 +133,14 @@ namespace TestR
 		}
 
 		/// <summary>
+		/// Gets a list of all text area elements.
+		/// </summary>
+		public ElementCollection<TextArea> TextArea
+		{
+			get { return OfType<TextArea>(); }
+		}
+
+		/// <summary>
 		/// Gets a list of all text input elements.
 		/// </summary>
 		public ElementCollection<TextInput> TextInputs
@@ -132,7 +156,7 @@ namespace TestR
 		/// Adds a collection of elements and initializes them as their specific element type.
 		/// </summary>
 		/// <param name="token">The collection of elements to add.</param>
-		/// <param name="browser"></param>
+		/// <param name="browser">The browser the element is for.</param>
 		public void Add(JToken token, Browser browser)
 		{
 			var element = new Element(token, browser, this);
@@ -142,10 +166,18 @@ namespace TestR
 					Add(new Button(token, browser, this));
 					return;
 
+				case "form":
+					Add(new Form(token, browser, this));
+					return;
+
 				case "input":
 					var type = element.GetAttributeValue("type").ToLower();
 					switch (type)
 					{
+						case "image":
+							Add(new Image(token, browser, this));
+							return;
+
 						case "button":
 						case "submit":
 						case "reset":
@@ -170,7 +202,7 @@ namespace TestR
 					return;
 
 				case "textarea":
-					Add(new TextInput(token, browser, this));
+					Add(new TextArea(token, browser, this));
 					return;
 
 				case "a":

@@ -59,6 +59,9 @@
   <ItemGroup>
     <Compile Include="Browsers\FirefoxBrowser.cs" />
     <Compile Include="Browsers\FirefoxBrowserConnector.cs" />
+    <Compile Include="Elements\Form.cs" />
+    <Compile Include="Elements\Image.cs" />
+    <Compile Include="Elements\TextArea.cs" />
     <Compile Include="Validate.cs" />
     <Compile Include="Browser.cs" />
     <Compile Include="Browsers\ChromeBrowser.cs" />

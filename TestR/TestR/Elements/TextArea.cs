@@ -9,19 +9,19 @@ using Newtonsoft.Json.Linq;
 namespace TestR.Elements
 {
 	/// <summary>
-	/// Represents a browser text input element.
+	/// Represents a browser text area element.
 	/// </summary>
-	public class TextInput : Element
+	public class TextArea : Element
 	{
 		#region Constructors
 
 		/// <summary>
-		/// Initializes an instance of a TextInput browser element.
+		/// Initializes an instance of a text area browser element.
 		/// </summary>
 		/// <param name="element">The browser element this is for.</param>
 		/// <param name="browser">The browser this element is associated with.</param>
 		/// <param name="collection">The collection this element is associated with.</param>
-		public TextInput(JToken element, Browser browser, ElementCollection collection)
+		public TextArea(JToken element, Browser browser, ElementCollection collection)
 			: base(element, browser, collection)
 		{
 		}
@@ -43,6 +43,18 @@ namespace TestR.Elements
 		}
 
 		/// <summary>
+		/// Gets or sets the cols attribute.
+		/// </summary>
+		/// <remarks>
+		/// Specifies the visible width of a text area.
+		/// </remarks>
+		public string Cols
+		{
+			get { return this["cols"]; }
+			set { this["cols"] = value; }
+		}
+
+		/// <summary>
 		/// Gets or sets the disabled attribute.
 		/// </summary>
 		/// <remarks>
@@ -55,15 +67,27 @@ namespace TestR.Elements
 		}
 
 		/// <summary>
-		/// Gets or sets the pattern attribute.
+		/// Gets or sets the form attribute.
 		/// </summary>
 		/// <remarks>
-		/// HTML5: Specifies a regular expression that an input element's value is checked against.
+		/// HTML5: Specifies one or more forms the text area belongs to.
 		/// </remarks>
-		public string Pattern
+		public string Form
 		{
-			get { return this["pattern"]; }
-			set { this["pattern"] = value; }
+			get { return this["form"]; }
+			set { this["form"] = value; }
+		}
+
+		/// <summary>
+		/// Gets or sets the max length attribute.
+		/// </summary>
+		/// <remarks>
+		/// HTML5: Specifies the maximum number of characters allowed in the text area.
+		/// </remarks>
+		public string MaxLength
+		{
+			get { return this["maxlength"]; }
+			set { this["maxlength"] = value; }
 		}
 
 		/// <summary>
@@ -77,7 +101,7 @@ namespace TestR.Elements
 			get { return this["placeholder"]; }
 			set { this["placeholder"] = value; }
 		}
-		
+
 		/// <summary>
 		/// Gets or sets the read only attribute.
 		/// </summary>
@@ -91,15 +115,27 @@ namespace TestR.Elements
 		}
 
 		/// <summary>
-		/// Gets or sets the step attribute.
+		/// Gets or sets the required attribute.
 		/// </summary>
 		/// <remarks>
-		/// HTML5: Specifies the legal number intervals for an input field.
+		/// HTML5: Specifies that a text area is required/must be filled out.
 		/// </remarks>
-		public string Step
+		public string Required
 		{
-			get { return this["step"]; }
-			set { this["step"] = value; }
+			get { return this["required"]; }
+			set { this["required"] = value; }
+		}
+
+		/// <summary>
+		/// Gets or sets the rows attribute.
+		/// </summary>
+		/// <remarks>
+		/// Specifies the visible number of lines in a text area.
+		/// </remarks>
+		public string Rows
+		{
+			get { return this["rows"]; }
+			set { this["rows"] = value; }
 		}
 
 		/// <summary>
@@ -132,6 +168,18 @@ namespace TestR.Elements
 		{
 			get { return this["value"]; }
 			set { this["value"] = value; }
+		}
+
+		/// <summary>
+		/// Gets or sets the wrap attribute.
+		/// </summary>
+		/// <remarks>
+		/// HTML5: Specifies how the text in a text area is to be wrapped when submitted in a form.
+		/// </remarks>
+		public string Wrap
+		{
+			get { return this["wrap"]; }
+			set { this["wrap"] = value; }
 		}
 
 		#endregion

@@ -45,6 +45,8 @@ namespace TestR.PowerShell
 			{
 				WriteError(new ErrorRecord(new Exception("Failed to navigate to the expected URI."), "-1", ErrorCategory.InvalidResult, this));
 			}
+
+			base.ProcessRecord();
 		}
 
 		#endregion

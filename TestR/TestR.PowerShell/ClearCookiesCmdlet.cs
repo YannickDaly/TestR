@@ -23,6 +23,7 @@ namespace TestR.PowerShell
 		{
 			Browser.CloseBrowsers(BrowserType.InternetExplorer);
 			InternetExplorerBrowser.ClearCookies(Uri ?? string.Empty);
+			base.ProcessRecord();
 		}
 
 		#endregion

@@ -54,6 +54,7 @@ namespace TestR.PowerShell
 				: new InternetExplorerBrowser();
 
 			WriteObject(browser);
+			base.ProcessRecord();
 		}
 
 		#endregion
