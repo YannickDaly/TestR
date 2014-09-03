@@ -41,5 +41,4 @@ using (var browser = ChromeBrowser.AttachOrCreate())
 #### Known Issues
 
 * Firefox debug port must be started manually (listen 6000).
-* TestCmdlet does not call [TestInitialize] methods.
 * Internet Explorer will fail if you cross security boundaries like going from Internet to Intranet sites.
