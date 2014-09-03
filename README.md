@@ -1,7 +1,9 @@
 TestR (beta)
 =====
 
-Integration testing framework for developers. TestR allows automating testing of web applications. Currently we are supporting Internet Explorer, Chrome, and Firefox*. We have full automation support for Internet Explorer and Chrome. * Firefox must be manually started and the "listen 6000" ran to start Firefox remote debugging port.
+Integration testing framework for developers. TestR allows automating testing of web applications. Currently we are supporting Internet Explorer, Chrome, and Firefox*. We have full automation support for Internet Explorer and Chrome. 
+
+*Firefox must be manually started and the "listen 6000" command issued to start the Firefox remote debugging port.
 
 ##### To install TestR, run one of the following command in the  Package Manager Console.
 
