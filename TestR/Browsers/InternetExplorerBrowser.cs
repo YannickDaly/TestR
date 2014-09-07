@@ -230,7 +230,7 @@ namespace TestR.Browsers
 			WaitForComplete();
 			InjectTestScript();
 			DetectJavascriptLibraries();
-			GetElementsFromScript();
+			RefreshElements();
 		}
 
 		private void BrowserOnDocumentComplete(object pDisp, ref object url)

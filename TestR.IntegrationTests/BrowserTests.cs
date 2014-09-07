@@ -14,6 +14,15 @@ namespace TestR.IntegrationTests
 	[Cmdlet(VerbsDiagnostic.Test, "Browsers")]
 	public class BrowserTests : BrowserTestCmdlet
 	{
+		#region Constructors
+
+		public BrowserTests()
+		{
+			BrowserType = BrowserType.InternetExplorer;
+		}
+
+		#endregion
+
 		#region Methods
 
 		[TestMethod]
@@ -36,6 +45,26 @@ namespace TestR.IntegrationTests
 				actual = email.GetAttributeValue("class", true).Split(' ');
 				TestHelper.AreEqual("testtest@domain.com", email.Text);
 				Validate.AllExists(expected, actual);
+			});
+		}
+
+		[TestMethod]
+		public void AngularNewElements()
+		{
+			ForEachBrowser(browser =>
+			{
+				browser.NavigateTo("http://localhost/Angular.html");
+				var elementCount = browser.Elements.Count;
+
+				var button = browser.Elements.Buttons["addItem"];
+				button.Click();
+				browser.RefreshElements();
+				Assert.AreEqual(elementCount + 1, browser.Elements.Count);
+				elementCount = browser.Elements.Count;
+
+				button.Click();
+				browser.RefreshElements();
+				Assert.AreEqual(elementCount + 1, browser.Elements.Count);
 			});
 		}
 

@@ -213,6 +213,26 @@ namespace TestR
 		}
 
 		/// <summary>
+		/// Refreshes the element collection for the current page.
+		/// </summary>
+		public void RefreshElements()
+		{
+			_elements.Clear();
+
+			var array = Utility.Retry(() =>
+			{
+				var data = ExecuteScript("JSON.stringify(TestR.getElements())");
+				Logger.Write(data, LogLevel.Trace);
+				return (JArray) JsonConvert.DeserializeObject(data);
+			});
+
+			if (array != null)
+			{
+				_elements.AddRange(array, this);
+			}
+		}
+
+		/// <summary>
 		/// Wait for the browser page to redirect to a different URI.
 		/// </summary>
 		public void WaitForRedirect()
@@ -277,26 +297,6 @@ namespace TestR
 		/// <param name="script">The code script to execute.</param>
 		/// <returns>The response from the execution.</returns>
 		protected abstract string ExecuteJavaScript(string script);
-
-		/// <summary>
-		/// Get the elements via the TestR script.
-		/// </summary>
-		protected void GetElementsFromScript()
-		{
-			_elements.Clear();
-
-			var array = Utility.Retry(() =>
-			{
-				var data = ExecuteScript("JSON.stringify(TestR.getElements())");
-				Logger.Write(data, LogLevel.Trace);
-				return (JArray) JsonConvert.DeserializeObject(data);
-			});
-
-			if (array != null)
-			{
-				_elements.AddRange(array, this);
-			}
-		}
 
 		/// <summary>
 		/// Injects the test script into the browser.

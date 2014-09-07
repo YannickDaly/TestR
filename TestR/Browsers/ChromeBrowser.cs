@@ -207,7 +207,7 @@ namespace TestR.Browsers
 			Connector.Refresh();
 			InjectTestScript();
 			DetectJavascriptLibraries();
-			GetElementsFromScript();
+			RefreshElements();
 		}
 
 		#endregion

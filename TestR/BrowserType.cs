@@ -1,8 +1,15 @@
-﻿namespace TestR
+﻿#region References
+
+using System;
+
+#endregion
+
+namespace TestR
 {
 	/// <summary>
 	/// The type of the browser.
 	/// </summary>
+	[Flags]
 	public enum BrowserType
 	{
 		/// <summary>

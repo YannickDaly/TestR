@@ -18,6 +18,10 @@
 		<input id="email" type="email" ng-model="user.email" required /><br />
 		<span id="emailValidation" ng-bind="user.email"></span>
 		<div id="log"></div>
+		<br />
+		<button id="addItem" ng-click="addItem()">Add Item</button><br />
+		Total: <span>{{ items.length }}</span><br />
+		<div id="item.id" ng-repeat="item in items">{{ item.text }}</div>
 
 		<script src="./Scripts/jquery-2.1.1.js"></script>
 		<script src="./Scripts/angular.js"></script>
@@ -41,8 +45,14 @@
 				'$scope',
 				function ($scope) {
 					$scope.message = "Hello World";
+					$scope.items = [];
 					$scope.user = {
 						email: ''
+					};
+
+					$scope.addItem = function () {
+						var id = $scope.items.length + 1;
+						$scope.items.push({ id: id, text: id.toString() });
 					};
 				}
 			]);
