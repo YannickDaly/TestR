@@ -3,6 +3,7 @@
 		'selected', 'className', 'checked', 'readOnly', 'multiple', 'value', 'nodeType', 'innerText', 'src', 'href',
 		'rowIndex', 'cellIndex', 'id', 'name', 'tagName', 'textContent'
 	],
+	autoId: 1,
 	ignoredTags: ['script'],
 	ignoredProperties: ['tagName', 'id', 'name'],
 	triggerEvent: function (element, eventName, values) {
@@ -26,11 +27,10 @@
 	getElements: function () {
 		var response = [];
 		var allElements = document.body.getElementsByTagName('*');
-		var id = 1;
 
 		for (var i = 0; i < allElements.length; i++) {
 			if (allElements[i].id === undefined || allElements[i].id === '') {
-				allElements[i].id = 'testR-' + id++;
+				allElements[i].id = 'testR-' + TestR.autoId++;
 			}
 		}
 

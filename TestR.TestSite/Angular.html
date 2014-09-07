@@ -21,7 +21,7 @@
 		<br />
 		<button id="addItem" ng-click="addItem()">Add Item</button><br />
 		Total: <span>{{ items.length }}</span><br />
-		<div id="item.id" ng-repeat="item in items">{{ item.text }}</div>
+		<div ng-repeat="item in items">{{ item.text }}</div>
 
 		<script src="./Scripts/jquery-2.1.1.js"></script>
 		<script src="./Scripts/angular.js"></script>
