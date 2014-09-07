@@ -57,7 +57,7 @@ namespace TestR.PowerShell
 
 		public void ForEachBrowser(Action<Browser> action)
 		{
-			var asserts = new Dictionary<string, Exception>();
+			var asserts = new List<Exception>();
 			foreach (var browser in GetBrowsers(asserts))
 			{
 				using (browser)
@@ -68,7 +68,7 @@ namespace TestR.PowerShell
 					}
 					catch (Exception ex)
 					{
-						asserts.Add(browser.GetType().Name, ex);
+						asserts.Add(ex);
 					}
 				}
 			}
@@ -81,7 +81,7 @@ namespace TestR.PowerShell
 			var exception = new Exception("Test Failed.");
 			foreach (var assert in asserts)
 			{
-				exception = new Exception(assert.Key, assert.Value);
+				exception = new Exception(assert.Message, assert);
 			}
 
 			throw exception;
@@ -100,7 +100,7 @@ namespace TestR.PowerShell
 			}
 		}
 
-		private IEnumerable<Browser> GetBrowsers(Dictionary<string, Exception> asserts)
+		private IEnumerable<Browser> GetBrowsers(List<Exception> asserts)
 		{
 			var response = new List<Browser>();
 
@@ -115,7 +115,7 @@ namespace TestR.PowerShell
 				}
 				catch (Exception ex)
 				{
-					asserts.Add(typeof (ChromeBrowser).Name, ex);
+					asserts.Add(ex);
 				}
 			}
 
@@ -130,7 +130,7 @@ namespace TestR.PowerShell
 				}
 				catch (Exception ex)
 				{
-					asserts.Add(typeof (InternetExplorerBrowser).Name, ex);
+					asserts.Add(ex);
 				}
 			}
 
@@ -145,7 +145,7 @@ namespace TestR.PowerShell
 				}
 				catch (Exception ex)
 				{
-					asserts.Add(typeof (InternetExplorerBrowser).Name, ex);
+					asserts.Add(ex);
 				}
 			}
 
