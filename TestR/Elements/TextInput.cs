@@ -142,18 +142,21 @@ namespace TestR.Elements
 		/// Type text into the element.
 		/// </summary>
 		/// <param name="value">The value to be typed.</param>
-		public void TypeText(string value)
+		/// <param name="reset">Clear the input before typing the text.</param>
+		public void TypeText(string value, bool reset = false)
 		{
 			Focus();
 			Highlight(true);
 
 			if (!Browser.SlowMotion)
 			{
-				SetAttributeValue("value", GetAttributeValue("value", true) + value);
+				SetAttributeValue("value", reset ? value : GetAttributeValue("value", true) + value);
 				FireEvent("onChange", new Dictionary<string, string>());
 			}
 			else
 			{
+				var newValue = reset ? string.Empty : GetAttributeValue("value");
+
 				foreach (var character in value)
 				{
 					var eventProperty = GetKeyCodeEventProperty(character);
@@ -161,7 +164,7 @@ namespace TestR.Elements
 					FireEvent("keyPress", eventProperty);
 					FireEvent("keyUp", eventProperty);
 
-					var newValue = GetAttributeValue("value", true) + character;
+					newValue += character;
 					SetAttributeValue("value", newValue);
 					Thread.Sleep(TypingDelay);
 				}

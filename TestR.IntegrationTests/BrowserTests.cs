@@ -1,4 +1,4 @@
-﻿#region References
+#region References
 
 using System.Linq;
 using System.Management.Automation;
@@ -306,7 +306,7 @@ namespace TestR.IntegrationTests
 		}
 
 		[TestMethod]
-		public void TypeTextIntoTextInputs()
+		public void TypeTextAllInputs()
 		{
 			ForEachBrowser(browser =>
 			{
@@ -318,6 +318,32 @@ namespace TestR.IntegrationTests
 					input.TypeText(input.Id);
 					Assert.AreEqual(input.Id, input.Text);
 				}
+			});
+		}
+
+		[TestMethod]
+		public void TypeTextAppendInput()
+		{
+			ForEachBrowser(browser =>
+			{
+				browser.NavigateTo("http://localhost/inputs.html");
+				var input = browser.Elements.TextInputs["text"];
+				input.Value = "foo";
+				input.TypeText("bar");
+				Assert.AreEqual("foobar", input.Value);
+			});
+		}
+
+		[TestMethod]
+		public void TypeTextSetInput()
+		{
+			ForEachBrowser(browser =>
+			{
+				browser.NavigateTo("http://localhost/inputs.html");
+				var input = browser.Elements.TextInputs["text"];
+				input.Value = "foo";
+				input.TypeText("bar", true);
+				Assert.AreEqual("bar", input.Value);
 			});
 		}
 
