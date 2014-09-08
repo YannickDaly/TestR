@@ -14,6 +14,15 @@ namespace TestR.IntegrationTests
 	[Cmdlet(VerbsDiagnostic.Test, "Browsers")]
 	public class BrowserTests : BrowserTestCmdlet
 	{
+		#region Constructors
+
+		public BrowserTests()
+		{
+			BrowserType = BrowserType.InternetExplorer;
+		}
+
+		#endregion
+
 		#region Methods
 
 		[TestMethod]
@@ -182,7 +191,7 @@ namespace TestR.IntegrationTests
 			{
 				browser.NavigateTo("http://localhost/inputs.html");
 				var inputs = browser.Elements.TextInputs.ToList();
-				Assert.AreEqual(5, inputs.Count);
+				Assert.AreEqual(8, inputs.Count);
 			});
 		}
 
@@ -207,6 +216,17 @@ namespace TestR.IntegrationTests
 				Assert.AreEqual(1, elements.Count());
 			});
 		}
+		
+		[TestMethod]
+		public void FindElementByClassProperty()
+		{
+			ForEachBrowser(browser =>
+			{
+				browser.NavigateTo("http://localhost/index.html");
+				var elements = browser.Elements.Links.Where(x => x.Class == "bold");
+				Assert.AreEqual(1, elements.Count());
+			});
+		}
 
 		[TestMethod]
 		public void FindSpanElementByText()
@@ -227,6 +247,49 @@ namespace TestR.IntegrationTests
 				browser.NavigateTo("http://localhost/index.html");
 				var elements = browser.Elements.OfType<TextInput>().Where(x => x.Text == "Hello World");
 				Assert.AreEqual(1, elements.Count());
+			});
+		}
+		
+		[TestMethod]
+		public void FindHeadersByText()
+		{
+			ForEachBrowser(browser =>
+			{
+				browser.NavigateTo("http://localhost/index.html");
+				var elements = browser.Elements.OfType<Header>().Where(x => x.Text.Contains("Header"));
+				Assert.AreEqual(6, elements.Count());
+			});
+		}
+		
+		[TestMethod]
+		public void EnumerateHeaders()
+		{
+			ForEachBrowser(browser =>
+			{
+				browser.NavigateTo("http://localhost/index.html");
+				var elements = browser.Elements.Headers;
+				Assert.AreEqual(6, elements.Count());
+
+				foreach (var header in elements)
+				{
+					header.Text = "Header!";
+				}
+			});
+		}
+		
+		[TestMethod]
+		public void EnumerateDivisions()
+		{
+			ForEachBrowser(browser =>
+			{
+				browser.NavigateTo("http://localhost/index.html");
+				var elements = browser.Elements.Divisions;
+				Assert.AreEqual(1, elements.Count());
+
+				foreach (var division in elements)
+				{
+					division.Text = "Division!";
+				}
 			});
 		}
 
@@ -335,8 +398,16 @@ namespace TestR.IntegrationTests
 
 				foreach (var input in inputs)
 				{
-					input.TypeText(input.Id);
-					Assert.AreEqual(input.Id, input.Text);
+					if (input.Id == "number")
+					{
+						input.TypeText("100");
+						Assert.AreEqual("100", input.Text);
+					}
+					else
+					{
+						input.TypeText(input.Id);
+						Assert.AreEqual(input.Id, input.Text);
+					}
 				}
 			});
 		}

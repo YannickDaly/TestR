@@ -250,11 +250,11 @@ namespace TestR
 		/// <returns>The attribute value.</returns>
 		public string GetAttributeValue(string name, bool refresh = false)
 		{
-			name = PropertiesToRename.ContainsKey(name) ? PropertiesToRename[name] : name;
 			string value;
 
 			if (refresh)
 			{
+				name = PropertiesToRename.ContainsKey(name) ? PropertiesToRename[name] : name;
 				var script = "TestR.getElementValue('" + Id + "','" + name + "')";
 				value = Browser.ExecuteScript(script);
 			}

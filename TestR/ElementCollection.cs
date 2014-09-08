@@ -87,11 +87,27 @@ namespace TestR
 		}
 
 		/// <summary>
+		/// Gets a list of all Division (div) elements.
+		/// </summary>
+		public ElementCollection<Division> Divisions
+		{
+			get { return OfType<Division>(); }
+		}
+
+		/// <summary>
 		/// Gets a list of all form elements.
 		/// </summary>
 		public ElementCollection<Form> Forms
 		{
 			get { return OfType<Form>(); }
+		}
+
+		/// <summary>
+		/// Gets a list of all header elements.
+		/// </summary>
+		public ElementCollection<Header> Headers
+		{
+			get { return OfType<Header>(); }
 		}
 
 		/// <summary>
@@ -166,8 +182,21 @@ namespace TestR
 					Add(new Button(token, browser, this));
 					return;
 
+				case "div":
+					Add(new Division(token, browser, this));
+					return;
+
 				case "form":
 					Add(new Form(token, browser, this));
+					return;
+
+				case "h1":
+				case "h2":
+				case "h3":
+				case "h4":
+				case "h5":
+				case "h6":
+					Add(new Header(token, browser, this));
 					return;
 
 				case "input":
@@ -186,9 +215,12 @@ namespace TestR
 
 						case "email":
 						case "hidden":
+						case "number":
 						case "password":
 						case "search":
+						case "tel":
 						case "text":
+						case "url":
 							Add(new TextInput(token, browser, this));
 							return;
 
