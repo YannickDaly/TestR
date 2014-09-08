@@ -1,6 +1,6 @@
 ﻿var TestR = {
 	properties: [
-		'selected', 'className', 'checked', 'readOnly', 'multiple', 'value', 'nodeType', 'innerText', 'src', 'href',
+		'selected', 'disabled', 'className', 'checked', 'readOnly', 'multiple', 'value', 'nodeType', 'innerText', 'src', 'href',
 		'rowIndex', 'cellIndex', 'id', 'name', 'tagName', 'textContent'
 	],
 	autoId: 1,
