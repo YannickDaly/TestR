@@ -4,9 +4,9 @@
 		<id>TestR</id>
 		<version>1.0</version>
 		<authors>Bobby Cannon</authors>
-		<description>
-			Integration testing framework for developers. TestR allows automating testing of web applications.
-		</description>
+		<description>Integration testing framework for developers. TestR allows automating testing of web applications.</description>
+		<projectUrl>http://bobbycannon.github.io/TestR/</projectUrl>
+		<tags>TestR Test UnitTest IntegrationTest Automation Testing Web InternetExplorer FireFox Chrome</tags>
 		<dependencies>
 			<dependency id="NLog" version="3.1.0.0" />
 			<dependency id="Newtonsoft.Json" version="6.0.4" />

@@ -4,10 +4,9 @@
 		<id>TestR.PowerShell</id>
 		<version>1.0</version>
 		<authors>Bobby Cannon</authors>
-		<description>
-			Integration testing framework for developers. TestR allows automating testing of web applications. 
-            Adds PowerShell features that are not part of the regular deployment.
-		</description>
+		<description>Integration testing framework for developers. TestR allows automating testing of web applications. Adds PowerShell features that are not part of the regular deployment.</description>
+		<projectUrl>http://bobbycannon.github.io/TestR/</projectUrl>
+		<tags>PowerShell TestR Test UnitTest IntegrationTest Automation Testing Web InternetExplorer FireFox Chrome</tags>
 		<dependencies>
 			<dependency id="NLog" version="3.1.0.0" />
 			<dependency id="Newtonsoft.Json" version="6.0.4" />
