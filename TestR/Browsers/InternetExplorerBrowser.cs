@@ -301,7 +301,10 @@ namespace TestR.Browsers
 		/// <returns>An instance of an Internet Explorer browser.</returns>
 		public static InternetExplorerBrowser Attach()
 		{
-			var foundBrowsers = new ShellWindowsClass().Cast<InternetExplorer>().ToList();
+			var foundBrowsers = new ShellWindowsClass().Cast<InternetExplorer>()
+				.Where(x => x.FullName.Contains("IEXPLORE.EXE"))
+				.ToList();
+
 			if (foundBrowsers.Count <= 0)
 			{
 				return null;
