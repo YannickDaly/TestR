@@ -223,12 +223,17 @@ namespace TestR
 			{
 				var data = ExecuteScript("JSON.stringify(TestR.getElements())");
 				Logger.Write(data, LogLevel.Trace);
+				if (data == "'TestR' is undefined")
+				{
+					InjectTestScript();
+				}
 				return (JArray) JsonConvert.DeserializeObject(data);
 			});
 
 			if (array != null)
 			{
 				_elements.AddRange(array, this);
+				LastUriNavigatedTo = Uri;
 			}
 		}
 

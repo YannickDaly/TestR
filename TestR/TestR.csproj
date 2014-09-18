@@ -63,6 +63,7 @@
     <Compile Include="Elements\Division.cs" />
     <Compile Include="Elements\Image.cs" />
     <Compile Include="Elements\Header.cs" />
+    <Compile Include="Elements\Select.cs" />
     <Compile Include="Elements\TextArea.cs" />
     <Compile Include="Validate.cs" />
     <Compile Include="Browser.cs" />

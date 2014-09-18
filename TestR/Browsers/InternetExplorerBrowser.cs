@@ -301,13 +301,16 @@ namespace TestR.Browsers
 		/// <returns>An instance of an Internet Explorer browser.</returns>
 		public static InternetExplorerBrowser Attach()
 		{
-			var foundBrowsers = (from InternetExplorer x in new ShellWindowsClass() select x).ToList();
+			var foundBrowsers = new ShellWindowsClass().Cast<InternetExplorer>().ToList();
 			if (foundBrowsers.Count <= 0)
 			{
 				return null;
 			}
 
-			var foundBrowser = foundBrowsers.FirstOrDefault(x => x.Visible && x.HWND != 0 && !(x.Busy && x.ReadyState == tagREADYSTATE.READYSTATE_LOADING));
+			var foundBrowser = foundBrowsers
+				.Where(x => x.Visible && x.HWND != 0 && !x.Busy)
+				.FirstOrDefault(x => x.ReadyState != tagREADYSTATE.READYSTATE_LOADING);
+
 			return foundBrowser == null ? null : new InternetExplorerBrowser(foundBrowser);
 		}
 
