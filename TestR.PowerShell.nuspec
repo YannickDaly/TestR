@@ -9,7 +9,7 @@
 		<projectUrl>http://bobbycannon.github.io/TestR/</projectUrl>
 		<tags>PowerShell TestR Test UnitTest IntegrationTest Automation Testing Web InternetExplorer FireFox Chrome</tags>
 		<dependencies>
-			<dependency id="Newtonsoft.Json" version="6.0.4" />
+			<dependency id="Newtonsoft.Json" version="6.0.5" />
 		</dependencies>
 		<references>
 			<reference file="TestR.dll" />
@@ -18,8 +18,9 @@
 	</metadata>
 	<files>
 		<file src="C:\Binaries\TestR\Documentation.chm" target="lib\net40" />
-		<file src="C:\Binaries\TestR\TestR.dll" target="lib\net40" />
-		<file src="C:\Binaries\TestR\TestR.PowerShell.dll" target="lib\net40" />
-		<file src="C:\Binaries\TestR\Interop.SHDocVw.dll" target="lib\net40" />
+		<file src="C:\Binaries\TestR\bin\TestR.dll" target="lib\net40" />
+		<file src="C:\Binaries\TestR\bin\TestR.Data.dll" target="lib\net40" />
+		<file src="C:\Binaries\TestR\bin\TestR.PowerShell.dll" target="lib\net40" />
+		<file src="C:\Binaries\TestR\bin\Interop.SHDocVw.dll" target="lib\net40" />
 	</files>
 </package>

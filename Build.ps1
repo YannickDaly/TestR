@@ -16,6 +16,7 @@ if (Test-Path $destination -PathType Container){
 }
 
 New-Item $destination -ItemType Directory | Out-Null
+New-Item $destination\bin -ItemType Directory | Out-Null
 
 if (!(Test-Path $nugetDestination -PathType Container)){
     New-Item $nugetDestination -ItemType Directory | Out-Null
@@ -38,12 +39,13 @@ if ($IncludeDocumentation) {
 
 Set-Location $scriptPath
 
-Copy-Item TestR\bin\$Configuration\TestR.dll $destination
-Copy-Item TestR\bin\$Configuration\Interop.SHDocVw.dll $destination
-Copy-Item TestR.PowerShell\bin\$Configuration\TestR.PowerShell.dll $destination
+Copy-Item TestR\bin\$Configuration\TestR.dll $destination\bin\
+Copy-Item TestR\bin\$Configuration\Interop.SHDocVw.dll $destination\bin\
+Copy-Item TestR.Data\bin\$Configuration\TestR.Data.dll $destination\bin\
+Copy-Item TestR.PowerShell\bin\$Configuration\TestR.PowerShell.dll $destination\bin\
 Copy-Item Help\Documentation.chm $destination
 
-$versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\TestR.dll")
+$versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\bin\TestR.dll")
 $version = $versionInfo.FileVersion.ToString()
 
 cmd /c ".nuget\NuGet.exe" pack TestR.nuspec -Prop Configuration="$Configuration" -Version $version
