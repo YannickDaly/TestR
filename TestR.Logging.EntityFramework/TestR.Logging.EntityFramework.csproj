@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EB809E00-3E8A-427B-8516-C5B591650EE3}</ProjectGuid>
+    <ProjectGuid>{3E4516EB-8F7B-44EF-A6A5-57C0860478D3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TestR.IntegrationTests</RootNamespace>
-    <AssemblyName>TestR.IntegrationTests</AssemblyName>
+    <RootNamespace>TestR.Logging.EntityFramework</RootNamespace>
+    <AssemblyName>TestR.Logging.EntityFramework</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -31,27 +31,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer">
       <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="KellermanSoftware.Compare-NET-Objects, Version=3.1.0.0, Culture=neutral, PublicKeyToken=d970ace04cc85217, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CompareNETObjects.3.01.0.0\lib\net45\KellermanSoftware.Compare-NET-Objects.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -59,27 +51,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DatabaseDataContext.cs" />
+    <Compile Include="EntityFrameworkLogger.cs" />
+    <Compile Include="Migrations\201410041904072_InitialDatabase.cs" />
+    <Compile Include="Migrations\201410041904072_InitialDatabase.Designer.cs">
+      <DependentUpon>201410041904072_InitialDatabase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\Mappings\LogEventMapping.cs" />
+    <Compile Include="Models\Entity.cs" />
+    <Compile Include="Models\LogEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="BrowserTests.cs" />
-    <Compile Include="TestHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TestR.Logging.EntityFramework\TestR.Logging.EntityFramework.csproj">
-      <Project>{3e4516eb-8f7b-44ef-a6a5-57c0860478d3}</Project>
-      <Name>TestR.Logging.EntityFramework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TestR.PowerShell\TestR.PowerShell.csproj">
-      <Project>{0896d938-1426-4d1a-8c06-649650404693}</Project>
-      <Name>TestR.PowerShell</Name>
-    </ProjectReference>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\TestR\TestR.csproj">
       <Project>{dec269ed-d43e-4d3a-ba25-238a9dd7cf04}</Project>
       <Name>TestR</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
+    <EmbeddedResource Include="Migrations\201410041904072_InitialDatabase.resx">
+      <DependentUpon>201410041904072_InitialDatabase.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

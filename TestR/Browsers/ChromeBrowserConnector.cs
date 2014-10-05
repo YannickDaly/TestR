@@ -12,9 +12,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using NLog;
 using TestR.Extensions;
 using TestR.Helpers;
+using TestR.Logging;
 
 #endregion
 
@@ -306,7 +306,7 @@ namespace TestR.Browsers
 				} while (!result.EndOfMessage);
 
 				var response = builder.ToString();
-				Logger.Write("Debugger Response: " + response, LogLevel.Trace);
+				LogManager.Write("Debugger Response: " + response, LogLevel.Verbose);
 
 				if (response == "{\"method\":\"DOM.documentUpdated\"}")
 				{
@@ -330,7 +330,7 @@ namespace TestR.Browsers
 		private void SendRequest<T>(T request)
 		{
 			var json = JsonConvert.SerializeObject(request, _jsonSerializerSettings);
-			Logger.Write("Debugger Request: " + json, LogLevel.Trace);
+			LogManager.Write("Debugger Request: " + json, LogLevel.Verbose);
 			var jsonBuffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(json));
 			_socket.SendAsync(jsonBuffer, WebSocketMessageType.Text, true, CancellationToken.None);
 		}

@@ -76,4 +76,4 @@ foreach ($module in $modules) {
 
 Write-Host
 Set-Location $scriptPath
-Write-Host "TestR Deploy: " $watch.Elapsed
+Write-Host "TestR Build: " $watch.Elapsed

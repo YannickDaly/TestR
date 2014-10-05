@@ -1,0 +1,20 @@
+﻿@using TestR.Logging.EntityFramework
+
+@{
+	var logs = new DatabaseDataContext().LogEvents;
+}
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title></title>
+	</head>
+	<body>
+		@foreach (var log in logs)
+		{
+			<div>
+				@log.CreatedOn - @log.Message : @log.Level
+			</div>
+		}
+	</body>
+</html>

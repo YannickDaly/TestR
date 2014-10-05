@@ -1,4 +1,4 @@
-﻿var TestR = {
+﻿var TestR = TestR || {
 	properties: [
 		'selected', 'disabled', 'className', 'checked', 'readOnly', 'multiple', 'value', 'nodeType', 'innerText', 'src', 'href',
 		'rowIndex', 'cellIndex', 'id', 'name', 'tagName', 'textContent'
@@ -6,6 +6,7 @@
 	autoId: 1,
 	ignoredTags: ['script'],
 	ignoredProperties: ['tagName', 'id', 'name'],
+	scriptResult: '',
 	triggerEvent: function (element, eventName, values) {
 		var eventObj = document.createEventObject
 			? document.createEventObject()
@@ -105,6 +106,18 @@
 		} else {
 			element.setAttribute(name, value);
 		}
+	},
+	runScript: function (script) {
+		try {
+			TestR.scriptResult = String(eval(script));
+			TestR.updateStatus(TestR.scriptResult);
+		} catch (error) {
+			debugger;
+			TestR.scriptResult = error.message;
+		}
+	},
+	updateStatus: function (status) {
+		document.body.setAttribute('testrResults', status);
 	}
 };
 
@@ -118,5 +131,5 @@ Array.prototype.contains = function (obj) {
 	return false;
 };
 
-document.executeResult = '';
-console.log('TestR injected...');
+console.log('TestR Ready...');
+TestR.updateStatus("TestR Ready...");

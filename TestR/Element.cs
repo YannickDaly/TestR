@@ -1,11 +1,12 @@
 ﻿#region References
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Newtonsoft.Json.Linq;
-using NLog;
 using TestR.Extensions;
+using TestR.Logging;
 
 #endregion
 
@@ -307,7 +308,7 @@ namespace TestR
 		/// <param name="highlight">If true the element is highlight yellow. If false the element is returned to its original color.</param>
 		public void Highlight(bool highlight)
 		{
-			Logger.Write(highlight ? "Adding highlight to element " + Id + "." : "Removing highlight from element " + Id + ".", LogLevel.Trace);
+			Trace.WriteLine(highlight ? "Adding highlight to element " + Id + "." : "Removing highlight from element " + Id + ".");
 			SetStyleAttributeValue("background-color", highlight ? _highlightColor : _orginalColor);
 
 			if (Browser.SlowMotion && highlight)

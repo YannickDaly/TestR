@@ -7,9 +7,9 @@ using System.IO;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NLog;
 using TestR.Browsers;
 using TestR.Helpers;
+using TestR.Logging;
 
 #endregion
 
@@ -153,7 +153,7 @@ namespace TestR
 			}
 			catch
 			{
-				Logger.Write("Failed to set " + GetType().Name + " as the foreground window (" + WindowHandle + ").", LogLevel.Warn);
+				LogManager.Write("Failed to set " + GetType().Name + " as the foreground window (" + WindowHandle + ").", LogLevel.Warning);
 			}
 		}
 
@@ -222,7 +222,7 @@ namespace TestR
 			var array = Utility.Retry(() =>
 			{
 				var data = ExecuteScript("JSON.stringify(TestR.getElements())");
-				Logger.Write(data, LogLevel.Trace);
+				LogManager.Write(data, LogLevel.Verbose);
 				if (data == "'TestR' is undefined")
 				{
 					InjectTestScript();
@@ -325,6 +325,7 @@ namespace TestR
 				{
 					return;
 				}
+
 				Refresh();
 				BrowserHasNavigated = false;
 				LastUriNavigatedTo = Uri;

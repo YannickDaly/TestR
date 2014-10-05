@@ -9,9 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using NLog;
 using TestR.Extensions;
 using TestR.Helpers;
+using TestR.Logging;
 
 #endregion
 
@@ -90,14 +90,14 @@ namespace TestR.Browsers
 
 			_readTask = Task.Run(() =>
 			{
-				Logger.Write("Firefox: Read thread is starting...", LogLevel.Trace);
+				LogManager.Write("Firefox: Read thread is starting...", LogLevel.Verbose);
 
 				while (ReadResponseAsync())
 				{
 					Thread.Sleep(10);
 				}
 
-				Logger.Write("Firefox: Read thread is closing...", LogLevel.Trace);
+				LogManager.Write("Firefox: Read thread is closing...", LogLevel.Verbose);
 			});
 
 			// Wait for the connect response.
@@ -254,7 +254,7 @@ namespace TestR.Browsers
 					try
 					{
 						var token = message.AsJToken() as dynamic;
-						Logger.Write("Debugger Response: " + message, LogLevel.Trace);
+						LogManager.Write("Debugger Response: " + message, LogLevel.Verbose);
 
 						if (message.Contains("\"type\":\"tabNavigated\""))
 						{
@@ -266,7 +266,7 @@ namespace TestR.Browsers
 					}
 					catch
 					{
-						Logger.Write("Invalid message! -> " + messages, LogLevel.Fatal);
+						LogManager.Write("Invalid message! -> " + messages, LogLevel.Fatal);
 					}
 				}
 				return true;
@@ -281,7 +281,7 @@ namespace TestR.Browsers
 			}
 			catch (Exception ex)
 			{
-				Logger.Write(ex.Message, LogLevel.Fatal);
+				LogManager.Write(ex.Message, LogLevel.Fatal);
 				return false;
 			}
 		}
@@ -290,7 +290,7 @@ namespace TestR.Browsers
 		{
 			var json = JsonConvert.SerializeObject(request, _jsonSerializerSettings);
 			var data = json.Length + ":" + json;
-			Logger.Write("Debugger Request: " + data, LogLevel.Trace);
+			LogManager.Write("Debugger Request: " + data, LogLevel.Verbose);
 			var jsonBuffer = Encoding.UTF8.GetBytes(data);
 			_socket.Send(jsonBuffer);
 		}

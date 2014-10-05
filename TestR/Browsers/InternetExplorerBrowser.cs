@@ -4,14 +4,12 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Expando;
 using System.Threading;
 using mshtml;
-using NLog;
 using SHDocVw;
 using TestR.Helpers;
+using TestR.Logging;
 
 #endregion
 
@@ -133,10 +131,12 @@ namespace TestR.Browsers
 		/// <param name="uri">The URI to navigate to.</param>
 		protected override void BrowserNavigateTo(string uri)
 		{
-			Logger.Write("InternetExplorerBrowser.NavigateTo(" + uri + ")", LogLevel.Trace);
-			_browser.Navigate(uri);
-			WaitForComplete();
-			Refresh();
+			Utility.Retry(() =>
+			{
+				LogManager.Write("InternetExplorerBrowser.NavigateTo(" + uri + ")", LogLevel.Verbose);
+				_browser.Navigate(uri);
+				Refresh();
+			});
 		}
 
 		/// <summary>
@@ -188,12 +188,10 @@ namespace TestR.Browsers
 				throw new Exception("Failed to run script because no document is loaded.");
 			}
 
-			Logger.Write("Request: " + script, LogLevel.Trace);
-			var wrappedScript = "try { var result = eval('" + script.Replace("'", "\\'") + "'); document.executeResult = String(result); }" +
-				" catch (error) { document.executeResult = error.message; }";
-
+			LogManager.Write("Request: " + script, LogLevel.Verbose);
+			var wrappedScript = "TestR.runScript('" + script.Replace("'", "\\'") + "');";
 			document.parentWindow.execScript(wrappedScript, "javascript");
-			return GetJavascriptResult();
+			return GetJavascriptResult(document);
 		}
 
 		/// <summary>
@@ -201,7 +199,7 @@ namespace TestR.Browsers
 		/// </summary>
 		protected override void InjectTestScript()
 		{
-			var document = Utility.Retry(() =>
+			Utility.Retry(() =>
 			{
 				var htmlDocument = _browser.Document as IHTMLDocument2;
 				if (htmlDocument == null)
@@ -209,16 +207,16 @@ namespace TestR.Browsers
 					throw new Exception("Failed to run script because no document is loaded.");
 				}
 
-				return htmlDocument;
-			});
-
-			var window = document.parentWindow;
-			window.execScript(GetTestScript(), "javascript");
-			var test = ExecuteJavaScript("typeof TestR");
-			if (!test.Equals("object"))
-			{
-				throw new Exception("Failed to inject the TestR JavaScript. Eh? " + test);
-			}
+				var window = htmlDocument.parentWindow;
+				var script = GetTestScript();
+				window.execScript(script, "javascript");
+				var test = ExecuteJavaScript("typeof TestR");
+				if (!test.Equals("object"))
+				{
+					LogManager.Write("TestR == " + test, LogLevel.Fatal);
+					throw new Exception("Failed to inject the TestR JavaScript. Eh? " + test);
+				}
+			}, 2, 250);
 		}
 
 		/// <summary>
@@ -226,7 +224,7 @@ namespace TestR.Browsers
 		/// </summary>
 		protected override void Refresh()
 		{
-			Logger.Write("InternetExplorerBrowser.Refresh", LogLevel.Trace);
+			LogManager.Write("InternetExplorerBrowser.Refresh", LogLevel.Verbose);
 			WaitForComplete();
 			InjectTestScript();
 			DetectJavascriptLibraries();
@@ -238,16 +236,13 @@ namespace TestR.Browsers
 			BrowserHasNavigated = true;
 		}
 
-		private string GetJavascriptResult()
+		private string GetJavascriptResult(IHTMLDocument2 document)
 		{
 			try
 			{
-				var expando = (IExpando) _browser.Document;
-				var propertyInfo = expando.GetProperty("executeResult", BindingFlags.Default);
-				var property = propertyInfo.GetValue(expando, null);
-				var result = property == null ? string.Empty : property.ToString();
-				Logger.Write("Response: " + result, LogLevel.Trace);
-				return result;
+				var result = document.body.getAttribute("testrResults");
+				LogManager.Write("Response: " + result, LogLevel.Verbose);
+				return result ?? string.Empty;
 			}
 			catch
 			{
@@ -261,7 +256,7 @@ namespace TestR.Browsers
 		/// </summary>
 		private void WaitForComplete()
 		{
-			Logger.Write("InterenetExploreBrowser.WaitForComplete", LogLevel.Trace);
+			LogManager.Write("InterenetExploreBrowser.WaitForComplete", LogLevel.Verbose);
 
 			if (_browser == null)
 			{
