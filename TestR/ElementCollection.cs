@@ -147,7 +147,7 @@ namespace TestR
 		{
 			get { return OfType<Select>(); }
 		}
-		
+
 		/// <summary>
 		/// Gets a list of all span elements.
 		/// </summary>
@@ -240,7 +240,7 @@ namespace TestR
 				case "select":
 					Add(new Select(token, browser, this));
 					return;
-				
+
 				case "span":
 					Add(new Span(token, browser, this));
 					return;

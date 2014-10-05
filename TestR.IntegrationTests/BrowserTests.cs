@@ -4,9 +4,9 @@ using System.Configuration;
 using System.Linq;
 using System.Management.Automation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TestR.Data;
 using TestR.Elements;
 using TestR.Logging;
-using TestR.Logging.EntityFramework;
 using TestR.PowerShell;
 
 #endregion
@@ -17,6 +17,15 @@ namespace TestR.IntegrationTests
 	[Cmdlet(VerbsDiagnostic.Test, "Browsers")]
 	public class BrowserTests : BrowserTestCmdlet
 	{
+		#region Constructors
+
+		public BrowserTests()
+		{
+			BrowserType = BrowserType.InternetExplorer;
+		}
+
+		#endregion
+
 		#region Methods
 
 		[TestMethod]
@@ -25,7 +34,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "AngularInputTrigger");
-				browser.NavigateTo("http://localhost/Angular.html");
+				browser.NavigateTo("http://localhost:8080/Angular.html");
 
 				var email = browser.Elements.TextInputs["email"];
 				email.TypeText("test");
@@ -49,7 +58,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "AngularNewElements");
-				browser.NavigateTo("http://localhost/Angular.html");
+				browser.NavigateTo("http://localhost:8080/Angular.html");
 				var elementCount = browser.Elements.Count;
 
 				var button = browser.Elements.Buttons["addItem"];
@@ -83,7 +92,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "ClickButton");
-				browser.NavigateTo("http://localhost/index.html");
+				browser.NavigateTo("http://localhost:8080/index.html");
 				browser.Elements["button"].Click();
 
 				var actual = browser.Elements.TextArea["textarea"].Text;
@@ -97,7 +106,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "ClickButtonByName");
-				browser.NavigateTo("http://localhost/index.html");
+				browser.NavigateTo("http://localhost:8080/index.html");
 				browser.Elements.First(x => x.Name == "buttonByName").Click();
 
 				var textArea = browser.Elements.TextArea["textarea"];
@@ -111,7 +120,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "ClickInputButton");
-				browser.NavigateTo("http://localhost/index.html");
+				browser.NavigateTo("http://localhost:8080/index.html");
 				browser.Elements.Buttons["inputButton"].Click();
 
 				var textArea = browser.Elements.TextArea["textarea"];
@@ -125,7 +134,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "ClickLink");
-				browser.NavigateTo("http://localhost/index.html");
+				browser.NavigateTo("http://localhost:8080/index.html");
 				browser.Elements["link"].Click();
 
 				var textArea = browser.Elements.TextArea["textarea"];
@@ -139,7 +148,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "DetectAngularJavaScriptLibrary");
-				browser.NavigateTo("http://localhost/Angular.html");
+				browser.NavigateTo("http://localhost:8080/Angular.html");
 				Assert.IsTrue(browser.JavascriptLibraries.Contains(JavaScriptLibrary.Angular));
 			});
 		}
@@ -150,7 +159,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "DetectJQueryJavaScriptLibrary");
-				browser.NavigateTo("http://localhost/JQuery.html");
+				browser.NavigateTo("http://localhost:8080/JQuery.html");
 				Assert.IsTrue(browser.JavascriptLibraries.Contains(JavaScriptLibrary.JQuery));
 			});
 		}
@@ -161,7 +170,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "DetectNoJavaScriptLibrary");
-				browser.NavigateTo("http://localhost/Inputs.html");
+				browser.NavigateTo("http://localhost:8080/Inputs.html");
 				Assert.AreEqual(0, browser.JavascriptLibraries.Count());
 			});
 		}
@@ -172,7 +181,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "ElementChildren");
-				browser.NavigateTo("http://localhost/relationships.html");
+				browser.NavigateTo("http://localhost:8080/relationships.html");
 				var children = browser.Elements["parent1div"].Children;
 
 				var expected = new[] { "child1div", "child2span", "child3br", "child4input" };
@@ -187,7 +196,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "ElementParent");
-				browser.NavigateTo("http://localhost/relationships.html");
+				browser.NavigateTo("http://localhost:8080/relationships.html");
 				var element = browser.Elements["child1div"].Parent;
 				Assert.AreEqual("parent1div", element.Id);
 			});
@@ -199,7 +208,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "EnumerateDivisions");
-				browser.NavigateTo("http://localhost/index.html");
+				browser.NavigateTo("http://localhost:8080/index.html");
 				var elements = browser.Elements.Divisions;
 				Assert.AreEqual(1, elements.Count());
 
@@ -216,7 +225,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "EnumerateHeaders");
-				browser.NavigateTo("http://localhost/index.html");
+				browser.NavigateTo("http://localhost:8080/index.html");
 				var elements = browser.Elements.Headers;
 				Assert.AreEqual(6, elements.Count());
 
@@ -233,7 +242,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "FilterElementByTextElements");
-				browser.NavigateTo("http://localhost/inputs.html");
+				browser.NavigateTo("http://localhost:8080/inputs.html");
 				var inputs = browser.Elements.TextInputs.ToList();
 				Assert.AreEqual(8, inputs.Count);
 			});
@@ -245,7 +254,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "FindElementByClass");
-				browser.NavigateTo("http://localhost/index.html");
+				browser.NavigateTo("http://localhost:8080/index.html");
 				var elements = browser.Elements.Where(x => x.Class.Contains("red"));
 				Assert.AreEqual(1, elements.Count());
 			});
@@ -257,7 +266,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "FindElementByClassByValueAccessor");
-				browser.NavigateTo("http://localhost/index.html");
+				browser.NavigateTo("http://localhost:8080/index.html");
 				var elements = browser.Elements.Where(x => x["class"].Contains("red"));
 				Assert.AreEqual(1, elements.Count());
 			});
@@ -269,7 +278,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "FindElementByClassProperty");
-				browser.NavigateTo("http://localhost/index.html");
+				browser.NavigateTo("http://localhost:8080/index.html");
 				var elements = browser.Elements.Links.Where(x => x.Class == "bold");
 				Assert.AreEqual(1, elements.Count());
 			});
@@ -281,7 +290,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "FindHeadersByText");
-				browser.NavigateTo("http://localhost/index.html");
+				browser.NavigateTo("http://localhost:8080/index.html");
 				var elements = browser.Elements.OfType<Header>().Where(x => x.Text.Contains("Header"));
 				Assert.AreEqual(6, elements.Count());
 			});
@@ -293,7 +302,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "FindSpanElementByText");
-				browser.NavigateTo("http://localhost/index.html");
+				browser.NavigateTo("http://localhost:8080/index.html");
 				var elements = browser.Elements.Spans.Where(x => x.Text == "SPAN with ID of 1");
 				Assert.AreEqual(1, elements.Count());
 			});
@@ -305,7 +314,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "FindTextInputsByText");
-				browser.NavigateTo("http://localhost/index.html");
+				browser.NavigateTo("http://localhost:8080/index.html");
 				var elements = browser.Elements.OfType<TextInput>().Where(x => x.Text == "Hello World");
 				Assert.AreEqual(1, elements.Count());
 			});
@@ -317,7 +326,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "Focus");
-				browser.NavigateTo("http://localhost/inputs.html");
+				browser.NavigateTo("http://localhost:8080/inputs.html");
 
 				var expected = browser.Elements.TextInputs.Last();
 				Assert.IsNull(browser.ActiveElement, "There should not be an active element.");
@@ -333,7 +342,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "GetElementByNameIndex");
-				browser.NavigateTo("http://localhost/index.html");
+				browser.NavigateTo("http://localhost:8080/index.html");
 				var actual = browser.Elements.First(x => x.Name == "inputName").Name;
 				Assert.AreEqual("inputName", actual);
 			});
@@ -345,7 +354,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "HighlightElement");
-				browser.NavigateTo("http://localhost/inputs.html");
+				browser.NavigateTo("http://localhost:8080/inputs.html");
 
 				var inputElements = browser.Elements.Where(t => t.TagName == "input").ToList();
 				foreach (var element in inputElements)
@@ -364,7 +373,7 @@ namespace TestR.IntegrationTests
 		{
 			ForEachBrowser(browser =>
 			{
-				var expected = "http://localhost/index.html";
+				var expected = "http://localhost:8080/index.html";
 				browser.NavigateTo(expected);
 				Assert.AreEqual(expected, browser.Uri.ToLower());
 			});
@@ -376,7 +385,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "RedirectByLink");
-				var expected = "http://localhost/index.html";
+				var expected = "http://localhost:8080/index.html";
 				browser.NavigateTo(expected);
 				Assert.AreEqual(expected, browser.Uri.ToLower());
 
@@ -384,7 +393,7 @@ namespace TestR.IntegrationTests
 				browser.Elements.Links["redirectLink"].Click();
 				browser.WaitForRedirect();
 
-				expected = "http://localhost/inputs.html";
+				expected = "http://localhost:8080/inputs.html";
 				Assert.AreEqual(expected, browser.Uri.ToLower());
 				browser.Elements["submit"].Click();
 			});
@@ -396,7 +405,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "RedirectByScript");
-				var expected = "http://localhost/index.html";
+				var expected = "http://localhost:8080/index.html";
 				browser.NavigateTo(expected);
 				Assert.AreEqual(expected, browser.Uri.ToLower());
 				Assert.IsNotNull(browser.Elements["link"], "Failed to find the link element.");
@@ -405,7 +414,7 @@ namespace TestR.IntegrationTests
 				browser.ExecuteScript("document.location.href = 'inputs.html'");
 				browser.WaitForRedirect();
 
-				expected = "http://localhost/inputs.html";
+				expected = "http://localhost:8080/inputs.html";
 				Assert.AreEqual(expected, browser.Uri.ToLower());
 				browser.Elements["submit"].Click();
 			});
@@ -417,7 +426,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "TypeTextAllInputs");
-				browser.NavigateTo("http://localhost/inputs.html");
+				browser.NavigateTo("http://localhost:8080/inputs.html");
 				var inputs = browser.Elements.TextInputs;
 
 				foreach (var input in inputs)
@@ -442,7 +451,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "TypeTextAppendInput");
-				browser.NavigateTo("http://localhost/inputs.html");
+				browser.NavigateTo("http://localhost:8080/inputs.html");
 				var input = browser.Elements.TextInputs["text"];
 				input.Value = "foo";
 				input.TypeText("bar");
@@ -456,7 +465,7 @@ namespace TestR.IntegrationTests
 			ForEachBrowser(browser =>
 			{
 				LogManager.UpdateReferenceId(browser, "TypeTextSetInput");
-				browser.NavigateTo("http://localhost/inputs.html");
+				browser.NavigateTo("http://localhost:8080/inputs.html");
 				var input = browser.Elements.TextInputs["text"];
 				input.Value = "foo";
 				input.TypeText("bar", true);
@@ -478,9 +487,14 @@ namespace TestR.IntegrationTests
 		public static void Initialize(TestContext context)
 		{
 			// Add the Entity Framework logger.
+			DataContext.InitializeMigrations();
 			var connectionStringSettings = ConfigurationManager.ConnectionStrings["DefaultConnection"];
-			var logger1 = new EntityFrameworkLogger(connectionStringSettings.ConnectionString);
-			//LogManager.Loggers.Add(logger1);
+			if (connectionStringSettings != null)
+			{
+				var dataContext = new DataContext(connectionStringSettings.ConnectionString);
+				var logger1 = new DataContextLogger(dataContext);
+				LogManager.Loggers.Add(logger1);
+			}
 
 			// Add the console logger.
 			var logger2 = new ConsoleLogger();

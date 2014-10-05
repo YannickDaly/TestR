@@ -11,6 +11,8 @@ namespace TestR.Logging
 	/// </summary>
 	public class ConsoleLogger : ILogger
 	{
+		#region Constructors
+
 		/// <summary>
 		/// Creates an instance of the console logger.
 		/// </summary>
@@ -18,6 +20,8 @@ namespace TestR.Logging
 		{
 			Level = LogLevel.Information;
 		}
+
+		#endregion
 
 		#region Properties
 
@@ -29,6 +33,13 @@ namespace TestR.Logging
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		public void Dispose()
+		{
+		}
 
 		/// <summary>
 		/// Write the message to the logger.
@@ -54,11 +65,11 @@ namespace TestR.Logging
 					case LogLevel.Warning:
 						Console.ForegroundColor = ConsoleColor.Yellow;
 						break;
-					
+
 					case LogLevel.Error:
 						Console.ForegroundColor = ConsoleColor.Red;
 						break;
-					
+
 					case LogLevel.Fatal:
 						Console.ForegroundColor = ConsoleColor.Red;
 						break;

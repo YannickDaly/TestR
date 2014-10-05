@@ -48,7 +48,7 @@ namespace TestR.Logging
 		/// <param name="method">The method in which the browser will be tested.</param>
 		public static void UpdateReferenceId(Browser browser, string method)
 		{
-			ReferenceId = DateTime.Now.ToDateId() + DateTime.Now.ToTimeId() + "-" + browser.GetType().Name + "-" + method;
+			ReferenceId = string.Format("{0}-{1}-{2}-{3}", DateTime.Now.ToDateId(), DateTime.Now.ToTimeId(), browser.GetType().Name, method);
 		}
 
 		/// <summary>

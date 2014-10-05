@@ -1,35 +1,18 @@
 param (
     [Parameter()]
-    [switch] $SlowMotion,
+    [switch] $SlowMotion = $false,
     [Parameter()]
-    [switch] $AutoClose,
+    [switch] $RandomOrder = $false,
     [Parameter()]
-    [TestR.BrowserType] $BrowserType,
+    [TestR.BrowserType] $BrowserType = [TestR.BrowserType]::InternetExplorer,
     [Parameter()]
-    [switch] $RandomOrder
+    [TestR.Logging.ILogger] $Logger
 )
 
 $tests = Get-Command -Module TestR.IntegrationTests
-$arguments = ""
 
 if ($RandomOrder) {
     $tests = $tests | Get-Random -Count $tests.Count
-}
-
-if ($AutoClose) {
-    $arguments += " -AutoClose"
-}
-
-if ($SlowMotion) {
-    $arguments += " -SlowMotion"
-}
-
-if ($BrowserType) {
-    $arguments += " -BrowserType " + $BrowserType
-}
-
-if ($PSBoundParameters.ContainsKey("Verbose")){
-    $arguments += " -Verbose"
 }
 
 foreach ($test in $tests) 
@@ -44,8 +27,7 @@ foreach ($test in $tests)
         foreach ($testName in $testNames)
         {
             Write-Host "$test.$testName ..." -NoNewline
-            $commandArguments = "-Name $testName" + $arguments
-            Invoke-Expression "$test $commandArguments"
+            & "$test" -Name $testName -SlowMotion:$SlowMotion -Logger:$Logger -BrowserType:$BrowserType -Verbose:$PSBoundParameters.ContainsKey("Verbose")
             Write-Host " Passed" -ForegroundColor Green
         }
     }

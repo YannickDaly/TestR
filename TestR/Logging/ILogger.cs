@@ -1,16 +1,22 @@
+#region References
+
+using System;
+
+#endregion
+
 namespace TestR.Logging
 {
 	/// <summary>
 	/// Represents the interface for a logger.
 	/// </summary>
-	public interface ILogger
+	public interface ILogger : IDisposable
 	{
 		#region Properties
 
 		/// <summary>
 		/// The max level for this logger to process.
 		/// </summary>
-		LogLevel Level { get; }
+		LogLevel Level { get; set; }
 
 		#endregion
 
@@ -22,7 +28,7 @@ namespace TestR.Logging
 		/// <param name="message">The message to log.</param>
 		/// <param name="level">The log level of the message.</param>
 		void Write(string message, LogLevel level);
-		
+
 		#endregion
 	}
 }

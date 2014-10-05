@@ -56,8 +56,11 @@
   <ItemGroup>
     <Compile Include="Browsers\FirefoxBrowser.cs" />
     <Compile Include="Browsers\FirefoxBrowserConnector.cs" />
+    <Compile Include="Data\IDataContext.cs" />
+    <Compile Include="Data\IRepository.cs" />
     <Compile Include="Extensions\DateTime.cs" />
     <Compile Include="Logging\ConsoleLogger.cs" />
+    <Compile Include="Logging\DataContextLogger.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\LogManager.cs" />
@@ -67,6 +70,9 @@
     <Compile Include="Elements\Header.cs" />
     <Compile Include="Elements\Select.cs" />
     <Compile Include="Elements\TextArea.cs" />
+    <Compile Include="Models\Entity.cs" />
+    <Compile Include="Models\LogEntry.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="Validate.cs" />
     <Compile Include="Browser.cs" />
     <Compile Include="Browsers\ChromeBrowser.cs" />

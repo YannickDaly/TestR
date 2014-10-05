@@ -20,6 +20,7 @@ namespace TestR.PowerShell
 			BrowserSize = new Size(0, 0);
 			BrowserType = BrowserType.All;
 			SlowMotion = false;
+			ConnectionString = string.Empty;
 		}
 
 		#endregion
@@ -30,7 +31,7 @@ namespace TestR.PowerShell
 		/// Gets or sets the flag to automatically close the browser on disposing of the browser.
 		/// </summary>
 		[Parameter]
-		public bool AutoClose { get; set; }
+		public SwitchParameter AutoClose { get; set; }
 
 		/// <summary>
 		/// Gets or sets the default browser size. If the size width and height are 0 then browser will use its default size and position.
@@ -49,7 +50,13 @@ namespace TestR.PowerShell
 		/// Gets or set a flag to tell the browser to slow down user input so test can be monitored.
 		/// </summary>
 		[Parameter]
-		public bool SlowMotion { get; set; }
+		public SwitchParameter SlowMotion { get; set; }
+
+		/// <summary>
+		/// Gets or set a connection string for database logging.
+		/// </summary>
+		[Parameter]
+		public string ConnectionString { get; set; }
 
 		#endregion
 

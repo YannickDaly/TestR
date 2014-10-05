@@ -8,31 +8,31 @@ namespace TestR.Logging
 		/// <summary>
 		/// Log level for very detailed messages.
 		/// </summary>
-		Verbose,
-		
+		Verbose = 0,
+
 		/// <summary>
 		/// Log level for debug messages.
 		/// </summary>
-		Debug,
+		Debug = 1,
 
 		/// <summary>
 		/// Log level for information messages.
 		/// </summary>
-		Information,
+		Information = 2,
 
 		/// <summary>
 		/// Log level for warning messages.
 		/// </summary>
-		Warning,
+		Warning = 3,
 
 		/// <summary>
 		/// Log level for error messages.
 		/// </summary>
-		Error,
+		Error = 4,
 
 		/// <summary>
 		/// Log level for fatal error messages.
 		/// </summary>
-		Fatal
+		Fatal = 5
 	}
 }

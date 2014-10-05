@@ -64,9 +64,9 @@
     <Compile Include="TestHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TestR.Logging.EntityFramework\TestR.Logging.EntityFramework.csproj">
-      <Project>{3e4516eb-8f7b-44ef-a6a5-57c0860478d3}</Project>
-      <Name>TestR.Logging.EntityFramework</Name>
+    <ProjectReference Include="..\TestR.Data\TestR.Data.csproj">
+      <Project>{1d6026f8-abaa-4818-b2f3-559b2b4db26e}</Project>
+      <Name>TestR.Data</Name>
     </ProjectReference>
     <ProjectReference Include="..\TestR.PowerShell\TestR.PowerShell.csproj">
       <Project>{0896d938-1426-4d1a-8c06-649650404693}</Project>

@@ -43,7 +43,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestR.TestSite", "TestR.Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestR.Website", "TestR.Website\TestR.Website.csproj", "{6E7FE9DC-9833-4BB3-B846-738755E6B2F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestR.Logging.EntityFramework", "TestR.Logging.EntityFramework\TestR.Logging.EntityFramework.csproj", "{3E4516EB-8F7B-44EF-A6A5-57C0860478D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestR.Data", "TestR.Data\TestR.Data.csproj", "{1D6026F8-ABAA-4818-B2F3-559B2B4DB26E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,10 +75,10 @@ Global
 		{6E7FE9DC-9833-4BB3-B846-738755E6B2F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E7FE9DC-9833-4BB3-B846-738755E6B2F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E7FE9DC-9833-4BB3-B846-738755E6B2F7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3E4516EB-8F7B-44EF-A6A5-57C0860478D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3E4516EB-8F7B-44EF-A6A5-57C0860478D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3E4516EB-8F7B-44EF-A6A5-57C0860478D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3E4516EB-8F7B-44EF-A6A5-57C0860478D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D6026F8-ABAA-4818-B2F3-559B2B4DB26E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D6026F8-ABAA-4818-B2F3-559B2B4DB26E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D6026F8-ABAA-4818-B2F3-559B2B4DB26E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D6026F8-ABAA-4818-B2F3-559B2B4DB26E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

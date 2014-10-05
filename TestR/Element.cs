@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using TestR.Extensions;
-using TestR.Logging;
 
 #endregion
 
