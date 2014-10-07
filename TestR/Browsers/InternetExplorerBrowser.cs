@@ -115,6 +115,18 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
+		/// Refreshed the state of the browser.
+		/// </summary>
+		public override void Refresh()
+		{
+			LogManager.Write("InternetExplorerBrowser.Refresh", LogLevel.Verbose);
+			WaitForComplete();
+			InjectTestScript();
+			DetectJavascriptLibraries();
+			RefreshElements();
+		}
+
+		/// <summary>
 		/// Reads the current URI directly from the browser.
 		/// </summary>
 		/// <returns>The current URI that was read from the browser.</returns>
@@ -134,7 +146,15 @@ namespace TestR.Browsers
 			Utility.Retry(() =>
 			{
 				LogManager.Write("InternetExplorerBrowser.NavigateTo(" + uri + ")", LogLevel.Verbose);
-				_browser.Navigate(uri);
+				if (_browser.LocationURL == uri)
+				{
+					_browser.Refresh();
+				}
+				else
+				{
+					_browser.Navigate(uri);
+				}
+
 				Refresh();
 			});
 		}
@@ -219,18 +239,6 @@ namespace TestR.Browsers
 			}, 2, 250);
 		}
 
-		/// <summary>
-		/// Refreshed the state of the browser.
-		/// </summary>
-		protected override void Refresh()
-		{
-			LogManager.Write("InternetExplorerBrowser.Refresh", LogLevel.Verbose);
-			WaitForComplete();
-			InjectTestScript();
-			DetectJavascriptLibraries();
-			RefreshElements();
-		}
-
 		private void BrowserOnDocumentComplete(object pDisp, ref object url)
 		{
 			BrowserHasNavigated = true;
@@ -309,7 +317,14 @@ namespace TestR.Browsers
 				.Where(x => x.Visible && x.HWND != 0 && !x.Busy)
 				.FirstOrDefault(x => x.ReadyState != tagREADYSTATE.READYSTATE_LOADING);
 
-			return foundBrowser == null ? null : new InternetExplorerBrowser(foundBrowser);
+			if (foundBrowser == null)
+			{
+				return null;
+			}
+
+			var browser = new InternetExplorerBrowser(foundBrowser);
+			browser.Refresh();
+			return browser;
 		}
 
 		/// <summary>

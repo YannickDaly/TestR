@@ -202,7 +202,7 @@ namespace TestR.Browsers
 		/// <summary>
 		/// Refreshed the state of the browser.
 		/// </summary>
-		protected override void Refresh()
+		public override void Refresh()
 		{
 			Connector.Refresh();
 			InjectTestScript();
@@ -221,7 +221,14 @@ namespace TestR.Browsers
 		public static Browser Attach()
 		{
 			var window = Window.FindWindow(Name, DebugArgument);
-			return window != null ? new ChromeBrowser(window) : null;
+			if (window == null)
+			{
+				return null;
+			}
+			
+			var browser = new ChromeBrowser(window);
+			browser.Refresh();
+			return browser;
 		}
 
 		/// <summary>

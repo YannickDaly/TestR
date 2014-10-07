@@ -215,7 +215,7 @@ namespace TestR
 		/// <summary>
 		/// Refreshes the element collection for the current page.
 		/// </summary>
-		public void RefreshElements()
+		protected void RefreshElements()
 		{
 			_elements.Clear();
 
@@ -337,9 +337,9 @@ namespace TestR
 		}
 
 		/// <summary>
-		/// Refresh the state because the browser has navigated.
+		/// Refresh the state because the browser page may have changed state.
 		/// </summary>
-		protected abstract void Refresh();
+		public abstract void Refresh();
 
 		#endregion
 

@@ -130,6 +130,17 @@ namespace TestR.Browsers
 		}
 
 		/// <summary>
+		/// Refreshed the state of the browser.
+		/// </summary>
+		public override void Refresh()
+		{
+			Connector.Refresh();
+			InjectTestScript();
+			DetectJavascriptLibraries();
+			RefreshElements();
+		}
+
+		/// <summary>
 		/// Reads the current URI directly from the browser.
 		/// </summary>
 		/// <returns>The current URI that was read from the browser.</returns>
@@ -194,17 +205,6 @@ namespace TestR.Browsers
 			ExecuteJavaScript(GetTestScript());
 		}
 
-		/// <summary>
-		/// Refreshed the state of the browser.
-		/// </summary>
-		protected override void Refresh()
-		{
-			Connector.Refresh();
-			InjectTestScript();
-			DetectJavascriptLibraries();
-			RefreshElements();
-		}
-
 		#endregion
 
 		#region Static Methods
@@ -216,7 +216,14 @@ namespace TestR.Browsers
 		public static Browser Attach()
 		{
 			var window = Window.FindWindow(Name);
-			return window != null ? new FirefoxBrowser(window) : null;
+			if (window == null)
+			{
+				return null;
+			}
+
+			var browser = new FirefoxBrowser(window);
+			browser.Refresh();
+			return browser;
 		}
 
 		/// <summary>

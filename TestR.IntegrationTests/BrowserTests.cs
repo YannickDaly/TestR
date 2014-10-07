@@ -63,13 +63,39 @@ namespace TestR.IntegrationTests
 
 				var button = browser.Elements.Buttons["addItem"];
 				button.Click();
-				browser.RefreshElements();
+				browser.Refresh();
 				Assert.AreEqual(elementCount + 1, browser.Elements.Count);
 				elementCount = browser.Elements.Count;
 
 				button.Click();
-				browser.RefreshElements();
+				browser.Refresh();
 				Assert.AreEqual(elementCount + 1, browser.Elements.Count);
+			});
+		}
+
+		[TestMethod]
+		public void AngularSwitchPageByNavigateTo()
+		{
+			ForEachBrowser(browser =>
+			{
+				LogManager.UpdateReferenceId(browser, "AngularInputTrigger");
+				browser.NavigateTo("http://localhost:8080/Angular.html#/");
+				Assert.AreEqual("http://localhost:8080/Angular.html#/", browser.Uri);
+
+				Assert.IsTrue(browser.Elements.ContainsKey("addItem"));
+				Assert.IsTrue(browser.Elements.ContainsKey("anotherPageLink"));
+
+				browser.NavigateTo("http://localhost:8080/Angular.html#/anotherPage");
+				Assert.AreEqual("http://localhost:8080/Angular.html#/anotherPage", browser.Uri);
+
+				Assert.IsFalse(browser.Elements.ContainsKey("addItem"));
+				Assert.IsTrue(browser.Elements.ContainsKey("pageLink"));
+
+				browser.NavigateTo("http://localhost:8080/Angular.html#/");
+				Assert.AreEqual("http://localhost:8080/Angular.html#/", browser.Uri);
+
+				Assert.IsTrue(browser.Elements.ContainsKey("addItem"));
+				Assert.IsTrue(browser.Elements.ContainsKey("anotherPageLink"));
 			});
 		}
 
@@ -487,14 +513,14 @@ namespace TestR.IntegrationTests
 		public static void Initialize(TestContext context)
 		{
 			// Add the Entity Framework logger.
-			DataContext.InitializeMigrations();
-			var connectionStringSettings = ConfigurationManager.ConnectionStrings["DefaultConnection"];
-			if (connectionStringSettings != null)
-			{
-				var dataContext = new DataContext(connectionStringSettings.ConnectionString);
-				var logger1 = new DataContextLogger(dataContext);
-				LogManager.Loggers.Add(logger1);
-			}
+			//DataContext.InitializeMigrations();
+			//var connectionStringSettings = ConfigurationManager.ConnectionStrings["DefaultConnection"];
+			//if (connectionStringSettings != null)
+			//{
+			//	var dataContext = new DataContext(connectionStringSettings.ConnectionString);
+			//	var logger1 = new DataContextLogger(dataContext);
+			//	LogManager.Loggers.Add(logger1);
+			//}
 
 			// Add the console logger.
 			var logger2 = new ConsoleLogger();

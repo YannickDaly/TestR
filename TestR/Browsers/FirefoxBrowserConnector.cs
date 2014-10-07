@@ -262,6 +262,11 @@ namespace TestR.Browsers
 							continue;
 						}
 
+						if (message.Contains("document.location.href"))
+						{
+							BrowserHasNavigated = true;
+						}
+
 						Responses.Add(token);
 					}
 					catch
