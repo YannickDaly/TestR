@@ -141,6 +141,22 @@ namespace TestR
 		}
 
 		/// <summary>
+		/// Gets a list of all list items elements.
+		/// </summary>
+		public ElementCollection<ListItem> ListItems
+		{
+			get { return OfType<ListItem>(); }
+		}
+
+		/// <summary>
+		/// Gets a list of all unordered list elements.
+		/// </summary>
+		public ElementCollection<OrderedList> OrderedLists
+		{
+			get { return OfType<OrderedList>(); }
+		}
+
+		/// <summary>
 		/// Gets a list of all span elements.
 		/// </summary>
 		public ElementCollection<Select> Selects
@@ -170,6 +186,14 @@ namespace TestR
 		public ElementCollection<TextInput> TextInputs
 		{
 			get { return OfType<TextInput>(); }
+		}
+
+		/// <summary>
+		/// Gets a list of all unordered list elements.
+		/// </summary>
+		public ElementCollection<UnorderedList> UnorderedLists
+		{
+			get { return OfType<UnorderedList>(); }
 		}
 
 		#endregion
@@ -236,6 +260,18 @@ namespace TestR
 							Add(element);
 							return;
 					}
+
+				case "ul":
+					Add(new UnorderedList(token, browser, this));
+					return;
+
+				case "ol":
+					Add(new OrderedList(token, browser, this));
+					return;
+
+				case "li":
+					Add(new ListItem(token, browser, this));
+					return;
 
 				case "select":
 					Add(new Select(token, browser, this));

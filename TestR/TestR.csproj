@@ -58,6 +58,9 @@
     <Compile Include="Browsers\FirefoxBrowserConnector.cs" />
     <Compile Include="Data\IDataContext.cs" />
     <Compile Include="Data\IRepository.cs" />
+    <Compile Include="Elements\ListItem.cs" />
+    <Compile Include="Elements\OrderedList.cs" />
+    <Compile Include="Elements\UnorderedList.cs" />
     <Compile Include="Extensions\DateTime.cs" />
     <Compile Include="Logging\ConsoleLogger.cs" />
     <Compile Include="Logging\DataContextLogger.cs" />
