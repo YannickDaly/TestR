@@ -29,6 +29,15 @@ namespace TestR.Elements
 		#region Properties
 
 		/// <summary>
+		/// Gets or sets the text for this span.
+		/// </summary>
+		public string Text
+		{
+			get { return this[Browser.Type == BrowserType.Firefox ? "textContent" : "innerText"]; }
+			set { this[Browser.Type == BrowserType.Firefox ? "textContent" : "innerText"] = value; }
+		}
+
+		/// <summary>
 		/// Gets or sets the value for this select.
 		/// </summary>
 		public string Value
