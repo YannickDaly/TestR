@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using TestR.Extensions;
+using TestR.Logging;
 
 #endregion
 
@@ -307,7 +308,7 @@ namespace TestR
 		/// <param name="highlight">If true the element is highlight yellow. If false the element is returned to its original color.</param>
 		public void Highlight(bool highlight)
 		{
-			Trace.WriteLine(highlight ? "Adding highlight to element " + Id + "." : "Removing highlight from element " + Id + ".");
+			LogManager.Write(highlight ? "Adding highlight to element " + Id + "." : "Removing highlight from element " + Id + ".", LogLevel.Verbose);
 			SetStyleAttributeValue("background-color", highlight ? _highlightColor : _orginalColor);
 
 			if (Browser.SlowMotion && highlight)
@@ -405,6 +406,7 @@ namespace TestR
 				&& Browser.JavascriptLibraries.Contains(JavaScriptLibrary.JQuery))
 			{
 				Browser.ExecuteScript("angular.element('#" + Id + "').trigger('input');");
+				Browser.ExecuteScript("angular.element('#" + Id + "').change();");
 			}
 		}
 

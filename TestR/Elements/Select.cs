@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
 #endregion
@@ -34,7 +35,11 @@ namespace TestR.Elements
 		public string Text
 		{
 			get { return this[Browser.Type == BrowserType.Firefox ? "textContent" : "innerText"]; }
-			set { this[Browser.Type == BrowserType.Firefox ? "textContent" : "innerText"] = value; }
+			set
+			{
+				this[Browser.Type == BrowserType.Firefox ? "textContent" : "innerText"] = value;
+				TriggerElement();
+			}
 		}
 
 		/// <summary>
@@ -43,7 +48,11 @@ namespace TestR.Elements
 		public string Value
 		{
 			get { return this["value"]; }
-			set { this["value"] = value; }
+			set
+			{
+				this["value"] = value;
+				TriggerElement();
+			}
 		}
 
 		#endregion
