@@ -272,7 +272,7 @@ namespace TestR.Browsers
 			}
 
 			var states = new[] { tagREADYSTATE.READYSTATE_COMPLETE, tagREADYSTATE.READYSTATE_UNINITIALIZED };
-			if (!Utility.Wait(() => !_browser.Busy && states.Contains(_browser.ReadyState), 2500))
+			if (!Utility.Wait(() => states.Contains(_browser.ReadyState), 2500))
 			{
 				throw new Exception("The browser never finished loading...");
 			}
@@ -313,10 +313,7 @@ namespace TestR.Browsers
 				return null;
 			}
 
-			var foundBrowser = foundBrowsers
-				.Where(x => x.Visible && x.HWND != 0 && !x.Busy)
-				.FirstOrDefault(x => x.ReadyState != tagREADYSTATE.READYSTATE_LOADING);
-
+			var foundBrowser = foundBrowsers.FirstOrDefault(x => x.Visible && x.HWND != 0);
 			if (foundBrowser == null)
 			{
 				return null;

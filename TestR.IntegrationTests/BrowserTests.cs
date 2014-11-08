@@ -1,5 +1,6 @@
 #region References
 
+using System;
 using System.Configuration;
 using System.Linq;
 using System.Management.Automation;
@@ -17,15 +18,6 @@ namespace TestR.IntegrationTests
 	[Cmdlet(VerbsDiagnostic.Test, "Browsers")]
 	public class BrowserTests : BrowserTestCmdlet
 	{
-		#region Constructors
-
-		public BrowserTests()
-		{
-			BrowserType = BrowserType.InternetExplorer;
-		}
-
-		#endregion
-
 		#region Methods
 
 		[TestMethod]
