@@ -35,6 +35,19 @@ using (var browser = ChromeBrowser.AttachOrCreate())
 }
 ```
 
+### Same example using FireFox
+
+```
+// Don't Forget: Firefox debug port must be started manually (listen 6000).
+using (var browser = FirefoxBrowser.AttachOrCreate()) 
+{
+	browser.NavigateTo("http://amazon.com");
+	browser.Elements.TextInputs["twotabsearchtextbox"].TypeText("protein powder");
+	browser.Elements.First(x => x.GetAttributeValue("title") == "Go").Click();
+	browser.WaitForRedirect();
+}
+```
+
 #### Coming Soon
 
 * More element attributes.
