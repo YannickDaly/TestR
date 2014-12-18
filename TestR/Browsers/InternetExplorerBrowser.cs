@@ -272,7 +272,7 @@ namespace TestR.Browsers
 			}
 
 			var states = new[] { tagREADYSTATE.READYSTATE_COMPLETE, tagREADYSTATE.READYSTATE_UNINITIALIZED };
-			if (!Utility.Wait(() => states.Contains(_browser.ReadyState), 2500))
+			if (!Utility.Wait(() => states.Contains(_browser.ReadyState), Timeout.TotalMilliseconds))
 			{
 				throw new Exception("The browser never finished loading...");
 			}
@@ -288,7 +288,7 @@ namespace TestR.Browsers
 				return;
 			}
 
-			if (!Utility.Wait(() => document.readyState == "complete", 2500))
+			if (!Utility.Wait(() => document.readyState == "complete", Timeout.TotalMilliseconds))
 			{
 				throw new Exception("The document never finished loading...");
 			}
@@ -384,7 +384,7 @@ namespace TestR.Browsers
 		private static InternetExplorer CreateInternetExplorerClass()
 		{
 			var watch = Stopwatch.StartNew();
-			var timeout = TimeSpan.FromMilliseconds(1000);
+			var timeout = TimeSpan.FromMilliseconds(2500);
 			var lastException = new Exception("Failed to create an Internet Explorer instance.");
 
 			do

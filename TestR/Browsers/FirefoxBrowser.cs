@@ -54,7 +54,7 @@ namespace TestR.Browsers
 		public FirefoxBrowser(Window window)
 		{
 			_window = window;
-			Connector = new FirefoxBrowserConnector("localhost", 6000);
+			Connector = new FirefoxBrowserConnector("localhost", 6000, Timeout);
 			Connector.Connect();
 		}
 

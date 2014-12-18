@@ -108,19 +108,24 @@ namespace TestR.Helpers
 		/// <param name="timeout">The timeout to attempt the action. This value is in milliseconds.</param>
 		/// <param name="delay">The delay in between actions. This value is in milliseconds.</param>
 		/// <returns>Returns true of the call completed successfully or false if it timed out.</returns>
-		public static bool Wait(Func<bool> action, int timeout = 1000, int delay = 25)
+		public static bool Wait(Func<bool> action, double timeout = 1000, int delay = 25)
 		{
 			var watch = Stopwatch.StartNew();
 			var watchTimeout = TimeSpan.FromMilliseconds(timeout);
+			var result = false;
 
-			while (!action())
+			while (!result)
 			{
 				if (watch.Elapsed > watchTimeout)
 				{
 					return false;
 				}
 
-				Thread.Sleep(delay);
+				result = action();
+				if (!result)
+				{
+					Thread.Sleep(delay);
+				}
 			}
 
 			return true;

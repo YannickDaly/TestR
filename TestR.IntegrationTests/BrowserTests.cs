@@ -515,9 +515,9 @@ namespace TestR.IntegrationTests
 			//}
 
 			// Add the console logger.
-			var logger2 = new ConsoleLogger();
-			logger2.Level = LogLevel.Verbose;
-			LogManager.Loggers.Add(logger2);
+			//var logger2 = new ConsoleLogger();
+			//logger2.Level = LogLevel.Verbose;
+			//LogManager.Loggers.Add(logger2);
 		}
 
 		#endregion

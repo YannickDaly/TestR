@@ -59,7 +59,7 @@ namespace TestR.Browsers
 		public ChromeBrowser(Window window)
 		{
 			_window = window;
-			Connector = new ChromeBrowserConnector("http://localhost:9222");
+			Connector = new ChromeBrowserConnector("http://localhost:9222", Timeout);
 			Connector.Connect();
 		}
 

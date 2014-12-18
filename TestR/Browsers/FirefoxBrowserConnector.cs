@@ -29,6 +29,7 @@ namespace TestR.Browsers
 		private readonly JsonSerializerSettings _jsonSerializerSettings;
 		private readonly FirefoxBuffer _messageBuffer;
 		private readonly int _port;
+		private readonly TimeSpan _timeout;
 		private readonly byte[] _socketBuffer;
 		private string _consoleActor;
 		private Task _readTask;
@@ -44,11 +45,13 @@ namespace TestR.Browsers
 		/// </summary>
 		/// <param name="hostname">The hostname of the Firefox browser.</param>
 		/// <param name="port">The remote debugger port to connect to.</param>
-		public FirefoxBrowserConnector(string hostname, int port)
+		/// <param name="timeout"></param>
+		public FirefoxBrowserConnector(string hostname, int port, TimeSpan timeout)
 		{
 			_hostname = hostname;
 			_jsonSerializerSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
 			_port = port;
+			_timeout = timeout;
 			_consoleActor = string.Empty;
 			_messageBuffer = new FirefoxBuffer();
 			_socketBuffer = new byte[FirefoxBuffer.InitialSize];
@@ -170,7 +173,7 @@ namespace TestR.Browsers
 			// to just send us the stop but it doesn't happen unless we make another request to the browser. 
 			ExecuteJavaScript("document.location.href = \"" + uri + "\"");
 			SendRequest("Wake up, Neo...");
-			if (!Utility.Wait(() => BrowserHasNavigated, 1000, 100))
+			if (!Utility.Wait(() => BrowserHasNavigated, _timeout.TotalMilliseconds, 100))
 			{
 				throw new Exception("Failed to navigate to new location.");
 			}

@@ -37,6 +37,7 @@ namespace TestR.Browsers
 		private readonly JsonSerializerSettings _jsonSerializerSettings;
 		private readonly List<dynamic> _socketResponses;
 		private readonly string _uri;
+		private readonly TimeSpan _timeout;
 		private int _requestId;
 		private ClientWebSocket _socket;
 
@@ -48,11 +49,13 @@ namespace TestR.Browsers
 		/// Initializes a new instance of the Browser class.
 		/// </summary>
 		/// <param name="uri"></param>
-		public ChromeBrowserConnector(string uri)
+		/// <param name="timeout"></param>
+		public ChromeBrowserConnector(string uri, TimeSpan timeout)
 		{
 			_jsonSerializerSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
 			_socketResponses = new List<dynamic>();
 			_uri = uri;
+			_timeout = timeout;
 		}
 
 		#endregion
@@ -94,7 +97,7 @@ namespace TestR.Browsers
 			var sessionWsEndpoint = new Uri(session.WebSocketDebuggerUrl);
 			_socket = new ClientWebSocket();
 
-			if (!_socket.ConnectAsync(sessionWsEndpoint, CancellationToken.None).Wait(5000))
+			if (!_socket.ConnectAsync(sessionWsEndpoint, CancellationToken.None).Wait(_timeout))
 			{
 				throw new Exception("Failed to connect to the server.");
 			}

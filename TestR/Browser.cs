@@ -41,6 +41,7 @@ namespace TestR
 			AutoClose = false;
 			JavascriptLibraries = new JavaScriptLibrary[0];
 			Elements = new ElementCollection();
+			Timeout = TimeSpan.FromMilliseconds(5000);
 		}
 
 		#endregion
@@ -136,6 +137,11 @@ namespace TestR
 		/// </summary>
 		/// <value>Window handle of the current browser.</value>
 		protected abstract IntPtr WindowHandle { get; }
+
+		/// <summary>
+		/// Gets or sets the time out for delay request.
+		/// </summary>
+		public TimeSpan Timeout { get; set; }
 
 		#endregion
 
@@ -240,14 +246,23 @@ namespace TestR
 		/// <summary>
 		/// Wait for the browser page to redirect to a different URI.
 		/// </summary>
-		public void WaitForRedirect()
+		/// <param name="timeout">The timeout before giving up on the redirect.</param>
+		public void WaitForRedirect(TimeSpan timeout)
 		{
-			if (!Utility.Wait(() => LastUriNavigatedTo != BrowserGetUri() || BrowserHasNavigated, 5000))
+			if (!Utility.Wait(() => LastUriNavigatedTo != BrowserGetUri() || BrowserHasNavigated, (int) timeout.TotalMilliseconds, 250))
 			{
 				throw new Exception("Browser never redirected...");
 			}
 
 			Refresh();
+		}
+
+		/// <summary>
+		/// Wait for the browser page to redirect to a different URI.
+		/// </summary>
+		public void WaitForRedirect()
+		{
+			WaitForRedirect(Timeout);
 		}
 
 		/// <summary>
