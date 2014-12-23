@@ -34,7 +34,7 @@ namespace TestR.Browsers
 		/// Initializes a new instance of the FirefoxBrowser class.
 		/// </summary>
 		public FirefoxBrowser()
-			: this(Create())
+			: this(CreateInstance(string.Format("{0}.exe", Name)))
 		{
 		}
 
@@ -232,7 +232,7 @@ namespace TestR.Browsers
 		/// <returns>The browser instance.</returns>
 		public static Browser AttachOrCreate()
 		{
-			return Attach() ?? new FirefoxBrowser(Create());
+			return Attach() ?? Create();
 		}
 
 		/// <summary>
@@ -243,10 +243,10 @@ namespace TestR.Browsers
 		/// browser will not be able to connect until someone manually starts the remote debugger.
 		/// </remarks>
 		/// <returns>The browser instance.</returns>
-		public static Process Create()
+		public static Browser Create()
 		{
 			// Create a new instance and return it.
-			return CreateInstance(string.Format("{0}.exe", Name));
+			return new FirefoxBrowser(CreateInstance(string.Format("{0}.exe", Name)));
 		}
 
 		#endregion

@@ -311,7 +311,9 @@ namespace TestR.Browsers
 
 		private dynamic WaitForResponse(Func<dynamic, bool> action)
 		{
-			var response = Utility.Retry(() => Responses.First(action), 10, 100, "Failed to get a response...");
+			var retryCount = 50;
+			var delay = (int)_timeout.TotalMilliseconds / retryCount;
+			var response = Utility.Retry(() => Responses.First(action), retryCount, delay, "Failed to get a response...");
 			Responses.Remove(response);
 			return response;
 		}

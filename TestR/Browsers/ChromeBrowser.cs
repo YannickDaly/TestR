@@ -39,7 +39,7 @@ namespace TestR.Browsers
 		/// Initializes a new instance of the ChromeBrowser class.
 		/// </summary>
 		public ChromeBrowser()
-			: this(Create())
+			: this(CreateInstance(string.Format("{0}.exe", Name), DebugArgument))
 		{
 		}
 
@@ -237,7 +237,7 @@ namespace TestR.Browsers
 		/// <returns>The browser instance.</returns>
 		public static Browser AttachOrCreate()
 		{
-			return Attach() ?? new ChromeBrowser(Create());
+			return Attach() ?? Create();
 		}
 
 		/// <summary>
@@ -245,7 +245,7 @@ namespace TestR.Browsers
 		/// remote debugger argument. If not an exception will be thrown.
 		/// </summary>
 		/// <returns>The browser instance.</returns>
-		public static Process Create()
+		public static Browser Create()
 		{
 			var window1 = Window.FindWindow(Name);
 			var window2 = Window.FindWindow(Name, DebugArgument);
@@ -255,7 +255,7 @@ namespace TestR.Browsers
 			}
 
 			// Create a new instance and return it.
-			return CreateInstance(string.Format("{0}.exe", Name), DebugArgument);
+			return new ChromeBrowser(CreateInstance(string.Format("{0}.exe", Name), DebugArgument));
 		}
 
 		#endregion

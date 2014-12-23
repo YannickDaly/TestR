@@ -341,7 +341,9 @@ namespace TestR.Browsers
 		private string SendRequestAndReadResponse(dynamic request, Func<dynamic, bool> action)
 		{
 			SendRequest(request);
-			var response = Utility.Retry(() => _socketResponses.First(action), 50, 100, "Failed to get a response...");
+			var retryCount = 50;
+			var delay = (int) _timeout.TotalMilliseconds / retryCount;
+			var response = Utility.Retry(() => _socketResponses.First(action), retryCount, delay, "Failed to get a response...");
 			_socketResponses.Remove(response);
 			return response.ToString();
 		}
